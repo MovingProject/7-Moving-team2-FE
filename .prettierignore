@@ -1,0 +1,18 @@
+# Node
+node_modules
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build
+.next
+out
+dist
+build
+
+# Config
+.next-env.d.ts
+
+# Misc
+coverage
+*.log
