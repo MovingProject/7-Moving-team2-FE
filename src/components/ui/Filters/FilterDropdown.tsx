@@ -7,6 +7,8 @@ type FilterDropdownProps = {
   options: string[];
   selected?: string;
   onChangeAction: (value: string) => void;
+  size?: "sm" | "md" | "lg";
+  active?: boolean;
 };
 
 export default function FilterDropdown({
@@ -14,8 +16,16 @@ export default function FilterDropdown({
   options,
   selected,
   onChangeAction,
+  size = "sm",
+  active,
 }: FilterDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
+
+  const sizeClasses = {
+    sm: "py-6 text-sm",
+    md: "py-8 px-10 text-md",
+    lg: "py-16 px-24 text-lg",
+  };
 
   const handleSelect = (option: string) => {
     onChangeAction(option);
