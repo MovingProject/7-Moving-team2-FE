@@ -34,6 +34,8 @@ export function RegionFilter(props: FilterProps) {
       buttonSize="sm"
       dropdownSize="sm"
       variant="default"
+      className=""
+      dropdownClassName="h-179 overflow-y-auto grid grid-cols-2"
       {...props}
     />
   );
@@ -47,6 +49,8 @@ export function ServiceFilter(props: FilterProps) {
       buttonSize="sm"
       dropdownSize="sm"
       variant="default"
+      className=""
+      dropdownClassName=""
       {...props}
     />
   );
@@ -60,6 +64,8 @@ export function SortFilter(props: FilterProps) {
       buttonSize="sm"
       dropdownSize="sm"
       variant="default"
+      className=""
+      dropdownClassName=""
       {...props}
     />
   );
@@ -73,6 +79,8 @@ export function SortFilterFast(props: FilterProps) {
       buttonSize="sm"
       dropdownSize="sm"
       variant="default"
+      className=""
+      dropdownClassName=""
       {...props}
     />
   );
