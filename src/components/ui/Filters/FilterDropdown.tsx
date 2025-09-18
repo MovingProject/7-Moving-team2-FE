@@ -20,10 +20,11 @@ export default function FilterDropdown({
   variant = "default",
 }: FilterDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const isActive = isOpen || variant === "active";
 
   const sizeClasses = {
     sm: "py-6 text-sm",
-    md: "py-8 px-10 text-md",
+    md: "py-8 px-10 text-base",
     lg: "py-16 px-24 text-lg",
   };
 
@@ -35,14 +36,23 @@ export default function FilterDropdown({
     <div>
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        className={` ${baseClasses} ${sizeClasses[size]} ${isOpen || variant === "active" ? activeClasses : defaultClasses} `}
+        className={`${baseClasses} ${sizeClasses[size]} ${isActive ? activeClasses : defaultClasses}`}
       >
         {selected || label}
       </button>
       {isOpen && (
-        <ul>
+        <ul className="absolute z-10 mt-2 w-40 rounded-lg border bg-white shadow-lg">
           {options.map((option) => (
-            <li>{option}</li>
+            <li
+              key={option}
+              onClick={() => {
+                onChangeAction(option);
+                setIsOpen(false);
+              }}
+              className="cursor-pointer px-4 py-2 hover:bg-gray-100"
+            >
+              {option}
+            </li>
           ))}
         </ul>
       )}
