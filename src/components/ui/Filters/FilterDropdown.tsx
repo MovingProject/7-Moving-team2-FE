@@ -9,8 +9,10 @@ type FilterDropdownProps = {
   selected?: string;
   onChangeAction: (value: string) => void;
   buttonSize?: "sm" | "md" | "lg"; // 버튼 사이즈
-  dropdownSize?: "sm" | "md" | "lg"; // dropdown 사이즈
   variant?: "default" | "active";
+  className?: string;
+  dropdownSize?: "sm" | "md" | "lg"; // dropdown 사이즈
+  dropdownClassName?: string;
 };
 
 export default function FilterDropdown({
@@ -19,8 +21,10 @@ export default function FilterDropdown({
   selected,
   onChangeAction,
   buttonSize = "sm", // 패딩 기준
-  dropdownSize = "sm",
   variant = "default", // 버튼 활성화 여부
+  className = "",
+  dropdownSize = "sm",
+  dropdownClassName = "",
 }: FilterDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const isActive = isOpen || variant === "active";
@@ -51,6 +55,7 @@ export default function FilterDropdown({
             setIsOpen(false);
           }}
           size={dropdownSize}
+          className={dropdownClassName}
         />
       )}
     </div>
