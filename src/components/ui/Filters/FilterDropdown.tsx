@@ -8,7 +8,7 @@ type FilterDropdownProps = {
   selected?: string;
   onChangeAction: (value: string) => void;
   size?: "sm" | "md" | "lg";
-  active?: boolean;
+  variant?: "default" | "active";
 };
 
 export default function FilterDropdown({
@@ -17,7 +17,7 @@ export default function FilterDropdown({
   selected,
   onChangeAction,
   size = "sm",
-  active,
+  variant = "default",
 }: FilterDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -27,14 +27,18 @@ export default function FilterDropdown({
     lg: "py-16 px-24 text-lg",
   };
 
-  const handleSelect = (option: string) => {
-    onChangeAction(option);
-    setIsOpen(false);
-  };
+  const baseClasses = "border rounded-[8px] transition-colors duration-150";
+  const defaultClasses = "bg-[#FFF] text-[#1F1F1F]";
+  const activeClasses = "bg-[#F5FAFF] border-[1px] border-solid border-[#1B92FF]";
 
   return (
     <div>
-      <button>{selected || label}</button>
+      <button
+        onClick={() => setIsOpen((prev) => !prev)}
+        className={` ${baseClasses} ${sizeClasses[size]} ${isOpen || variant === "active" ? activeClasses : defaultClasses} `}
+      >
+        {selected || label}
+      </button>
       {isOpen && (
         <ul>
           {options.map((option) => (
