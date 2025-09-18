@@ -10,7 +10,7 @@ type FilterDropdownProps = {
   onChangeAction: (value: string) => void;
   buttonSize?: "sm" | "md" | "lg"; // 버튼 사이즈
   variant?: "default" | "active";
-  className?: string;
+  className?: string; // 필터 버튼 wrapper 스타일 용
   dropdownSize?: "sm" | "md" | "lg"; // dropdown 사이즈
   dropdownClassName?: string;
 };
@@ -40,7 +40,7 @@ export default function FilterDropdown({
   const activeClasses = "bg-[#F5FAFF] border-[1px] border-solid border-[#1B92FF] text-[#1B92FF]";
 
   return (
-    <div>
+    <div className={`relative inline-block ${className}`}>
       <button
         onClick={() => setIsOpen((prev) => !prev)}
         className={`${baseClasses} ${buttonSizeClasses[buttonSize]} ${isActive ? activeClasses : defaultClasses}`}
