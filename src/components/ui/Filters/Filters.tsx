@@ -1,62 +1,27 @@
 "use client";
 
-import FilterDropdown from "./FilterDropdown";
+import { FilterBox } from "./FilterBox";
+import { REGION_OPTIONS, SERVICE_OPTIONS, SORT_OPTIONS } from "./dropdownOptions";
 
-type FilterProps = {
-  selected?: string;
-  onChangeAction: (value: string) => void;
-};
-
-function createFilter(label: string, options: string[], dropdownClassName: string = "") {
-  return function CustomFilter(props: FilterProps) {
-    return (
-      <FilterDropdown
-        label={label}
-        options={options}
-        buttonSize="sm"
-        dropdownSize="sm"
-        variant="default"
-        className=""
-        dropdownClassName={dropdownClassName}
-        {...props}
-      />
-    );
-  };
+// 지역 필터
+export function RegionFilter(
+  props: Omit<React.ComponentProps<typeof FilterBox>, "type" | "size" | "label" | "options">
+) {
+  return <FilterBox type="dropDown" size="sm" label="지역" options={REGION_OPTIONS} {...props} />;
 }
 
-// 필터 종류
-export const RegionFilter = createFilter(
-  "지역",
-  [
-    "전체",
-    "서울",
-    "경기",
-    "인천",
-    "강원",
-    "충북",
-    "충남",
-    "세종",
-    "대전",
-    "전북",
-    "전남",
-    "광주",
-    "경북",
-    "경남",
-    "대구",
-    "울산",
-    "부산",
-    "제주",
-  ],
-  "h-179 overflow-y-auto grid grid-cols-2"
-);
+// 서비스 필터
+export function ServiceFilter(
+  props: Omit<React.ComponentProps<typeof FilterBox>, "type" | "size" | "label" | "options">
+) {
+  return (
+    <FilterBox type="dropDown" size="sm" label="서비스" options={SERVICE_OPTIONS} {...props} />
+  );
+}
 
-export const ServiceFilter = createFilter("서비스", ["전체", "소형이사", "가정이사", "사무실이사"]);
-
-export const SortFilter = createFilter("정렬", [
-  "리뷰 많은 순",
-  "평점 높은 순",
-  "경력 높은 순",
-  "확정 많은 순",
-]);
-
-export const SortFilterFast = createFilter("정렬", ["이사 빠른 순", "요청일 빠른 순"]);
+// 정렬 필터
+export function SortFilter(
+  props: Omit<React.ComponentProps<typeof FilterBox>, "type" | "size" | "label" | "options">
+) {
+  return <FilterBox type="sort" size="sm" label="정렬" options={SORT_OPTIONS} {...props} />;
+}
