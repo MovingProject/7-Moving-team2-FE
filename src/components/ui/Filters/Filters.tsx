@@ -31,7 +31,8 @@ export function RegionFilter(props: FilterProps) {
         "부산",
         "제주",
       ]}
-      size="sm"
+      buttonSize="sm"
+      dropdownSize="sm"
       variant="default"
       {...props}
     />
@@ -43,7 +44,8 @@ export function ServiceFilter(props: FilterProps) {
     <FilterDropdown
       label="서비스"
       options={["전체", "소형이사", "가정이사", "사무실이사"]}
-      size="sm"
+      buttonSize="sm"
+      dropdownSize="sm"
       variant="default"
       {...props}
     />
@@ -55,7 +57,8 @@ export function SortFilter(props: FilterProps) {
     <FilterDropdown
       label="정렬"
       options={["리뷰 많은 순", "평점 높은 순", "경력 높은 순", "확정 많은 순"]}
-      size="sm"
+      buttonSize="sm"
+      dropdownSize="sm"
       variant="default"
       {...props}
     />
@@ -67,7 +70,8 @@ export function SortFilterFast(props: FilterProps) {
     <FilterDropdown
       label="정렬"
       options={["이사 빠른 순", "요청일 빠른 순"]}
-      size="sm"
+      buttonSize="sm"
+      dropdownSize="sm"
       variant="default"
       {...props}
     />
