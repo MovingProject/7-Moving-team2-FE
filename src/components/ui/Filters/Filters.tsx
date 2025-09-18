@@ -32,6 +32,7 @@ export function RegionFilter(props: FilterProps) {
         "제주",
       ]}
       size="sm"
+      variant="default"
       {...props}
     />
   );
@@ -43,6 +44,7 @@ export function ServiceFilter(props: FilterProps) {
       label="서비스"
       options={["전체", "소형이사", "가정이사", "사무실이사"]}
       size="sm"
+      variant="default"
       {...props}
     />
   );
@@ -54,6 +56,7 @@ export function SortFilter(props: FilterProps) {
       label="정렬"
       options={["리뷰 많은 순", "평점 높은 순", "경력 높은 순", "확정 많은 순"]}
       size="sm"
+      variant="default"
       {...props}
     />
   );
@@ -65,6 +68,7 @@ export function SortFilterFast(props: FilterProps) {
       label="정렬"
       options={["이사 빠른 순", "요청일 빠른 순"]}
       size="sm"
+      variant="default"
       {...props}
     />
   );
