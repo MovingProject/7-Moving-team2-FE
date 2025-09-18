@@ -1,11 +1,14 @@
+import clsx from "clsx";
 import SmallMoveIcon from "@/assets/icon/SmallMoveIcon.svg";
 import SmallMoveIconSm from "@/assets/icon/SmallMoveIcon-1.svg";
 import HomeMoveIcon from "@/assets/icon/HomeMoveIcon.svg";
 import HomeMoveIconSm from "@/assets/icon/HomeMoveIcon-1.svg";
 import OfficeMoveIcon from "@/assets/icon/OfficeMoveIcon.svg";
 import OfficeMoveIconSm from "@/assets/icon/OfficeMoveIcon-1.svg";
+import RequestQuoteIcon from "@/assets/icon/RequestQuoteIcon.svg";
+import RequestQuoteIconSm from "@/assets/icon/RequestQuoteIcon-1.svg";
 
-type IconType = "smallMove" | "homeMove" | "officeMove" | "default";
+type IconType = "smallMove" | "homeMove" | "officeMove" | "requestQuote" | "default";
 type IconSize = "default" | "sm";
 type BoxType = "default" | "radius";
 
@@ -16,9 +19,28 @@ interface Icon {
 }
 
 interface TagProps {
+  /**
+   * @param type 태그에 들어갈 아이콘 종류
+   * smallMove | homeMove | officeMove | requestQuote | default
+   */
   type: IconType;
+
+  /**
+   * @param size 아이콘 사이즈
+   * default | sm
+   */
   size: IconSize;
-  content: string;
+
+  /**
+   * @param content 태그에 표시될 텍스트 (선택적)
+   */
+  content?: string;
+
+  /**
+   * @param borderType 태그 모서리 타입
+   * default -> 사각형
+   * radius -> 둥근 모서리
+   */
   borderType?: BoxType;
 }
 
@@ -35,21 +57,40 @@ const iconMap: Record<Exclude<IconType, "default">, Record<IconSize, Icon>> = {
     default: OfficeMoveIcon,
     sm: OfficeMoveIconSm,
   },
+  requestQuote: {
+    default: RequestQuoteIcon,
+    sm: RequestQuoteIconSm,
+  },
 };
 
-export default function Tag({ type, size, content }: TagProps) {
-  const iconSrc = type === "default" ? null : iconMap[type]?.[size] || iconMap[type]?.default;
+/**
+ * Tag 컴포넌트
+ *
+ * @example
+ * <Tag type="smallMove" size="default" content="소형 이사" />
+ * <Tag type="requestQuote" size="sm" content="견적 요청" borderType="radius" />
+ *
+ * @param type - 아이콘 종류 (smallMove | homeMove | officeMove | requestQuote | default)
+ * @param size - 아이콘 크기 (default | sm)
+ * @param content - 태그에 표시할 텍스트 (선택)
+ * @param borderType - 모서리 스타일 (default -> 사각형, radius -> 둥근 모서리) (선택)
+ */
+export default function Tag({ type, size, content, borderType }: TagProps) {
+  const icon = type === "default" ? null : iconMap[type]?.[size] || iconMap[type]?.default;
 
-  //TODO: borderType가 default일때 or radius일때 최상위 container가 바뀌는 조건만들어서 적용할것.
-
+  const containerClass = clsx(
+    "inline-flex items-center gap-2 px-2 whitespace-nowrap h-8 flex-shrink-0",
+    ["smallMove", "homeMove", "officeMove"].includes(type)
+      ? "bg-[var(--Primary-blue-100,#E9F4FF)] text-[var(--Primary-blue-200,#1B92FF)]"
+      : type === "requestQuote"
+        ? "bg-[#FFEEF0] text-[#FF4F64]"
+        : "bg-[var(--Background-Background-100,#FAFAFA)] text-black",
+    borderType === "radius" ? "rounded-full" : "rounded-md"
+  );
   return (
-    <div className="flex gap-5 border border-red-500">
-      {iconSrc ? (
-        <img src={iconSrc.src} width={iconSrc.width} height={iconSrc.height} alt={`${type} icon`} />
-      ) : (
-        <div></div>
-      )}
-      <p>{content}</p>
+    <div className={containerClass}>
+      {icon && <img src={icon.src} width={icon.width} height={icon.height} alt={`${type} icon`} />}
+      {content && <span className="inline-block">{content}</span>}
     </div>
   );
 }
