@@ -8,7 +8,7 @@ import ArrowDownIconMd from "@/assets/icon/ArrowDownIcon-md.svg";
 import ArrowDownIconLg from "@/assets/icon/ArrowDownIcon-lg.svg";
 
 // 타입 정의
-type FilterType = "dropDown" | "sort";
+type FilterType = "filter" | "sort";
 type FilterSize = "sm" | "md" | "lg";
 type FilterVariant = "default" | "active";
 type FilterRadius = "xl" | "xxl";
@@ -21,20 +21,34 @@ interface FilterProps {
   selected?: string;
   variant?: FilterVariant;
   radius?: FilterRadius;
+  iconSizeOverride?: FilterSize;
   onChange: (value: string) => void;
 }
 
-// 매핑
-const sizeMap: Record<FilterSize, string> = {
-  sm: "py-6 pl-8 pr-6 text-[12px] w-[90px] h-[30px]",
-  md: "py-8 px-10",
-  lg: "py-16 px-24 text-[18px] w-[300px] h-[64px]",
+// type + size 매핑
+const typeSizeMap: Record<FilterType, Record<FilterSize, string>> = {
+  filter: {
+    sm: "py-[6px] pl-[14px] pr-[10px] text-[14px] font-semibold",
+    md: "py-[16px] px-[24px] w-[327px] text-[16px] font-semibold",
+    lg: "py-[16px] px-[24px] w-[640px] text-[18px] font-semibold",
+  },
+  sort: {
+    sm: "py-[6px] pl-[8px] pr-[6px] text-[12px] font-semibold",
+    md: "py-[8px] px-[10px] text-[14px] font-semibold",
+    lg: "", // sort는 lg 없음
+  },
 };
 
-const variantMap: Record<FilterVariant, string> = {
-  default: "bg-white text-[#1F1F1F] border border-[#E5E7EB] hover:bg-gray-50",
-  active:
-    "bg-[var(--color-primary-lightest)] text-[var(--color-primary)] border-[1px] border-solid border-[var(--color-primary)]",
+// type + variant 매핑, sort는 default 상태 시 border 없음
+const typeVariantMap: Record<FilterType, Record<FilterVariant, string>> = {
+  filter: {
+    default: "bg-white text-[#1F1F1F] border border-[#E5E7EB] hover:bg-gray-50",
+    active: "bg-[#F5FAFF] text-[#1B92FF] border border-[#1B92FF]",
+  },
+  sort: {
+    default: "bg-white text-[#1F1F1F] hover:bg-gray-50", // border 없음
+    active: "bg-[#F5FAFF] text-[#1B92FF] border border-[#1B92FF]", // active일 땐 border 생김
+  },
 };
 
 const radiusMap: Record<FilterRadius, string> = {
@@ -57,36 +71,39 @@ export function FilterBox({
   selected,
   variant = "default",
   radius = "xl",
+  iconSizeOverride,
   onChange,
 }: FilterProps) {
   const [isOpen, setIsOpen] = useState(false);
   const isActive = isOpen || variant === "active";
   const dropdownType = options.length > 6 ? "grid" : "default";
+  const iconSize = iconSizeOverride ?? size;
 
   return (
     <div className="relative inline-block">
       <button
         onClick={() => setIsOpen((prev) => !prev)}
         className={clsx(
-          "flex w-full items-center justify-between gap-2 transition-colors duration-150",
-          sizeMap[size],
+          "flex items-center justify-between gap-2 transition-colors duration-150",
+          typeSizeMap[type][size],
           radiusMap[radius],
-          isActive ? variantMap["active"] : variantMap["default"]
+          isActive ? typeVariantMap[type]["active"] : typeVariantMap[type]["default"]
         )}
       >
         <span>{selected || label}</span>
         <img
-          src={arrowIconMap[size]}
+          src={arrowIconMap[iconSize]}
           alt="arrow"
-          className={clsx("h-4 w-4 transition-transform", isOpen && "rotate-180")}
+          className={clsx("transition-transform", isOpen && "rotate-180")}
         />
       </button>
       {isOpen && (
         <Dropdown
-          type={dropdownType}
-          size="sm"
+          type={type}
+          layout={dropdownType}
+          size={size === "lg" ? "md" : size}
           radius="xl" // Dropdown 전용 radius
-          scroll={options.length > 10 ? "scrollable" : "none"}
+          scroll={options.length > 6 ? "scrollable" : "none"}
           options={options}
           onSelect={(value) => {
             onChange(value);

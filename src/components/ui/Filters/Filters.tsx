@@ -1,27 +1,64 @@
+// Figma 상 명시된 필터 모음
 "use client";
 
 import { FilterBox } from "./FilterBox";
 import { REGION_OPTIONS, SERVICE_OPTIONS, SORT_OPTIONS } from "./dropdownOptions";
 
 // 지역 필터
-export function RegionFilter(
+export function RegionFilterSm(
   props: Omit<React.ComponentProps<typeof FilterBox>, "type" | "size" | "label" | "options">
 ) {
-  return <FilterBox type="dropDown" size="sm" label="지역" options={REGION_OPTIONS} {...props} />;
+  return <FilterBox type="filter" size="sm" label="지역" options={REGION_OPTIONS} {...props} />;
 }
 
-// 서비스 필터
-export function ServiceFilter(
+export function RegionFilterMd(
   props: Omit<React.ComponentProps<typeof FilterBox>, "type" | "size" | "label" | "options">
 ) {
   return (
-    <FilterBox type="dropDown" size="sm" label="서비스" options={SERVICE_OPTIONS} {...props} />
+    <FilterBox
+      type="filter"
+      size="md"
+      radius="xxl"
+      label="지역"
+      options={REGION_OPTIONS}
+      iconSizeOverride="md"
+      {...props}
+    />
+  );
+}
+
+// 서비스 필터
+export function ServiceFilterSm(
+  props: Omit<React.ComponentProps<typeof FilterBox>, "type" | "size" | "label" | "options">
+) {
+  return <FilterBox type="filter" size="sm" label="서비스" options={SERVICE_OPTIONS} {...props} />;
+}
+
+export function ServiceFilterMd(
+  props: Omit<React.ComponentProps<typeof FilterBox>, "type" | "size" | "label" | "options">
+) {
+  return (
+    <FilterBox
+      type="filter"
+      size="md"
+      radius="xxl"
+      label="서비스"
+      options={SERVICE_OPTIONS}
+      iconSizeOverride="md"
+      {...props}
+    />
   );
 }
 
 // 정렬 필터
-export function SortFilter(
+export function SortFilterSm(
   props: Omit<React.ComponentProps<typeof FilterBox>, "type" | "size" | "label" | "options">
 ) {
   return <FilterBox type="sort" size="sm" label="정렬" options={SORT_OPTIONS} {...props} />;
+}
+
+export function SortFilterMd(
+  props: Omit<React.ComponentProps<typeof FilterBox>, "type" | "size" | "label" | "options">
+) {
+  return <FilterBox type="sort" size="md" label="정렬" options={SORT_OPTIONS} {...props} />;
 }
