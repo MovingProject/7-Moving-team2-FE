@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import clsx from "clsx";
+import ButtonSpinner from "./ButtonSpinner";
 
 // ## 기본 값(<Button />만 넣었을 때)
 // * variant="primary" / 파란색 백그라운드, secondary는 하얀색 백그라운드
@@ -17,6 +18,9 @@ import clsx from "clsx";
 //------------
 // ## 비활성화 버튼
 // <Button disabled />
+//------------
+// ## 로딩 스피너 사용방법
+// <Button text="블라블라" loading={loading} />
 
 type Variant = "primary" | "secondary";
 type Size = "sm" | "md" | "lg" | "xl";
@@ -35,6 +39,9 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   textColor?: string;
   hideOnMobile?: boolean;
   className?: string;
+  loading?: boolean;
+  loadingText?: string;
+  spinnerPosition?: "left" | "right";
 }
 
 const variantMap: Record<Variant, string> = {
@@ -84,16 +91,23 @@ export default function Button({
   type = "button",
   style, // 직접 스타일링 가능 하도록 확장
   disabled,
+  loading = false,
+  loadingText,
+  spinnerPosition = "right",
   ...rest // 버튼 고유 속성(type, onClick, disabled 등) 상속
 }: ButtonProps) {
   const base = "inline-flex items-center justify-center transition-colors select-none";
+  const isDisabled = disabled || loading;
 
   return (
     <button
       type={type}
-      disabled={disabled}
+      disabled={isDisabled}
+      aria-busy={loading || undefined}
+      aria-live={loading ? "polite" : undefined}
       className={clsx(
         base,
+        loading && "cursor-wait gap-2",
         variantMap[variant],
         sizeMap[size],
         radiusMap[radius],
@@ -108,7 +122,17 @@ export default function Button({
       style={style}
       {...rest}
     >
-      {children ?? text}
+      {loading && spinnerPosition === "left" && (
+        <ButtonSpinner size="sm" className="text-current" />
+      )}
+
+      <span className={clsx(loading && "opacity-80")}>
+        {children ?? (loading && loadingText ? loadingText : text)}
+      </span>
+
+      {loading && spinnerPosition === "right" && (
+        <ButtonSpinner size="sm" className="text-current" />
+      )}
     </button>
   );
 }

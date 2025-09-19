@@ -12,7 +12,7 @@ const sizeMap = {
   lg: "w-10 h-10",
 };
 
-export default function Spinner({ size = "md", className }: SpinnerProps) {
+export default function ButtonSpinner({ size = "md", className }: SpinnerProps) {
   // r = 10 → 둘레 ≈ 62.8
   // 보이는 길이 18, 공백 62.8 - 18 ≈ 44.8
   return (
