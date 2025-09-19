@@ -37,3 +37,21 @@ body {
     "Noto Sans KR",
     sans-serif;
 }
+
+.scroll-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scroll-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-thin::-webkit-scrollbar-thumb {
+  background-color: #c4c4c4;
+  border-radius: 9999px;
+}
+
+.scroll-thin::-webkit-scrollbar-thumb:hover {
+  background-color: #c4c4c4;
+}
