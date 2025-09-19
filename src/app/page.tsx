@@ -1,4 +1,6 @@
 import Image from "next/image";
+import Button from "@/components/ui/Button";
+import Spinner from "@/components/ui/ButtonSpinner";
 
 export default function Home() {
   return (
