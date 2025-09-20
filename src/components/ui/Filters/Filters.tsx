@@ -1,8 +1,8 @@
 // Figma 상 명시된 필터 모음
-"use client";
 
 import { FilterBox } from "./FilterBox";
 import { CheckFilter } from "./CheckFilter";
+import { ResponsiveCheckFilter } from "./ResponsiveCheckFilter";
 import {
   REGION_OPTIONS,
   SERVICE_OPTIONS,
@@ -96,4 +96,33 @@ export function FilterFilter(
   props: Omit<React.ComponentProps<typeof CheckFilter>, "title" | "options">
 ) {
   return <CheckFilter title="필터" options={CHECK_FILTER_OPTIONS} {...props} />;
+}
+
+// 반응형 체크 필터 (이사 유형 + 필터)
+export function ResponsiveMoveAndFilter(props: {
+  moveTypeSelected: string[];
+  onToggleMove: (v: string) => void;
+  filterSelected: string[];
+  onToggleFilter: (v: string) => void;
+}) {
+  return (
+    <ResponsiveCheckFilter
+      filters={[
+        {
+          key: "moveType",
+          title: "이사 유형",
+          options: MOVE_TYPE_OPTIONS,
+          selected: props.moveTypeSelected,
+          onToggle: props.onToggleMove,
+        },
+        {
+          key: "filter",
+          title: "필터",
+          options: CHECK_FILTER_OPTIONS,
+          selected: props.filterSelected,
+          onToggle: props.onToggleFilter,
+        },
+      ]}
+    />
+  );
 }
