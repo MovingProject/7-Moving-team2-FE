@@ -23,13 +23,16 @@ export const REGION_OPTIONS = [
 // 서비스 필터 옵션
 export const SERVICE_OPTIONS = ["전체", "소형이사", "가정이사", "사무실이사"];
 
-// 정렬 필터 옵션
+// 정렬 필터 옵션 (회원 기사 찾기 페이지)
 export const SORT_OPTIONS = ["리뷰 많은 순", "평점 높은 순", "경력 높은 순", "확정 많은 순"];
 
-// 회원 프로필 옵션
+// 정렬 필터 옵션 (기사 받은 요청 페이지)
+export const SORT_TECH_OPTIONS = ["이사 빠른 순", "요청일 빠른 순"];
+
+// 회원 프로필 옵션 (기사는 프로필 드롭다운 필요 없어보임)
 export const PROFILE_OPTIONS = ["프로필 수정", "찜한 기사님", "이사 리뷰"];
 
-// 알림 옵션 (추후 API 붙일 때 수정 필요)
+// 알림 옵션 (현재 정적 옵션, 추후 API 붙일 때 수정 필요)
 export const NOTIFICATION_OPTIONS = [
   "김코드 기사님의 소형이사 견적이 도착했어요",
   "김코드 기사님의 견적이 확정되었어요",

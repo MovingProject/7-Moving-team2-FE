@@ -7,7 +7,7 @@ import ArrowDownIconSm from "@/assets/icon/ArrowDownIcon-sm.svg";
 import ArrowDownIconMd from "@/assets/icon/ArrowDownIcon-md.svg";
 import ArrowDownIconLg from "@/assets/icon/ArrowDownIcon-lg.svg";
 
-// 타입 정의
+// 타입 정의 (filter는 지역/서비스 필터처럼 데이터 필터링, sort는 데이터 정렬 변경)
 type FilterType = "filter" | "sort";
 type FilterSize = "sm" | "md" | "lg";
 type FilterVariant = "default" | "active";

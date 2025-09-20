@@ -2,7 +2,12 @@
 "use client";
 
 import { FilterBox } from "./FilterBox";
-import { REGION_OPTIONS, SERVICE_OPTIONS, SORT_OPTIONS } from "./dropdownOptions";
+import {
+  REGION_OPTIONS,
+  SERVICE_OPTIONS,
+  SORT_OPTIONS,
+  SORT_TECH_OPTIONS,
+} from "./dropdownOptions";
 
 // 지역 필터
 export function RegionFilterSm(
@@ -50,7 +55,7 @@ export function ServiceFilterMd(
   );
 }
 
-// 정렬 필터
+// 정렬 필터 (회원 기사 찾기 페이지)
 export function SortFilterSm(
   props: Omit<React.ComponentProps<typeof FilterBox>, "type" | "size" | "label" | "options">
 ) {
@@ -61,4 +66,17 @@ export function SortFilterMd(
   props: Omit<React.ComponentProps<typeof FilterBox>, "type" | "size" | "label" | "options">
 ) {
   return <FilterBox type="sort" size="md" label="정렬" options={SORT_OPTIONS} {...props} />;
+}
+
+// 정렬 필터 (기사 받은 요청 페이지)
+export function SortTechFilterSm(
+  props: Omit<React.ComponentProps<typeof FilterBox>, "type" | "size" | "label" | "options">
+) {
+  return <FilterBox type="sort" size="sm" label="정렬" options={SORT_TECH_OPTIONS} {...props} />;
+}
+
+export function SortTechFilterMd(
+  props: Omit<React.ComponentProps<typeof FilterBox>, "type" | "size" | "label" | "options">
+) {
+  return <FilterBox type="sort" size="md" label="정렬" options={SORT_TECH_OPTIONS} {...props} />;
 }
