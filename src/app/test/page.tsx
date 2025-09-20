@@ -10,9 +10,11 @@ import {
   SortFilterMd,
   SortTechFilterSm,
   SortTechFilterMd,
+  MoveTypeFilter,
+  FilterFilter,
 } from "@/components/ui/Filters/Filters";
 import { Dropdown } from "@/components/ui/Filters/Dropdown";
-import { PROFILE_OPTIONS, NOTIFICATION_OPTIONS } from "@/components/ui/Filters/dropdownOptions";
+import { PROFILE_OPTIONS, NOTIFICATION_OPTIONS } from "@/components/ui/Filters/filterOptions";
 
 export default function TestPage() {
   const [region, setRegion] = useState("지역");
@@ -21,6 +23,13 @@ export default function TestPage() {
   const [sortTech, setSortTech] = useState("이사 빠른순");
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
+  const [moveTypeSelected, setMoveTypeSelected] = useState<string[]>([]);
+
+  const toggleMoveType = (value: string) => {
+    setMoveTypeSelected((prev) =>
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
+    );
+  };
 
   return (
     <div className="space-y-4 p-6">
@@ -108,6 +117,13 @@ export default function TestPage() {
             }}
           />
         )}
+      </div>
+
+      {/* 체크 필터 테스트 */}
+      <div className="mt-10 flex-col space-y-6">
+        <h2 className="text-lg font-semibold">체크 필터 테스트</h2>
+        <MoveTypeFilter selected={moveTypeSelected} onToggle={toggleMoveType} />
+        <FilterFilter selected={moveTypeSelected} onToggle={toggleMoveType} />
       </div>
     </div>
   );

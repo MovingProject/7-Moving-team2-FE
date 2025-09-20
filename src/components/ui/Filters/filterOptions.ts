@@ -40,3 +40,16 @@ export const NOTIFICATION_OPTIONS = [
   "김무빙 기사님이 채팅을 요청했어요",
   "이삿짐 기사님이 채팅을 보냈어요",
 ];
+
+// 체크 필터 - 이사 유형 옵션 (괄호 안 숫자 추후 API 작업 시 동적 처리 필요)
+export const MOVE_TYPE_OPTIONS = [
+  { label: "소형이사 (4)", value: "small" },
+  { label: "가정이사 (2)", value: "home" },
+  { label: "사무실이사 (10)", value: "office" },
+];
+
+//체크 필터 - 필터 옵션 (괄호 안 숫자 추후 API 작업 시 동적 처리 필요)
+export const CHECK_FILTER_OPTIONS = [
+  { label: "서비스 가능 지역 (10)", value: "region" },
+  { label: "지정 견적 요청 (10)", value: "request" },
+];
