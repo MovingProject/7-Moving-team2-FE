@@ -8,6 +8,8 @@ import {
   ServiceFilterMd,
   SortFilterSm,
   SortFilterMd,
+  SortTechFilterSm,
+  SortTechFilterMd,
 } from "@/components/ui/Filters/Filters";
 import { Dropdown } from "@/components/ui/Filters/Dropdown";
 import { PROFILE_OPTIONS, NOTIFICATION_OPTIONS } from "@/components/ui/Filters/dropdownOptions";
@@ -16,6 +18,7 @@ export default function TestPage() {
   const [region, setRegion] = useState("지역");
   const [service, setService] = useState("서비스");
   const [sort, setSort] = useState("리뷰 많은 순");
+  const [sortTech, setSortTech] = useState("이사 빠른순");
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
 
@@ -27,18 +30,21 @@ export default function TestPage() {
         <RegionFilterSm selected={region} onChange={setRegion} />
         <ServiceFilterSm selected={service} onChange={setService} />
         <SortFilterSm selected={sort} onChange={setSort} />
+        <SortTechFilterSm selected={sortTech} onChange={setSortTech} />
       </div>
 
       <div className="flex flex-wrap gap-20">
         <RegionFilterMd selected={region} onChange={setRegion} />
         <ServiceFilterMd selected={service} onChange={setService} />
         <SortFilterMd selected={sort} onChange={setSort} />
+        <SortTechFilterMd selected={sortTech} onChange={setSortTech} />
       </div>
 
       <div className="mt-6 space-y-2">
         <p>선택된 지역: {region}</p>
         <p>선택된 서비스: {service}</p>
         <p>선택된 정렬: {sort}</p>
+        <p>선택된 정렬: {sortTech}</p>
       </div>
 
       {/* 프로필 용 드롭다운 */}
