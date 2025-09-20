@@ -12,6 +12,7 @@ import {
   SortTechFilterMd,
   MoveTypeFilter,
   FilterFilter,
+  ResponsiveMoveAndFilter,
 } from "@/components/ui/Filters/Filters";
 import { Dropdown } from "@/components/ui/Filters/Dropdown";
 import { PROFILE_OPTIONS, NOTIFICATION_OPTIONS } from "@/components/ui/Filters/filterOptions";
@@ -24,9 +25,16 @@ export default function TestPage() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [moveTypeSelected, setMoveTypeSelected] = useState<string[]>([]);
+  const [filterTypeSelected, setFilterTypeSelected] = useState<string[]>([]);
 
   const toggleMoveType = (value: string) => {
     setMoveTypeSelected((prev) =>
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
+    );
+  };
+
+  const toggleFilterType = (value: string) => {
+    setFilterTypeSelected((prev) =>
       prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
     );
   };
@@ -49,7 +57,7 @@ export default function TestPage() {
         <SortTechFilterMd selected={sortTech} onChange={setSortTech} />
       </div>
 
-      <div className="mt-6 space-y-2">
+      <div className="mt-6">
         <p>선택된 지역: {region}</p>
         <p>선택된 서비스: {service}</p>
         <p>선택된 정렬: {sort}</p>
@@ -123,7 +131,16 @@ export default function TestPage() {
       <div className="mt-10 flex-col space-y-6">
         <h2 className="text-lg font-semibold">체크 필터 테스트</h2>
         <MoveTypeFilter selected={moveTypeSelected} onToggle={toggleMoveType} />
-        <FilterFilter selected={moveTypeSelected} onToggle={toggleMoveType} />
+        <FilterFilter selected={filterTypeSelected} onToggle={toggleFilterType} />
+      </div>
+      <div className="mt-10 flex-col space-y-6">
+        <h2 className="text-lg font-semibold">반응형 체크 필터 테스트</h2>
+        <ResponsiveMoveAndFilter
+          moveTypeSelected={moveTypeSelected}
+          onToggleMove={toggleMoveType}
+          filterSelected={filterTypeSelected}
+          onToggleFilter={toggleFilterType}
+        />
       </div>
     </div>
   );
