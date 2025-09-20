@@ -2,12 +2,15 @@
 "use client";
 
 import { FilterBox } from "./FilterBox";
+import { CheckFilter } from "./CheckFilter";
 import {
   REGION_OPTIONS,
   SERVICE_OPTIONS,
   SORT_OPTIONS,
   SORT_TECH_OPTIONS,
-} from "./dropdownOptions";
+  MOVE_TYPE_OPTIONS,
+  CHECK_FILTER_OPTIONS,
+} from "./filterOptions";
 
 // 지역 필터
 export function RegionFilterSm(
@@ -79,4 +82,18 @@ export function SortTechFilterMd(
   props: Omit<React.ComponentProps<typeof FilterBox>, "type" | "size" | "label" | "options">
 ) {
   return <FilterBox type="sort" size="md" label="정렬" options={SORT_TECH_OPTIONS} {...props} />;
+}
+
+// 체크 필터 - 이사 유형
+export function MoveTypeFilter(
+  props: Omit<React.ComponentProps<typeof CheckFilter>, "title" | "options">
+) {
+  return <CheckFilter title="이사 유형" options={MOVE_TYPE_OPTIONS} {...props} />;
+}
+
+// 체크 필터 - 필터
+export function FilterFilter(
+  props: Omit<React.ComponentProps<typeof CheckFilter>, "title" | "options">
+) {
+  return <CheckFilter title="필터" options={CHECK_FILTER_OPTIONS} {...props} />;
 }
