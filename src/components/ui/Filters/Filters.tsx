@@ -1,4 +1,4 @@
-// Figma 상 명시된 필터 모음
+// Figma 상 명시된 필터 모음, pure wrapper
 
 import { FilterBox } from "./FilterBox";
 import { CheckFilter } from "./CheckFilter";
