@@ -50,9 +50,7 @@ export function CheckFilterTabs({ filters }: CheckFilterTabsProps) {
         <CheckFilter
           options={activeFilter.options}
           selected={activeFilter.selected}
-          selectAllAlign="right"
           onToggle={activeFilter.onToggle}
-          hideTitle={true}
           showSelectAll={true}
         />
       )}
