@@ -17,20 +17,21 @@ interface ModalProps {
   children: React.ReactNode;
   footer?: React.ReactNode | ((size: ModalSize) => React.ReactNode);
   breakpoint?: number;
+  className?: string | ((size: ModalSize) => string);
 }
 
 // type + size 매핑
 const modalSizeMap: Record<ModalType, Record<ModalSize, string>> = {
   post: {
-    sm: "fixed bottom-0 left-0 w-full max-h-[80%] rounded-t-[32px] px-[24px] pt-[32px] pb-[40px] gap-[26px]",
-    md: "w-[600px] h-auto rounded-[32px] px-[24px] pt-[32px] pb-[40px] gap-[40px]",
+    sm: "rounded-t-[32px] px-[24px] pt-[32px] pb-[40px]",
+    md: "w-[600px] h-auto rounded-[32px] px-[24px] pt-[32px] pb-[40px]",
   },
   address: {
-    sm: "rounded-[24px] py-[24px] px-[16px] gap-[30px]",
-    md: "rounded-[24px] px-[24px] pt-[32px] pb-[40px] gap-[40px]",
+    sm: "w-[350px] rounded-[24px] py-[24px] px-[16px]",
+    md: "rounded-[24px] px-[24px] pt-[32px] pb-[40px]",
   },
   filter: {
-    sm: "fixed bottom-0 left-0 w-full h-[90vh] rounded-t-[32px] px-[24px] pt-[16px] pb-[32px] gap-[24px]",
+    sm: "fixed w-full bottom-0 max-h-[90vh] rounded-t-[32px] px-[24px] pt-[16px] pb-[32px] gap-[24px]",
     md: "w-[375px] rounded-[32px] px-[24px] pt-[16px] pb-[32px] gap-[24px]",
   },
   default: {
@@ -46,7 +47,8 @@ export function Modal({
   onClose,
   children,
   footer,
-  breakpoint = 1024,
+  breakpoint = 768,
+  className,
 }: ModalProps) {
   const [isMobile, setIsMobile] = useState(false);
 
@@ -72,7 +74,8 @@ export function Modal({
         className={clsx(
           "relative flex flex-col bg-white shadow-lg",
           sizeClass,
-          computedSize === "md" && "mx-auto my-auto"
+          size === "md" && "mx-auto my-auto",
+          typeof className === "function" ? className(computedSize) : className
         )}
         onClick={(e) => e.stopPropagation()}
       >
