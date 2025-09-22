@@ -10,19 +10,6 @@ interface BaseModalProps {
   onClose: () => void;
 }
 
-// Post 모달
-export function PostModal({ isOpen, onClose }: BaseModalProps) {
-  if (!isOpen) return null;
-  return (
-    <Modal type="post" title="리뷰 쓰기" onClose={onClose}>
-      {/* 컨텐츠 예시 */}
-      <div className="space-y-4">
-        <p>여기에 리뷰 작성 폼 들어감</p>
-      </div>
-    </Modal>
-  );
-}
-
 // Filter 모달
 export function FilterModal({ isOpen, onClose }: BaseModalProps) {
   const [device, setDevice] = useState<"mobile" | "tablet" | "desktop">("desktop");
@@ -99,17 +86,6 @@ export function FilterModal({ isOpen, onClose }: BaseModalProps) {
   return null;
 }
 
-// Address 모달
-export function AddressModal({ isOpen, onClose }: BaseModalProps) {
-  if (!isOpen) return null;
-  return (
-    <Modal type="address" title="주소 검색" onClose={onClose}>
-      {/* 주소 검색/입력 폼 들어감 */}
-      <div>주소 검색 컴포넌트 들어감</div>
-    </Modal>
-  );
-}
-
 // Default 모달
 export function DefaultModal({ isOpen, onClose }: BaseModalProps) {
   const [loading, setLoading] = useState(false);
@@ -129,7 +105,6 @@ export function DefaultModal({ isOpen, onClose }: BaseModalProps) {
         <Button
           text="일반 견적 요청 하기"
           variant="primary"
-          loading={loading}
           onClick={handleClick}
           className={size === "md" ? "w-[560px]" : "w-[260px]"}
           textSize={size === "md" ? "desktop" : "mobile"}
