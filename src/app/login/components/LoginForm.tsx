@@ -33,18 +33,8 @@ export default function LoginForm() {
 
   //TODO : FIX : INPUT에서 바꿔야할거생김 <input tpye:{} /> 이부분 조절할수있도록해야됨.
   return (
-    <div>
-      <form className="flex w-[480px] flex-col gap-3.5">
-        <div className="mb-[40px] flex flex-col items-center gap-8">
-          <Link href="/">
-            <LogoText
-              className={`h-auto w-48 transition-colors duration-300 ${role === "user" ? "text-blue-500" : "text-amber-400"}`}
-            />
-          </Link>
-          <div className="mx-auto">
-            <SlidToggle value={role} onChange={setRole} />
-          </div>
-        </div>
+    <div className="w-full max-w-[640px]">
+      <form className="flex w-full max-w-[640px] flex-col gap-3.5">
         <label>이메일</label>
         <Input
           type="basic"
