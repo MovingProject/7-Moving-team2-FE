@@ -1,4 +1,5 @@
 "use client";
+// 버튼 테스트 및 로딩 지연(LoadingSpinner) 테스트
 
 import Button from "@/components/ui/Button";
 import { useState } from "react";
