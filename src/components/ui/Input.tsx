@@ -3,6 +3,7 @@ import SearchIcon from "@/assets/icon/Search.svg";
 import SearchIconSm from "@/assets/icon/search-1.svg";
 import XIcon from "@/assets/icon/X.svg";
 import XIconSm from "@/assets/icon/X-1.svg";
+import clsx from "clsx";
 
 type InputType = "basic" | "search" | "textArea";
 type IconType = "left" | "right";
@@ -18,6 +19,7 @@ interface InputProps {
   errorPosition?: ErrorPosition;
   size?: "full" | "half";
   inputType?: string;
+  className?: string;
 }
 
 /**
@@ -49,6 +51,7 @@ export default function Input({
   onChange,
   size = "full",
   inputType = "text",
+  className,
 }: InputProps) {
   const baseWidth = type === "basic" ? 640 : 560;
   const fontSizeClass = size === "half" ? "text-sm" : "text-base";
@@ -68,13 +71,15 @@ export default function Input({
         ? "h-[160px]"
         : "h-[64px]";
 
-  const wrapperClass =
+  const wrapperClass = clsx(
     `flex ${widthClass} ${heightClass} ` +
-    (type === "basic"
-      ? "px-4 items-center shrink-0 rounded-2xl border border-[#E6E6E6] bg-[#FFF]"
-      : type === "search"
-        ? "px-6 items-center shrink-0 rounded-2xl bg-[#FAFAFA]"
-        : "px-6 py-4 items-start shrink-0 rounded-2xl bg-[#F7F7F7]");
+      (type === "basic"
+        ? "px-4 items-center shrink-0 rounded-2xl border border-[#E6E6E6] bg-[#FFF]"
+        : type === "search"
+          ? "px-6 items-center shrink-0 rounded-2xl bg-[#FAFAFA]"
+          : "px-6 py-4 items-start shrink-0 rounded-2xl bg-[#F7F7F7]"),
+    className
+  );
 
   const inputClass =
     (type === "textArea"
