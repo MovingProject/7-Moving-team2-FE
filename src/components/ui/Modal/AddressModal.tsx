@@ -59,7 +59,7 @@ export function AddressModal({ isOpen, onClose, onSelectAddress }: BaseModalProp
           placeholder="텍스트를 입력해 주세요."
           onChange={(e) => setQuery(e.target.value)}
           icon="right"
-          size="full"
+          className="w-full lg:w-[560px]"
         />
       </div>
 

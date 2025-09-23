@@ -112,6 +112,7 @@ export function PostModal({ isOpen, onClose, type, technician, rejectInfo }: Pos
             value={text}
             placeholder="내용을 입력해 주세요."
             onChange={(e) => setText(e.target.value)}
+            className="w-full"
           />
         </div>
       </div>
