@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FilterModal } from "./FilterModal";
+import FilterModal from "./FilterModal";
 import { ResponsiveMoveAndFilter } from "../Filters/Filters";
 
 interface FilterContainerProps {

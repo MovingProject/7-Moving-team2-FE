@@ -1,6 +1,6 @@
 "use client";
 
-import { Modal } from "./Modal";
+import Modal from "./Modal";
 import { ResponsiveMoveAndFilter } from "@/components/ui/Filters/Filters";
 
 interface FilterModalProps {
@@ -12,7 +12,7 @@ interface FilterModalProps {
   onToggleFilter: (value: string) => void;
 }
 
-export function FilterModal({
+export default function FilterModal({
   isOpen,
   onClose,
   moveTypeSelected,
