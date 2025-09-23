@@ -50,7 +50,13 @@ export default function Input({
 }: InputProps) {
   const baseWidth = type === "basic" ? 640 : 560;
   const fontSizeClass = size === "half" ? "text-sm" : "text-base";
-  const widthClass = size === "half" ? "w-[320px]" : type === "basic" ? "w-[640px]" : "w-[560px]";
+  const widthClass =
+    size === "half"
+      ? "w-full max-w-[320px]"
+      : type === "basic"
+        ? "w-full max-w-[640px]"
+        : "w-full max-w-[560px]";
+
   const heightClass =
     size === "half"
       ? type === "textArea"
