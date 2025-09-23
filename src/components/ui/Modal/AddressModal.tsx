@@ -1,18 +1,28 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Modal } from "./Modal";
-import { AddressCard } from "./AddressCard";
+import Modal from "./Modal";
+import AddressCard from "./AddressCard";
 import Input from "../Input";
 import Button from "../Button";
 
-interface BaseModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSelectAddress: (address: { zipCode: string; roadAddr: string; lotAddr?: string }) => void;
+// 주소 타입 정의(주소 타입 다른 데 사용될 수 있어 export)
+export interface Address {
+  zipCode: string;
+  roadAddr: string;
+  lotAddr?: string;
 }
 
-const MOCK_ADDRESSES = [
+interface AddressModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSelectAddress: (address: Address) => void;
+  fetchAddresses?: (query: string) => Promise<Address[]>;
+  // 외부에서 API 함수 주입 (없으면 mock fallback 사용)
+}
+
+// fallback mock
+const MOCK_ADDRESSES: Address[] = [
   {
     zipCode: "04538",
     roadAddr: "서울 중구 삼일대로 343 (대신파이낸스센터)",
@@ -20,16 +30,23 @@ const MOCK_ADDRESSES = [
   },
 ];
 
-export function AddressModal({ isOpen, onClose, onSelectAddress }: BaseModalProps) {
+export default function AddressModal({
+  isOpen,
+  onClose,
+  onSelectAddress,
+  fetchAddresses,
+}: AddressModalProps) {
   const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState<(typeof MOCK_ADDRESSES)[0] | null>(null);
-  const [device, setDevice] = useState<"mobile" | "tablet" | "desktop">("desktop");
+  const [addresses, setAddresses] = useState<Address[]>(MOCK_ADDRESSES);
+  const [selected, setSelected] = useState<Address | null>(null);
+  const [device, setDevice] = useState<"mobile" | "desktop">("desktop");
+  const [loading, setLoading] = useState(false);
 
+  // 반응형 디바이스 체크
   useEffect(() => {
     const checkDevice = () => {
       const width = window.innerWidth;
-      if (width < 1024)
-        setDevice("mobile"); // mobile + tablet
+      if (width < 1024) setDevice("mobile");
       else setDevice("desktop");
     };
     checkDevice();
@@ -37,12 +54,47 @@ export function AddressModal({ isOpen, onClose, onSelectAddress }: BaseModalProp
     return () => window.removeEventListener("resize", checkDevice);
   }, []);
 
-  if (!isOpen) return null;
+  // 검색 쿼리 변경 시 주소 데이터 가져오기
+  useEffect(() => {
+    let active = true; // race condition 방지
 
-  const filtered = MOCK_ADDRESSES.filter(
-    (addr) =>
-      addr.roadAddr.includes(query) || addr.lotAddr?.includes(query) || addr.zipCode.includes(query)
-  );
+    const fetchData = async () => {
+      if (!query) {
+        // 쿼리 없을 때는 mock fallback
+        setAddresses(MOCK_ADDRESSES);
+        return;
+      }
+
+      if (fetchAddresses) {
+        setLoading(true);
+        try {
+          const result = await fetchAddresses(query);
+          if (active) setAddresses(result);
+        } catch (err) {
+          console.error("주소 검색 실패:", err);
+          if (active) setAddresses([]);
+        } finally {
+          if (active) setLoading(false);
+        }
+      } else {
+        // fallback: mock에서 검색
+        const filtered = MOCK_ADDRESSES.filter(
+          (addr) =>
+            addr.roadAddr.includes(query) ||
+            addr.lotAddr?.includes(query) ||
+            addr.zipCode.includes(query)
+        );
+        setAddresses(filtered);
+      }
+    };
+
+    fetchData();
+    return () => {
+      active = false;
+    };
+  }, [query, fetchAddresses]);
+
+  if (!isOpen) return null;
 
   return (
     <Modal
@@ -65,8 +117,10 @@ export function AddressModal({ isOpen, onClose, onSelectAddress }: BaseModalProp
 
       {/* 주소 리스트 */}
       <div className="space-y-2">
-        {filtered.length > 0 ? (
-          filtered.map((addr) => (
+        {loading ? (
+          <p className="text-gray-400">검색 중...</p>
+        ) : addresses.length > 0 ? (
+          addresses.map((addr) => (
             <AddressCard
               key={addr.roadAddr}
               zipCode={addr.zipCode}

@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { DefaultModal } from "@/components/ui/Modal/Modals";
-import { AddressModal } from "@/components/ui/Modal/AddressModal";
-import { PostModal } from "@/components/ui/Modal/PostModal";
+import AddressModal from "@/components/ui/Modal/AddressModal";
+import PostModal from "@/components/ui/Modal/PostModal";
 import FilterContainer from "@/components/ui/Modal/FilterContainer";
 
 export default function ModalTest() {

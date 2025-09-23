@@ -10,7 +10,13 @@ interface AddressCardProps {
   onSelect: () => void;
 }
 
-export function AddressCard({ zipCode, roadAddr, lotAddr, selected, onSelect }: AddressCardProps) {
+export default function AddressCard({
+  zipCode,
+  roadAddr,
+  lotAddr,
+  selected,
+  onSelect,
+}: AddressCardProps) {
   return (
     <div
       className={clsx(

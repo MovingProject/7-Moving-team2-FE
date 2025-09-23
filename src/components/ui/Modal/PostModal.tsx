@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Modal } from "./Modal";
+import Modal from "./Modal";
 import Tag from "@/components/ui/Tag";
 import Input from "../Input";
 import Button from "../Button";
@@ -28,7 +28,13 @@ interface PostModalProps {
   };
 }
 
-export function PostModal({ isOpen, onClose, type, technician, rejectInfo }: PostModalProps) {
+export default function PostModal({
+  isOpen,
+  onClose,
+  type,
+  technician,
+  rejectInfo,
+}: PostModalProps) {
   const [rating, setRating] = useState(0); // 리뷰일 때만 별점
   const [text, setText] = useState("");
 
@@ -111,7 +117,7 @@ export function PostModal({ isOpen, onClose, type, technician, rejectInfo }: Pos
             type="textArea"
             value={text}
             placeholder="내용을 입력해 주세요."
-            onChange={(e) => setText(e.target.value)}
+            onChange={(value) => setText(value)}
             className="w-full"
           />
         </div>
