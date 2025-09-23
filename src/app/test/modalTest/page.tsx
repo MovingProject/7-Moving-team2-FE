@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { FilterModal, DefaultModal } from "@/components/ui/Modal/Modals";
+import { DefaultModal } from "@/components/ui/Modal/Modals";
 import { AddressModal } from "@/components/ui/Modal/AddressModal";
 import { PostModal } from "@/components/ui/Modal/PostModal";
+import FilterContainer from "@/components/ui/Modal/FilterContainer";
 
 export default function ModalTest() {
   const [open, setOpen] = useState<null | string>(null);
@@ -27,12 +28,7 @@ export default function ModalTest() {
         >
           PostModal-reject 열기
         </button>
-        <button
-          className="rounded bg-green-500 px-4 py-2 text-white"
-          onClick={() => setOpen("filter")}
-        >
-          FilterModal 열기
-        </button>
+
         <button
           className="rounded bg-purple-500 px-4 py-2 text-white"
           onClick={() => setOpen("address")}
@@ -69,7 +65,7 @@ export default function ModalTest() {
           arrival: "경기도 수원시",
         }}
       />
-      <FilterModal isOpen={open === "filter"} onClose={() => setOpen(null)} />
+      <FilterContainer />
       <AddressModal
         isOpen={open === "address"}
         onClose={() => setOpen(null)}

@@ -28,7 +28,7 @@ export function CheckFilterTabs({ filters }: CheckFilterTabsProps) {
   return (
     <div className="w-full">
       {/* 탭 헤더 */}
-      <div className="mb-3 ml-2 flex gap-6">
+      <div className="mb-3 ml-6 flex gap-6">
         {filters.map((f) => (
           <button
             key={f.key}
