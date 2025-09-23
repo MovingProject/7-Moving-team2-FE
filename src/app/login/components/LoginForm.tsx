@@ -4,6 +4,26 @@ import Button from "@/components/ui/Button";
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+    if (!value.includes("@")) {
+      setError("잘못된 이메일 형식입니다.");
+    } else {
+      setError("");
+    }
+  };
+
+  const handlePasswordChange = (value: string) => {
+    setPassword(value);
+    if (value.length < 6) {
+      setPasswordError("비밀번호는 6자리 이상이어야 합니다.");
+    } else {
+      setPasswordError("");
+    }
+  };
 
   //TODO : FIX : INPUT에서 바꿔야할거생김 <input tpye:{} /> 이부분 조절할수있도록해야됨.
   return (
@@ -14,8 +34,8 @@ export default function LoginForm() {
           type="basic"
           size="full"
           errorPosition="right"
-          error="잘못된 이메일 형식입니다."
-          onChange={(e) => setEmail(e.target.value)}
+          error={error}
+          onChange={handleEmailChange}
           value={email}
         ></Input>
         <label className="mt-[8px]">비밀번호</label>
@@ -23,8 +43,8 @@ export default function LoginForm() {
           type="basic"
           size="full"
           errorPosition="right"
-          error="잘못된 비밀번호입니다."
-          onChange={(e) => setPassword(e.target.value)}
+          error={passwordError}
+          onChange={handlePasswordChange}
           value={password}
         ></Input>
         <div className="m-4" />
