@@ -13,6 +13,7 @@ interface ModalProps {
   type: ModalType;
   size?: ModalSize;
   title?: string;
+  headerContent?: React.ReactNode;
   onClose: () => void;
   children: React.ReactNode;
   footer?: React.ReactNode | ((size: ModalSize) => React.ReactNode);
@@ -31,8 +32,8 @@ const modalSizeMap: Record<ModalType, Record<ModalSize, string>> = {
     md: "rounded-[24px] px-[24px] pt-[32px] pb-[40px]",
   },
   filter: {
-    sm: "fixed w-full bottom-0 max-h-[90vh] rounded-t-[32px] px-[24px] pt-[16px] pb-[32px] gap-[24px]",
-    md: "w-[375px] rounded-[32px] px-[24px] pt-[16px] pb-[32px] gap-[24px]",
+    sm: "fixed w-full bottom-0 max-h-[90vh] rounded-t-[32px] pt-[16px] pb-[32px] gap-[24px]",
+    md: "w-[328px] rounded-[32px] pt-[16px] pb-[32px]",
   },
   default: {
     sm: "rounded-[24px] py-[24px] px-[16px] gap-[30px]",
@@ -44,6 +45,7 @@ export function Modal({
   type,
   size,
   title,
+  headerContent,
   onClose,
   children,
   footer,
@@ -79,9 +81,13 @@ export function Modal({
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-6 py-4">
-          {title && <h2 className="text-lg font-semibold">{title}</h2>}
-          <button onClick={onClose} className="cursor-pointer">
+        <div className="flex items-center justify-between px-6">
+          {headerContent ? (
+            <div className="flex-1">{headerContent}</div>
+          ) : (
+            <h2 className="text-lg font-semibold">{title}</h2>
+          )}
+          <button onClick={onClose} className="flex-shrink-0 cursor-pointer">
             <img src={CloseIcon.src} alt="close" />
           </button>
         </div>
