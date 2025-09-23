@@ -13,7 +13,7 @@ interface InputProps {
   value: string;
   placeholder?: string;
   error?: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onChange: (value: string) => void;
   icon?: IconType;
   errorPosition?: ErrorPosition;
   size?: "full" | "half";
@@ -80,10 +80,7 @@ export default function Input({
       : "w-full bg-transparent outline-none") + ` ${fontSizeClass}`;
 
   const handleClear = () => {
-    const syntheticEvent = {
-      target: { value: "" },
-    } as unknown as React.ChangeEvent<HTMLInputElement>;
-    onChange(syntheticEvent);
+    onChange("");
   };
 
   return (
@@ -94,7 +91,7 @@ export default function Input({
         <textarea
           value={value}
           placeholder={placeholder}
-          onChange={onChange}
+          onChange={(e) => onChange(e.target.value)}
           className={inputClass}
         />
       ) : (
@@ -102,7 +99,7 @@ export default function Input({
           type="text"
           value={value}
           placeholder={placeholder}
-          onChange={onChange}
+          onChange={(e) => onChange(e.target.value)}
           className={inputClass}
         />
       )}
