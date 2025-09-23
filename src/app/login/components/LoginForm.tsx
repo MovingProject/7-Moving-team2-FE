@@ -8,7 +8,7 @@ export default function LoginForm() {
   //TODO : FIX : INPUT에서 바꿔야할거생김 <input tpye:{} /> 이부분 조절할수있도록해야됨.
   return (
     <div>
-      <form className="flex flex-col gap-3.5">
+      <form className="flex w-[480px] flex-col gap-3.5">
         <label>이메일</label>
         <Input
           type="basic"
