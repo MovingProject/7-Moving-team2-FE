@@ -15,7 +15,7 @@ interface ResponsiveCheckFilterProps {
   breakpoint?: number; // 기본: lg (1024px)
 }
 
-export function ResponsiveCheckFilter({ filters, breakpoint = 1024 }: ResponsiveCheckFilterProps) {
+export function ResponsiveCheckFilter({ filters, breakpoint = 1023 }: ResponsiveCheckFilterProps) {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
