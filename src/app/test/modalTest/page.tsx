@@ -9,6 +9,8 @@ import FilterContainer from "@/components/ui/Modal/FilterContainer";
 export default function ModalTest() {
   const [open, setOpen] = useState<null | string>(null);
   const [selectedAddress, setSelectedAddress] = useState<any>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
 
   return (
     <div className="space-y-6 p-10">
@@ -28,7 +30,6 @@ export default function ModalTest() {
         >
           PostModal-reject 열기
         </button>
-
         <button
           className="rounded bg-purple-500 px-4 py-2 text-white"
           onClick={() => setOpen("address")}
@@ -41,6 +42,20 @@ export default function ModalTest() {
         >
           DefaultModal 열기
         </button>
+      </div>
+      <div className="mt-10">
+        <div>
+          {/* 원하는 위치에 버튼 배치, 1024px에서는 버튼 사라지고 필터만 */}
+          <button
+            className="rounded bg-green-500 px-4 py-2 text-white lg:hidden"
+            onClick={() => setFilterOpen(true)}
+          >
+            필터 열기
+          </button>
+
+          {/* 필터 컨테이너 */}
+          <FilterContainer isOpen={filterOpen} onClose={() => setFilterOpen(false)} />
+        </div>
       </div>
 
       <PostModal
@@ -65,7 +80,6 @@ export default function ModalTest() {
           arrival: "경기도 수원시",
         }}
       />
-      <FilterContainer />
       <AddressModal
         isOpen={open === "address"}
         onClose={() => setOpen(null)}
