@@ -46,6 +46,7 @@ export default function LoginForm() {
           error={passwordError}
           onChange={handlePasswordChange}
           value={password}
+          inputType="password"
         ></Input>
         <div className="m-4" />
         <Button>로그인</Button>
