@@ -111,7 +111,7 @@ export function DefaultModal({ isOpen, onClose }: BaseModalProps) {
         />
       )}
     >
-      <p>일반 견적 요청을 먼저 진행해 주세요.</p>
+      <p className="text-[16px]">일반 견적 요청을 먼저 진행해 주세요.</p>
     </Modal>
   );
 }

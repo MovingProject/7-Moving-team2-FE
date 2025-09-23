@@ -54,7 +54,7 @@ export default function ModalTest() {
         technician={{
           name: "김코드",
           profileImageUrl: "/images/avatars/avatartion3.jpg",
-          movingDate: "2024-07-01",
+          movingDate: "2024.07.01",
           estimatePrice: "210,000원",
         }}
       />

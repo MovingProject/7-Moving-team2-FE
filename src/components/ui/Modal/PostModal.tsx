@@ -65,12 +65,16 @@ export function PostModal({ isOpen, onClose, type, technician, rejectInfo }: Pos
               {/* 기사 정보 */}
               <div className="ml-4 flex flex-col">
                 <span className="text-sm font-semibold md:text-base">{technician.name} 기사님</span>
-                <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-600 md:text-sm">
-                  <span className="rounded-[4px] bg-[#F4F7FB] px-[6px] py-[4px]">이사일</span>
-                  <p className="text-sm font-semibold md:text-base">{technician.movingDate}</p>
-                  <span className="text-gray-300">|</span>
-                  <span className="rounded-[4px] bg-[#F4F7FB] px-[6px] py-[4px]">견적가</span>
-                  <p className="text-sm font-semibold md:text-base">{technician.estimatePrice}</p>
+                <div className="mt-1 flex flex-col gap-1 text-xs text-gray-600 md:flex-row md:flex-wrap md:items-center md:gap-2 md:text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-[4px] bg-[#F4F7FB] px-[6px] py-[4px]">이사일</span>
+                    <p className="text-xs font-medium md:text-base">{technician.movingDate}</p>
+                  </div>
+                  <span className="hidden text-gray-300 md:inline">|</span>
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-[4px] bg-[#F4F7FB] px-[6px] py-[4px]">견적가</span>
+                    <p className="text-xs font-medium md:text-base">{technician.estimatePrice}</p>
+                  </div>
                 </div>
               </div>
             </>
@@ -82,14 +86,14 @@ export function PostModal({ isOpen, onClose, type, technician, rejectInfo }: Pos
                 </span>
                 <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-600 md:text-sm">
                   <span className="rounded-[4px] bg-[#F4F7FB] px-[6px] py-[4px]">이사일</span>
-                  <p className="text-sm font-semibold md:text-base">{rejectInfo.movingDate}</p>
+                  <p className="text-sm font-medium md:text-base">{rejectInfo.movingDate}</p>
                 </div>
                 <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-600 md:text-sm">
                   <span className="rounded-[4px] bg-[#F4F7FB] px-[6px] py-[4px]">출발</span>
-                  <p className="text-sm font-semibold md:text-base">{rejectInfo.departure}</p>
+                  <p className="text-sm font-medium md:text-base">{rejectInfo.departure}</p>
                   <span className="text-gray-300">|</span>
                   <span className="rounded-[4px] bg-[#F4F7FB] px-[6px] py-[4px]">도착</span>
-                  <p className="text-sm font-semibold md:text-base">{rejectInfo.arrival}</p>
+                  <p className="text-sm font-medium md:text-base">{rejectInfo.arrival}</p>
                 </div>
               </div>
             )
@@ -108,7 +112,6 @@ export function PostModal({ isOpen, onClose, type, technician, rejectInfo }: Pos
             value={text}
             placeholder="내용을 입력해 주세요."
             onChange={(e) => setText(e.target.value)}
-            size="full"
           />
         </div>
       </div>
@@ -125,7 +128,7 @@ export function PostModal({ isOpen, onClose, type, technician, rejectInfo }: Pos
             onClose();
           }}
           disabled={type === "review" ? rating === 0 || !text.trim() : !text.trim()}
-          className="w-[260px] md:w-[560px]"
+          className="w-full"
         />
       </footer>
     </Modal>
