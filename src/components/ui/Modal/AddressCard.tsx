@@ -22,19 +22,19 @@ export function AddressCard({ zipCode, roadAddr, lotAddr, selected, onSelect }: 
       onClick={onSelect}
     >
       <p className="mb-[16px] text-sm font-semibold md:text-base">{zipCode}</p>
-      <p className="text-#1F1F1F mb-[16px]">
-        <span className="rounded-2xl bg-[#F5FAFF] px-[8px] py-1 text-xs font-medium text-[#1B92FF]">
+      <div className="mb-[16px] flex items-start gap-2">
+        <span className="rounded-2xl bg-[#F5FAFF] px-[8px] py-1 text-xs font-medium whitespace-nowrap text-[#1B92FF]">
           도로명
         </span>
-        {roadAddr}
-      </p>
+        <p className="text-sm break-words text-[#1F1F1F] md:text-base">{roadAddr}</p>
+      </div>
       {lotAddr && (
-        <p className="text-[#1F1F1F]">
-          <span className="rounded-2xl bg-[#F5FAFF] px-[13px] py-1 text-xs font-medium text-[#1B92FF]">
+        <div className="flex items-start gap-2">
+          <span className="rounded-2xl bg-[#F5FAFF] px-[13px] py-1 text-xs font-medium whitespace-nowrap text-[#1B92FF]">
             지번
           </span>
-          {lotAddr}
-        </p>
+          <p className="text-sm break-words text-[#1F1F1F] md:text-base">{lotAddr}</p>
+        </div>
       )}
     </div>
   );

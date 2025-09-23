@@ -47,7 +47,7 @@ export function Modal({
   onClose,
   children,
   footer,
-  breakpoint = 768,
+  breakpoint = 767,
   className,
 }: ModalProps) {
   const [isMobile, setIsMobile] = useState(false);
