@@ -17,6 +17,7 @@ interface InputProps {
   icon?: IconType;
   errorPosition?: ErrorPosition;
   size?: "full" | "half";
+  inputType?: string;
 }
 
 /**
@@ -47,6 +48,7 @@ export default function Input({
   errorPosition,
   onChange,
   size = "full",
+  inputType = "text",
 }: InputProps) {
   const baseWidth = type === "basic" ? 640 : 560;
   const fontSizeClass = size === "half" ? "text-sm" : "text-base";
@@ -96,7 +98,7 @@ export default function Input({
         />
       ) : (
         <input
-          type="text"
+          type={inputType}
           value={value}
           placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
