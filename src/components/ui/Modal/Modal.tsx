@@ -41,7 +41,7 @@ const modalSizeMap: Record<ModalType, Record<ModalSize, string>> = {
   },
 };
 
-export function Modal({
+export default function Modal({
   type,
   size,
   title,
