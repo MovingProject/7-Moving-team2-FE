@@ -57,7 +57,7 @@ export function AddressModal({ isOpen, onClose, onSelectAddress }: BaseModalProp
           type="search"
           value={query}
           placeholder="텍스트를 입력해 주세요."
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(value) => setQuery(value)}
           icon="right"
           className="w-full lg:w-[560px]"
         />
