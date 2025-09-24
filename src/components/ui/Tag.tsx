@@ -1,3 +1,5 @@
+"use client";
+
 import clsx from "clsx";
 import SmallMoveIcon from "@/assets/icon/SmallMoveIcon.svg";
 import SmallMoveIconSm from "@/assets/icon/SmallMoveIcon-1.svg";
@@ -7,10 +9,11 @@ import OfficeMoveIcon from "@/assets/icon/OfficeMoveIcon.svg";
 import OfficeMoveIconSm from "@/assets/icon/OfficeMoveIcon-1.svg";
 import RequestQuoteIcon from "@/assets/icon/RequestQuoteIcon.svg";
 import RequestQuoteIconSm from "@/assets/icon/RequestQuoteIcon-1.svg";
+import { useCard } from "./card/CardContext";
 
-type IconType = "smallMove" | "homeMove" | "officeMove" | "requestQuote" | "default";
-type IconSize = "default" | "sm";
-type BoxType = "default" | "radius";
+export type IconType = "smallMove" | "homeMove" | "officeMove" | "requestQuote" | "default";
+export type IconSize = "sm" | "md";
+export type BoxType = "default" | "radius";
 
 interface Icon {
   src: string;
@@ -27,9 +30,9 @@ interface TagProps {
 
   /**
    * @param size 아이콘 사이즈
-   * default | sm
+   * sm | md
    */
-  size: IconSize;
+  size?: IconSize;
 
   /**
    * @param content 태그에 표시될 텍스트 (선택적)
@@ -46,20 +49,20 @@ interface TagProps {
 
 const iconMap: Record<Exclude<IconType, "default">, Record<IconSize, Icon>> = {
   smallMove: {
-    default: SmallMoveIcon,
     sm: SmallMoveIconSm,
+    md: SmallMoveIcon,
   },
   homeMove: {
-    default: HomeMoveIcon,
     sm: HomeMoveIconSm,
+    md: HomeMoveIcon,
   },
   officeMove: {
-    default: OfficeMoveIcon,
     sm: OfficeMoveIconSm,
+    md: OfficeMoveIcon,
   },
   requestQuote: {
-    default: RequestQuoteIcon,
     sm: RequestQuoteIconSm,
+    md: RequestQuoteIcon,
   },
 };
 
@@ -71,15 +74,19 @@ const iconMap: Record<Exclude<IconType, "default">, Record<IconSize, Icon>> = {
  * <Tag type="requestQuote" size="sm" content="견적 요청" borderType="radius" />
  *
  * @param type - 아이콘 종류 (smallMove | homeMove | officeMove | requestQuote | default)
- * @param size - 아이콘 크기 (default | sm)
+ * @param size - 아이콘 크기 (sm | md)
  * @param content - 태그에 표시할 텍스트 (선택)
  * @param borderType - 모서리 스타일 (default -> 사각형, radius -> 둥근 모서리) (선택)
  */
 export default function Tag({ type, size, content, borderType }: TagProps) {
-  const icon = type === "default" ? null : iconMap[type]?.[size] || iconMap[type]?.default;
+  const { size: cardSize } = useCard();
+  const finalSize: IconSize = (cardSize !== "md" ? cardSize : (size ?? "md")) as IconSize;
+
+  const icon = type === "default" ? null : iconMap[type]?.[finalSize] || iconMap[type]?.md;
 
   const containerClass = clsx(
-    "inline-flex items-center gap-2 px-2 whitespace-nowrap h-8 flex-shrink-0",
+    "inline-flex items-center px-2 whitespace-nowrap h-8 flex-shrink-0",
+    finalSize === "sm" ? "text-sm gap-1" : "gap-2",
     ["smallMove", "homeMove", "officeMove"].includes(type)
       ? "bg-[var(--Primary-blue-100,#E9F4FF)] text-[var(--Primary-blue-200,#1B92FF)]"
       : type === "requestQuote"
@@ -87,6 +94,7 @@ export default function Tag({ type, size, content, borderType }: TagProps) {
         : "bg-[var(--Background-Background-100,#FAFAFA)] text-black",
     borderType === "radius" ? "rounded-full" : "rounded-md"
   );
+
   return (
     <div className={containerClass}>
       {icon && <img src={icon.src} width={icon.width} height={icon.height} alt={`${type} icon`} />}
