@@ -21,7 +21,7 @@ export default function Nav({ option }: NavProps) {
   return (
     <>
       <div className="flex items-center justify-between border-b border-gray-300 pb-5">
-        <div className="flex">
+        <div className="flex pt-5 pl-5">
           {!isLoggedIn ? (
             <img className="cursor-pointer" src={Logo.src} width={100} alt="logo" />
           ) : (
@@ -46,7 +46,7 @@ export default function Nav({ option }: NavProps) {
             {isLoggedIn && <p className={optionFont}>내 견적 관리</p>}
           </div>
         </div>
-        <div className="flex gap-8">
+        <div className="flex gap-8 pt-5 pr-5">
           {!isLoggedIn ? (
             <button
               className="hidden cursor-pointer rounded rounded-[16px] bg-blue-500 px-5.5 py-2 text-white md:block"
