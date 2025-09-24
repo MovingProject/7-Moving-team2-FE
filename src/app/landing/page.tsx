@@ -11,18 +11,16 @@ export default function Landing() {
     <div className="h-full bg-[#F4F7FB] lg:h-full">
       <div className="flex flex-col items-center lg:h-screen lg:justify-between">
         <p className="pt-32 pb-8 text-center font-[Pretendard] text-[24px] leading-[50px] font-semibold text-black lg:text-[36px]">
-          원하는 이사 서비를 요청하고 <br />
+          원하는 이사 서비스를 요청하고 <br />
           견적을 받아보세요.
         </p>
         <div className="flex flex-col lg:h-[600px] lg:flex-row lg:items-stretch lg:gap-0">
-          {/* 왼쪽 */}
           <img src={MovingSmall.src} className="lg:hidden" />
           <img
             src={aaa.src}
             className="hidden lg:block lg:h-[508px] lg:w-[432px] lg:object-contain"
           />
 
-          {/* 오른쪽 */}
           <div className="flex flex-col lg:h-[508px] lg:w-[604px] lg:gap-0">
             <img src={MovingHome.src} className="lg:hidden" />
             <img

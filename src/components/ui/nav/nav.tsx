@@ -1,3 +1,4 @@
+"use client";
 import Logo from "../../../../public/icon/Logo.svg";
 import Menu from "@/assets/icon/menu.svg";
 import { useState } from "react";
