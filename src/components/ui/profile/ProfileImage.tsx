@@ -14,7 +14,7 @@ const sizeClasses = {
 };
 
 export default function ProfileImage({ src, size = "md", shape = "circle" }: ProfileImageProps) {
-  const containerClasses = clsx("relative", "overflow-hidden", sizeClasses[size], {
+  const containerClasses = clsx("relative", "border-2", "overflow-hidden", sizeClasses[size], {
     "rounded-full": shape === "circle",
     "rounded-lg": shape === "square",
   });
