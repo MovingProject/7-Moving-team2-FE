@@ -17,14 +17,24 @@ export default function ProfileSection() {
 
   return (
     <section className="bg-[#FAFAFA]] rounded-2xl border-1 border-[#DEDEDE] p-6">
-      {/* 프로필 카드 (팀원 컴포넌트 자리) */}
+      {/* 프로필 카드 */}
       <div>
         <p>카드 컴포넌트 import해서 쓸 예정</p>
       </div>
       {/* 버튼 영역 */}
       <div className="mt-4 flex justify-end gap-2">
-        <Button text="기본 정보 수정" variant="secondary" size="sm" radius="default" />
-        <Button text="내 프로필 수정" variant="primary" size="sm" radius="default" />
+        <Button
+          text="기본 정보 수정"
+          variant="secondary"
+          className="p-4 lg:w-[280px]"
+          radius="default"
+        />
+        <Button
+          text="내 프로필 수정"
+          variant="primary"
+          className="p-4 lg:w-[280px]"
+          radius="default"
+        />
       </div>
     </section>
   );
