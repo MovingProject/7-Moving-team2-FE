@@ -3,16 +3,21 @@
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import LogoText from "@/components/ui/LogoText";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, ChangeEvent } from "react";
 import Loading from "../loading";
 import Link from "next/link";
-import RoleToggle from "@/components/ui/RoleToggle";
+import RoleToggle from "@/components/ui/SlidToggle";
 
-export default function SignUp() {
+export default function Signup() {
   const fields = [
     { key: "userName", label: "이름", placeholder: "성함을 입력해 주세요" },
-    { key: "email", label: "이메일", placeholder: "이메일을 입력해 주세요" },
-    { key: "callNumber", label: "전화번호", placeholder: "전화번호를 입력해 주세요" },
+    { key: "email", label: "이메일", placeholder: "이메일을 입력해 주세요", inputType: "email" }, // 변경
+    {
+      key: "callNumber",
+      label: "전화번호",
+      placeholder: "전화번호를 입력해 주세요",
+      inputType: "tel",
+    }, // 변경
     {
       key: "pw",
       label: "비밀번호",
@@ -66,6 +71,12 @@ export default function SignUp() {
     });
   }, [values, touched]);
 
+  // 추가: key에 따라 onChange를 통합 처리
+  const handleInputChange = (key: string, e: ChangeEvent<HTMLInputElement> | string) => {
+    const value = typeof e === "string" ? e : e.target.value;
+    setValues((p) => ({ ...p, [key]: value }));
+  };
+
   return (
     <div className="mt-18 flex flex-col items-center gap-8">
       <LogoText
@@ -74,7 +85,7 @@ export default function SignUp() {
         }`}
       />
 
-      <form className="mx-auto flex max-w-[640px] flex-col gap-8">
+      <form className="mx-auto flex w-full max-w-[640px] flex-col gap-8">
         <div className="mx-auto">
           <RoleToggle value={role} onChange={setRole} />
         </div>
@@ -92,8 +103,9 @@ export default function SignUp() {
               <Input
                 type="basic"
                 value={values[f.key] ?? ""}
-                onChange={(e) => setValues((p) => ({ ...p, [f.key]: e.target.value }))}
+                onChange={(v) => handleInputChange(f.key, v)} // Input은 문자열을 넘기므로 v로 받음
                 placeholder={f.placeholder}
+                inputType={f.inputType} // ← 여기 추가
                 error={touched[f.key] && !values[f.key] ? `${f.label}을(를) 입력해 주세요` : ""}
                 errorPosition="right"
               />
