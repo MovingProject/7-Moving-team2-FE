@@ -74,12 +74,16 @@ export default function Input({
   const wrapperClass = clsx(
     `flex ${widthClass} ${heightClass} ` +
       (type === "basic"
-        ? "px-4 items-center shrink-0 rounded-2xl border border-[#E6E6E6] bg-[#FFF]"
+        ? "px-4 items-center shrink-0 rounded-2xl bg-[#FFF]"
         : type === "search"
           ? "px-6 items-center shrink-0 rounded-2xl bg-[#FAFAFA]"
           : "px-6 py-4 items-start shrink-0 rounded-2xl bg-[#F7F7F7]"),
+    // 기본 타입이면 테두리 색을 error 여부에 따라 설정
+    type === "basic" && (error ? "border border-red-500" : "border border-[#E6E6E6]"),
     className
   );
+
+  const wrapperStyle = error ? { boxShadow: "0 0 0 1px rgba(239,68,68,0.08)" } : undefined;
 
   const inputClass =
     (type === "textArea"
@@ -91,7 +95,7 @@ export default function Input({
   };
 
   return (
-    <div className={wrapperClass + " relative"}>
+    <div className={wrapperClass + " relative"} style={wrapperStyle} aria-invalid={!!error}>
       {icon && icon === "left" && <img src={size === "half" ? SearchIconSm.src : SearchIcon.src} />}
 
       {type === "textArea" ? (
