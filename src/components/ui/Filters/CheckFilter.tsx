@@ -28,7 +28,7 @@ export function CheckFilter({
       {/* 헤더 */}
       <div className="mb-[24px] border-b border-[#E5E7EB] px-[10px] py-[16px]">
         {/* 데스크탑: 타이틀 + 전체선택 */}
-        <div className="hidden items-center justify-between md:flex">
+        <div className="hidden items-center justify-between lg:flex">
           {title && <h3 className="text-[20px] font-semibold">{title}</h3>}
           {showSelectAll && (
             <label className="flex cursor-pointer items-center gap-[4px] text-[18px] text-[#ABABAB]">
@@ -51,7 +51,7 @@ export function CheckFilter({
 
         {/* 모바일/태블릿: 전체선택만 (옵션과 동일하게 체크 박스 우측 배치) */}
         {showSelectAll && (
-          <div className="flex items-center justify-between md:hidden">
+          <div className="flex items-center justify-between lg:hidden">
             <label className="flex w-full cursor-pointer items-center justify-between text-[18px] text-[#ABABAB]">
               <span>전체선택</span>
               <span className="flex items-center gap-[4px] pr-[6px]">
