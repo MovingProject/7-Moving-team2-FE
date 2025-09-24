@@ -12,7 +12,7 @@ type Props = {
   proColorClassName?: string; // 기사님 배경
 };
 
-export default function RoleToggle({
+export default function SlidToggle({
   value,
   onChange,
   leftLabel = "고객님",
