@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import clsx from "clsx";
 import WarningIconSm from "@/assets/icon/WarningIcon-sm.svg";
 import WarningIconMd from "@/assets/icon/WarningIcon-md.svg";
@@ -11,6 +12,8 @@ interface PopupProps {
   type?: PopupType; // 기본: info
   size?: PopupSize; // 기본: md
   message: string; // 팝업에 표시할 텍스트
+  autoCloseDuration?: number; // info 타입일 때 자동 닫힘 시간
+  onClose?: () => void;
 }
 
 const sizeMap: Record<PopupSize, string> = {
@@ -29,10 +32,30 @@ const sizeMap: Record<PopupSize, string> = {
  * type - 팝업 종류 (info | warning) warning에만 경고 아이콘 자동으로 붙습니다
  * size - 팝업 크기 (sm | md | lg)
  * message - 팝업 내부에 들어갈 텍스트 메시지
+ * autoCloseDuration - info 타입 팝업은 3초 후에 자동으로 닫힘
  */
 
-export default function Popup({ type = "info", size = "md", message }: PopupProps) {
+export default function Popup({
+  type = "info",
+  size = "md",
+  message,
+  autoCloseDuration = 3000,
+  onClose,
+}: PopupProps) {
   const iconSrc = size === "sm" ? WarningIconSm.src : WarningIconMd.src;
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    if (type === "info") {
+      const timer = setTimeout(() => {
+        setVisible(false);
+        onClose?.();
+      }, autoCloseDuration);
+      return () => clearTimeout(timer);
+    }
+  }, [type, autoCloseDuration, onClose]);
+
+  if (!visible) return null;
 
   return (
     <div
