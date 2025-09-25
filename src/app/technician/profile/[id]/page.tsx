@@ -5,6 +5,7 @@ import OrderCard from "@/components/ui/card/OrderCard";
 import RequestCard from "@/components/ui/card/RequestCard";
 import ReviewCard from "@/components/ui/card/ReviewCard";
 import { getRandomProfileImage } from "@/utils/constant/getProfileImage";
+import ChatBubble from "@/components/ui/ChatBubble";
 
 async function fetchUser(userId: string) {
   if (userId === "random") {
@@ -174,14 +175,20 @@ export default async function ProfilePage({ params }: { params: { id: string } }
       <br />
       <p>- 프로필 이미지 컴포넌트 단독 사용 예시</p>
       {/**----------------------------------------------------------- */}
-      <div className="flex min-h-screen items-center justify-center bg-gray-100">
+      <div className="flex items-center justify-center bg-gray-100 py-10">
         <div className="flex flex-col items-center">
           {/* ProfileImage 컴포넌트 사용 : 랜덤 이미지 */}
           <ProfileViewer initialImageUrl={getRandomProfileImage()} size="sm" />
 
-          {/* ProfileImage 컴포넌트 사용 : 저장된 번호 불러오기 */}
+          {/* ProfileImage 컴포넌트 사용 : 저장된 이미지 불러오기 */}
           <ProfileViewer initialImageUrl={user.profileImageUrl} />
         </div>
+      </div>
+      {/**----------------------------------------------------------- */}
+      <div className="flex flex-col bg-gray-200 p-5">
+        {/* ChatBubble 컴포넌트 적용 예시 */}
+        <ChatBubble message="요청 보내는 사람" isMe={true} />
+        <ChatBubble message="요청 받는 메세지박스" theme="white" />
       </div>
     </>
   );
