@@ -1,9 +1,20 @@
+"use client";
+import Input from "@/components/ui/Input";
+
 export default function Edit() {
   return (
     <div>
-      <p>title:타이틀수정</p>
+      <p className="border-b border-gray-500 pb-4 text-[18px] leading-[26px] font-bold text-[#1F1F1F]">
+        프로필수정
+      </p>
       <div>
-        <div>인풋폼</div>
+        <div>
+          <form>
+            <label>별명</label>
+            <Input className="bg-[#F7F7F7]" type="basic" value="a" onChange={() => {}}></Input>
+            {/* TODO : 일단 틀만구현하고 style은 추후에 컴포넌트수정후 변경하셈 */}
+          </form>
+        </div>
         <div>태그폼?</div>
       </div>
       <div>버튼</div>
