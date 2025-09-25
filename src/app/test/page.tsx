@@ -10,7 +10,7 @@ import {
   FilterFilter,
   ResponsiveMoveAndFilter,
 } from "@/components/ui/Filters/Filters";
-import { Dropdown } from "@/components/ui/Filters/Dropdown";
+import Dropdown from "@/components/ui/Filters/Dropdown";
 import { PROFILE_OPTIONS, NOTIFICATION_OPTIONS } from "@/components/ui/Filters/filterOptions";
 
 export default function TestPage() {
@@ -56,7 +56,7 @@ export default function TestPage() {
       <div className="relative inline-block">
         <button
           onClick={() => setProfileOpen((p) => !p)}
-          className="flex items-center gap-2 rounded-full border px-4 py-2 hover:bg-gray-50"
+          className="flex w-[100px] items-center gap-2 rounded-full border px-4 py-2 hover:bg-gray-50"
         >
           <img src="/icons/profile.svg" alt="profile" className="h-6 w-6 rounded-full" />
           <span>홍길동</span>
@@ -65,8 +65,6 @@ export default function TestPage() {
           <Dropdown
             type="profile"
             layout="default"
-            size="sm"
-            radius="xxl"
             scroll="none"
             options={PROFILE_OPTIONS}
             header={<div className="py-2 font-semibold">홍길동 고객님</div>}
@@ -102,8 +100,6 @@ export default function TestPage() {
           <Dropdown
             type="notification"
             layout="default"
-            size="sm"
-            radius="xxxl"
             scroll="scrollable"
             options={NOTIFICATION_OPTIONS}
             header={<div className="py-2 font-semibold">알림</div>}
