@@ -5,7 +5,7 @@ import XIcon from "@/assets/icon/X.svg";
 import XIconSm from "@/assets/icon/X-1.svg";
 import clsx from "clsx";
 
-type InputType = "basic" | "search" | "textArea";
+export type InputType = "basic" | "search" | "textArea";
 type IconType = "left" | "right";
 type ErrorPosition = "left" | "right";
 
