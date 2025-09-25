@@ -1,5 +1,6 @@
 "use client";
 import Input from "@/components/ui/Input";
+import InputArea from "./components/InputArea";
 
 export default function Edit() {
   return (
@@ -10,8 +11,7 @@ export default function Edit() {
       <div>
         <div>
           <form>
-            <label>별명</label>
-            <Input className="bg-[#F7F7F7]" type="basic" value="a" onChange={() => {}}></Input>
+            <InputArea label="별명" />
             {/* TODO : 일단 틀만구현하고 style은 추후에 컴포넌트수정후 변경하셈 */}
           </form>
         </div>
