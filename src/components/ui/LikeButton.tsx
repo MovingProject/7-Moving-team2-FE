@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 
 export interface LikeButtonProps {
@@ -14,6 +14,7 @@ export default function LikeButton({
   count: initialCount = 0,
   className,
 }: LikeButtonProps) {
+  const [isDesktop, setIsDesktop] = useState(false);
   const [liked, setLiked] = useState(isLiked);
   const [count, setCount] = useState(initialCount);
 
@@ -29,6 +30,12 @@ export default function LikeButton({
     // 이후에는 서버 연결 후 API 호출 필요
   };
 
+  useEffect(() => {
+    const handler = () => setIsDesktop(window.innerWidth >= 1024);
+    handler();
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
   return (
     <button
       onClick={toggleLike}
@@ -37,10 +44,10 @@ export default function LikeButton({
       <Image
         src={liked ? "/icon/like-on.svg" : "/icon/like-off.svg"}
         alt="좋아요"
-        width={24}
-        height={24}
+        width={isDesktop ? 24 : 20}
+        height={isDesktop ? 24 : 20}
       />
-      <span className="text-xs text-gray-700">{count}</span>
+      <span className="text-xs text-gray-700 lg:text-base">{count}</span>
     </button>
   );
 }
