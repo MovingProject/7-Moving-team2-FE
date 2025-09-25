@@ -2,14 +2,10 @@
 
 import { useState } from "react";
 import {
-  RegionFilterSm,
-  RegionFilterMd,
-  ServiceFilterSm,
-  ServiceFilterMd,
-  SortFilterSm,
-  SortFilterMd,
-  SortTechFilterSm,
-  SortTechFilterMd,
+  RegionFilter,
+  ServiceFilter,
+  SortFilter,
+  SortTechFilter,
   MoveTypeFilter,
   FilterFilter,
   ResponsiveMoveAndFilter,
@@ -43,20 +39,12 @@ export default function TestPage() {
     <div className="space-y-4 p-6">
       <h1 className="text-xl font-bold">필터 테스트 페이지</h1>
 
-      <div className="flex flex-wrap gap-20">
-        <RegionFilterSm selected={region} onChange={setRegion} />
-        <ServiceFilterSm selected={service} onChange={setService} />
-        <SortFilterSm selected={sort} onChange={setSort} />
-        <SortTechFilterSm selected={sortTech} onChange={setSortTech} />
+      <div className="flex flex-col flex-wrap gap-20">
+        <RegionFilter selected={region} onChange={setRegion} />
+        <ServiceFilter selected={service} onChange={setService} />
+        <SortFilter selected={sort} onChange={setSort} />
+        <SortTechFilter selected={sortTech} onChange={setSortTech} />
       </div>
-
-      <div className="flex flex-wrap gap-20">
-        <RegionFilterMd selected={region} onChange={setRegion} />
-        <ServiceFilterMd selected={service} onChange={setService} />
-        <SortFilterMd selected={sort} onChange={setSort} />
-        <SortTechFilterMd selected={sortTech} onChange={setSortTech} />
-      </div>
-
       <div className="mt-6">
         <p>선택된 지역: {region}</p>
         <p>선택된 서비스: {service}</p>
