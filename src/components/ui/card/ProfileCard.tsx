@@ -71,18 +71,24 @@ export default function ProfileCard({
           <div className={clsx("border border-gray-200 bg-white", cardClasses)}>
             {/* lg, xl 등 다른 레이아웃일 때 */}
             <div className="flex justify-between">
-              <div>
+              <div className="flex flex-col gap-1">
                 {profileData.name && <CardText>{profileData.name}</CardText>}
                 {profileData.greeting && <CardText>{profileData.greeting}</CardText>}
               </div>
               <div className="flex gap-2">
-                <Button size="md" textSize="mobile" variant="secondary" text="기본 정보 수정" />
-                <Button size="md" textSize="mobile" text="내 프로필 수정" />
+                <Button
+                  size="md"
+                  textSize="mobile"
+                  className="max-w-[140px]"
+                  variant="secondary"
+                  text="기본 정보 수정"
+                />
+                <Button size="md" textSize="mobile" className="w-[140px]" text="내 프로필 수정" />
               </div>
             </div>
             <TechnicianProfile
               profile={profileData}
-              show={["services", "movingInfo"]}
+              show={["services", "reviews"]}
               className="rounded-lg border border-gray-200 p-[10px]"
             />
           </div>
