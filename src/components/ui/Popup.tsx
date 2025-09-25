@@ -2,47 +2,36 @@
 
 import { useEffect, useState } from "react";
 import clsx from "clsx";
-import WarningIconSm from "@/assets/icon/WarningIcon-sm.svg";
-import WarningIconMd from "@/assets/icon/WarningIcon-md.svg";
+import WarningIcon from "@/assets/icon/WarningIcon.svg";
 
 type PopupType = "info" | "warning";
-type PopupSize = "sm" | "md" | "lg";
 
 interface PopupProps {
   type?: PopupType; // 기본: info
-  size?: PopupSize; // 기본: md
   message: string; // 팝업에 표시할 텍스트
   autoCloseDuration?: number; // info 타입일 때 자동 닫힘 시간
   onClose?: () => void;
 }
 
-const sizeMap: Record<PopupSize, string> = {
-  sm: "py-[10px] px-[24px] text-sm w-[327px] h-[48px]",
-  md: "py-[18px] px-[24px] text-base w-[955px]",
-  lg: "py-[24px] px-[32px] text-lg w-[955px]",
-};
-
 /**
  * Popup 컴포넌트
  *
  * 사용 예시 (test page에서도 확인 가능)
- * <Popup type="info" size="sm" message="링크가 복사되었어요" />
- * <Popup type="warning" size="md" message="확정하지 않은 견적이에요!" />
+ * <Popup type="info" message="링크가 복사되었어요" />
+ * <Popup type="warning" message="확정하지 않은 견적이에요!" />
  *
  * type - 팝업 종류 (info | warning) warning에만 경고 아이콘 자동으로 붙습니다
- * size - 팝업 크기 (sm | md | lg)
+ * 사이즈는 반응형으로 자동 조절 (폰트, 아이콘 크기 포함)
  * message - 팝업 내부에 들어갈 텍스트 메시지
  * autoCloseDuration - info 타입 팝업은 3초 후에 자동으로 닫힘
  */
 
 export default function Popup({
   type = "info",
-  size = "md",
   message,
   autoCloseDuration = 3000,
   onClose,
 }: PopupProps) {
-  const iconSrc = size === "sm" ? WarningIconSm.src : WarningIconMd.src;
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
@@ -61,15 +50,13 @@ export default function Popup({
     <div
       className={clsx(
         "flex items-center gap-2 rounded-[12px] border border-[#4DA9FF] bg-[#E9F4FF] font-semibold text-[#1B92FF]",
-        sizeMap[size]
+        "w-full max-w-[327px] px-6 py-2.5 text-sm", // 모바일
+        "md:max-w-[600px] md:px-6 md:py-4.5 md:text-sm", // 태블릿
+        "lg:max-w-[955px] lg:px-8 lg:py-6 lg:text-base" // 데스크탑
       )}
     >
       {type === "warning" && (
-        <img
-          src={iconSrc}
-          alt="warning"
-          className={clsx(size === "sm" ? "h-4 w-4" : "h-5 w-5", "shrink-0")} // 팝업 sm이면 아이콘 sm, 팝업 md/lg면 아이콘 md
-        />
+        <img src={WarningIcon.src} alt="warning" className="h-4 w-4 shrink-0 md:h-5 md:w-5" />
       )}
       <p>{message}</p>
     </div>
