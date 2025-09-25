@@ -49,7 +49,7 @@ export default function Popup({
   return (
     <div
       className={clsx(
-        "flex items-center gap-2 rounded-[12px] border border-[#4DA9FF] bg-[#E9F4FF] font-semibold text-[#1B92FF]",
+        "border-primary-softer bg-primary-light text-primary flex items-center gap-2 rounded-[12px] border font-semibold",
         "w-full max-w-[327px] px-6 py-2.5 text-sm", // 모바일
         "md:max-w-[600px] md:px-6 md:py-4.5 md:text-sm", // 태블릿
         "lg:max-w-[955px] lg:px-8 lg:py-6 lg:text-base" // 데스크탑
