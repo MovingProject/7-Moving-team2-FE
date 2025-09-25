@@ -4,15 +4,11 @@ import clsx from "clsx";
 
 type DropdownType = "filter" | "sort" | "profile" | "notification"; // 드롭다운이 사용되는 요소들
 type DropdownLayout = "default" | "grid"; // 옵션 배치 방식
-type DropdownSize = "sm" | "md"; // 드롭다운의 사이즈
-type DropdownRadius = "xl" | "xxl" | "xxxl"; // border-radius
 type DropdownScroll = "none" | "scrollable"; // 드롭다운 내부 스크롤 여부
 
 interface DropdownProps {
   type: DropdownType;
   layout: DropdownLayout;
-  size: DropdownSize;
-  radius: DropdownRadius;
   scroll: DropdownScroll;
   options: string[];
   onSelect: (value: string) => void;
@@ -20,43 +16,50 @@ interface DropdownProps {
   footer?: React.ReactNode; // profile 전용 (로그아웃)
 }
 // 드롭다운 타입 별 사이즈
-const typeSizeMap: Record<DropdownType, Record<DropdownSize, string>> = {
+const dropdownSizeMap: Record<DropdownType, Record<DropdownLayout, string>> = {
   filter: {
-    sm: "w-[125px] py-[16px] px-[14px] text-[14px]", // 지역/서비스 필터 작은 드롭다운
-    md: "w-[328px] py-[16px] px-[24px] text-[18px]", // 큰 버전
+    default: clsx(
+      "w-full max-w-[125px] py-4 px-3.5 text-sm",
+      "lg:w-full lg:max-w-[328px] lg:py-4 lg:px-6 lg:text-lg"
+    ),
+    grid: clsx(
+      "w-full max-w-[200px] py-4 px-3.5 text-sm",
+      "lg:w-full lg:max-w-[328px] lg:py-4 lg:px-6 lg:text-lg"
+    ),
   },
   sort: {
-    sm: "w-[115px] py-[6px] pl-[8px] pr-[6px] text-[12px]", // 정렬 필터 작은 드롭다운
-    md: "w-[135px] py-[8px] px-[10px] text-[14px]", // 정렬 필터 큰 드롭다운
+    default: clsx(
+      "w-full max-w-[120px] py-1.5 pl-2 pr-1.5 text-xs",
+      "w-full lg:max-w-[135px] lg:py-2 lg:px-2.5 lg:text-sm"
+    ),
+    grid: "",
   },
   profile: {
-    sm: "w-[150px] pt-[10px] pb-[6px] px-[10px] text-[14px]", // 프로필 메뉴 작은 버전
-    md: "w-[250px] pt-[16px] pb-[6px] px-[4px] text-[16px]", // 프로필 메뉴 큰 버전
+    default: clsx(
+      "w-[150px] pt-[10px] pb-[6px] px-[10px] text-sm",
+      "lg:w-[220px] lg:pt-[16px] lg:pb-[6px] lg:px-[4px] lg:text-base"
+    ),
+    grid: "",
   },
   notification: {
-    sm: "w-[310px] py-[10px] px-[16px] text-[14px]", // 알림 리스트 작은 버전
-    md: "w-[360px] py-[16px] px-[14px] text-[16px]", // 알림 리스트 큰 버전
+    default: clsx(
+      "w-[310px] py-2.5 px-4 text-sm",
+      "lg:w-[360px] lg:py-[16px] lg:px-[14px] lg:text-base"
+    ),
+    grid: "",
   },
 };
 
-const radiusMap: Record<DropdownRadius, string> = {
-  xl: "rounded-[var(--radius-xl)]",
-  xxl: "rounded-[var(--radius-2xl)]",
-  xxxl: "rounded-[var(--radius-3xl)]",
+const dropdownRadiusMap: Record<DropdownType, string> = {
+  filter: clsx("rounded-xl", "lg:rounded-2xl"),
+  sort: "rounded-xl",
+  profile: "rounded-2xl",
+  notification: "rounded-3xl",
 };
 
-const typeStyleMap: Record<DropdownType, string> = {
-  filter: "shadow-lg border-[#E6E6E6] bg-[#FFF]",
-  sort: "shadow-none border-[#E6E6E6] bg-[#FFF]",
-  profile: "shadow-lg border-[#E6E6E6] bg-[#FFF]",
-  notification: "shadow-lg border-[#E6E6E6] bg-[#FFF]",
-};
-
-export function Dropdown({
+export default function Dropdown({
   type,
   layout,
-  size,
-  radius,
   scroll,
   options,
   onSelect,
@@ -69,11 +72,9 @@ export function Dropdown({
   return (
     <div
       className={clsx(
-        "absolute z-10 mt-2",
-        typeSizeMap[type][size],
-        layout === "grid" && "w-[220px]",
-        radiusMap[radius],
-        typeStyleMap[type],
+        "absolute z-10 mt-2 border border-[#E6E6E6] bg-white shadow-lg",
+        dropdownSizeMap[type][layout],
+        dropdownRadiusMap[type],
         scrollClass
       )}
     >

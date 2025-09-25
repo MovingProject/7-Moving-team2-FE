@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import clsx from "clsx";
-import { Dropdown } from "./Dropdown";
+import Dropdown from "./Dropdown";
 import ArrowIconDown from "@/assets/icon/ArrowIconDown.svg";
 
 // 타입 정의 (filter는 지역/서비스 필터처럼 데이터 필터링, sort는 데이터 정렬 변경)
@@ -80,8 +80,6 @@ export default function FilterBox({
         <Dropdown
           type={type}
           layout={dropdownType}
-          size="md"
-          radius="xl" // Dropdown 전용 radius
           scroll={options.length > 6 ? "scrollable" : "none"}
           options={options}
           onSelect={(value) => {
