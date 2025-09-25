@@ -53,17 +53,17 @@ export default function DefaultCard({
         </div>
       </div>
 
-      {greeting && <CardText>{greeting}</CardText>}
+      {greeting && <CardText className="text-sm font-semibold lg:text-xl">{greeting}</CardText>}
 
       <TechnicianProfile
         profile={restProfileData}
-        show={["name", "movingInfo", "likes"]}
+        show={["name", "reviews", "likes"]}
         className="rounded-lg border border-gray-200 p-[10px]"
       />
       {price && (
         <div className="flex justify-end">
-          <CardText>
-            견적 금액 <span className="font-semibold"> {price.toLocaleString()}원</span>
+          <CardText className="text-lg lg:text-xl">
+            견적 금액 <span className="font-semibold">{price.toLocaleString()}원</span>
           </CardText>
         </div>
       )}

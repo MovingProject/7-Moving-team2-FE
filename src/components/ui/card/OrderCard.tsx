@@ -51,10 +51,14 @@ export default function OrderCard({
         </div>
       </div>
 
-      <TechnicianProfile profile={restProfileData} show={["name", "movingInfo", "likes"]} />
+      <TechnicianProfile
+        profile={restProfileData}
+        show={["name", "reviews", "likes"]}
+        className="rounded-lg border border-gray-200 p-[10px]"
+      />
 
       <div className="flex justify-end">
-        <CardText>
+        <CardText className="text-lg lg:text-xl">
           견적 금액 <span className="font-semibold">{price.toLocaleString()}원</span>
         </CardText>
       </div>

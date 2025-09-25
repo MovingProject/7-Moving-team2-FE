@@ -18,7 +18,7 @@ interface Profile {
 
 interface TechnicianInfoProps {
   profile: Profile;
-  show?: ("name" | "greeting" | "services" | "movingInfo" | "estimated" | "likes")[];
+  show?: ("name" | "greeting" | "services" | "reviews" | "estimated" | "likes")[];
   size?: "sm" | "md" | "lg";
   movingInfo?: MovingInfo;
   className?: string;
@@ -26,13 +26,12 @@ interface TechnicianInfoProps {
 
 export default function TechnicianProfile({
   profile = {},
-  show = ["name", "movingInfo"],
+  show = ["name", "reviews"],
   className,
 }: TechnicianInfoProps) {
   const { size } = useCard(); // Card에서 내려준 size
-  const isVisible = (
-    key: "name" | "greeting" | "services" | "movingInfo" | "estimated" | "likes"
-  ) => show.includes(key);
+  const isVisible = (key: "name" | "greeting" | "services" | "reviews" | "estimated" | "likes") =>
+    show.includes(key);
   const likeButtonClasses =
     size === "sm" || size === "md" ? "top-2 right-3" : "top-1/2 -translate-y-1/2 right-2"; // Again, redundant
 
@@ -54,7 +53,7 @@ export default function TechnicianProfile({
           </p>
         )}
 
-        {isVisible("movingInfo") && profile.movingInfo && (
+        {isVisible("reviews") && profile.movingInfo && (
           <MovingInfoViewer info={profile.movingInfo} infoType="review" />
         )}
         {isVisible("services") && profile.movingInfo && (
@@ -67,7 +66,7 @@ export default function TechnicianProfile({
           <LikeButton
             count={profile.likes?.count}
             isLiked={profile.likes?.isLiked}
-            className={clsx("absolute", likeButtonClasses)}
+            className="absolute top-2 right-3 lg:top-1/2 lg:right-4 lg:-translate-y-1/2"
           />
         )}
       </div>
