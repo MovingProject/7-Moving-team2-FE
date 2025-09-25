@@ -1,6 +1,8 @@
 "use client";
 import Input from "@/components/ui/Input";
 import InputArea from "./components/InputArea";
+import upload from "@/assets/img/upload.svg";
+import ImageInputArea from "./components/ImageInputArea";
 
 export default function Edit() {
   return (
@@ -13,6 +15,9 @@ export default function Edit() {
           <form>
             <InputArea label="별명" />
             {/* TODO : 일단 틀만구현하고 style은 추후에 컴포넌트수정후 변경하셈 */}
+            <ImageInputArea />
+            <InputArea label="경력" />
+            <InputArea label="한 줄 소개" />
           </form>
         </div>
         <div>태그폼?</div>
