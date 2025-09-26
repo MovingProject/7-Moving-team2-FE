@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useMutation } from "@tanstack/react-query";
 
-const host = "http://localhost:4000";
+const host = "/api";
 const api = axios.create({
   baseURL: host,
   headers: { "Content-Type": "application/json" },
