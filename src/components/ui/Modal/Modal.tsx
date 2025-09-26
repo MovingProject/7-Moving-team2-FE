@@ -24,20 +24,20 @@ interface ModalProps {
 // type + size 매핑
 const modalSizeMap: Record<ModalType, Record<ModalSize, string>> = {
   post: {
-    sm: "rounded-t-[32px] px-[24px] pt-[32px] pb-[40px]",
-    md: "w-[600px] h-auto rounded-[32px] px-[24px] pt-[32px] pb-[40px]",
+    sm: "rounded-t-4xl px-6 pt-8 pb-10",
+    md: "w-[600px] h-auto rounded-4xl px-6 pt-8 pb-10",
   },
   address: {
-    sm: "w-[350px] rounded-[24px] py-[24px] px-[16px]",
-    md: "rounded-[24px] px-[24px] pt-[32px] pb-[40px]",
+    sm: "w-[350px] rounded-3xl py-6 px-4",
+    md: "rounded-3xl px-6 pt-8 pb-10",
   },
   filter: {
-    sm: "fixed w-full bottom-0 max-h-[90vh] rounded-t-[32px] pt-[16px] pb-[32px] gap-[24px]",
-    md: "w-[328px] rounded-[32px] pt-[16px] pb-[32px]",
+    sm: "fixed w-full bottom-0 max-h-[90vh] rounded-t-4xl pt-4 pb-8 gap-6",
+    md: "w-[328px] rounded-4xl pt-4 pb-8",
   },
   default: {
-    sm: "rounded-[24px] py-[24px] px-[16px] gap-[30px]",
-    md: "rounded-[32px] px-[24px] pt-[32px] pb-[40px] gap-[40px]",
+    sm: "rounded-3xl py-6 px-4 gap-7.5",
+    md: "rounded-4xl px-6 pt-8 pb-10 gap-10",
   },
 };
 
