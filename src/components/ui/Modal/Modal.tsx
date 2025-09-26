@@ -3,8 +3,7 @@
 
 import { useEffect, useState } from "react";
 import clsx from "clsx";
-import XIconMd from "@/assets/icon/X.svg";
-import XIconSm from "@/assets/icon/X-1.svg";
+import CloseIcon from "@/assets/icon/X.svg";
 
 type ModalType = "post" | "address" | "filter" | "default";
 type ModalSize = "sm" | "md";
@@ -65,7 +64,7 @@ export default function Modal({
   // size가 지정 안 되면 viewport 기준으로 결정
   const computedSize: ModalSize = size ?? (isMobile ? "sm" : "md");
   const sizeClass = modalSizeMap[type][computedSize];
-  const CloseIcon = computedSize === "md" ? XIconMd : XIconSm;
+  const CloseIconSize = computedSize === "md" ? "w-9 h-9" : "w-6 h-6";
 
   return (
     <div
@@ -88,11 +87,11 @@ export default function Modal({
             <h2 className="text-lg font-semibold">{title}</h2>
           )}
           <button onClick={onClose} className="flex-shrink-0 cursor-pointer">
-            <img src={CloseIcon.src} alt="close" />
+            <img src={CloseIcon.src} alt="close" className={CloseIconSize} />
           </button>
         </div>
 
-        <div className="max-w-full flex-1 overflow-y-auto px-6 py-4">{children}</div>
+        <div className="w-full flex-1 overflow-y-auto px-6 py-4">{children}</div>
 
         {footer && (
           <div className="px-6 py-4">

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import FilterModal from "./FilterModal";
-import { ResponsiveMoveAndFilter } from "../Filters/Filters";
+import { ResponsiveCheckFilter } from "../Filters/ResponsiveCheckFilter";
+import { MOVE_TYPE_OPTIONS, CHECK_FILTER_OPTIONS } from "../Filters/filterOptions";
 
 interface FilterContainerProps {
   isOpen: boolean;
@@ -40,11 +41,23 @@ export default function FilterContainer({ isOpen, onClose }: FilterContainerProp
   if (isDesktop) {
     // 데스크탑 → 필터 바로 출력
     return (
-      <ResponsiveMoveAndFilter
-        moveTypeSelected={moveTypeSelected}
-        onToggleMove={toggleMoveType}
-        filterSelected={filterSelected}
-        onToggleFilter={toggleFilterType}
+      <ResponsiveCheckFilter
+        filters={[
+          {
+            key: "moveType",
+            title: "이사 유형",
+            options: MOVE_TYPE_OPTIONS,
+            selected: moveTypeSelected,
+            onToggle: toggleMoveType,
+          },
+          {
+            key: "filter",
+            title: "추가 필터",
+            options: CHECK_FILTER_OPTIONS,
+            selected: filterSelected,
+            onToggle: toggleFilterType,
+          },
+        ]}
       />
     );
   }
