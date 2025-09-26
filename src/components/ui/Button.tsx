@@ -21,9 +21,6 @@ import writingIcon from "@/assets/icon/writing.svg";
 //------------
 // ## 연필 아이콘 추가
 // <Button showIcon />
-//------------
-// // ## 로딩 스피너 사용방법
-// <Button text="블라블라" loading={loading} />
 
 type Variant = "primary" | "secondary";
 type Size = "sm" | "md" | "lg" | "xl";
@@ -62,10 +59,10 @@ const variantMap: Record<Variant, string> = {
 };
 
 const sizeMap: Record<Size, string> = {
-  sm: "p-[10px]", // header 로그인 버튼
-  md: "p-4", // 5글자 이상 버튼, 16px
-  lg: "py-4 px-6", // 4글자 이하 버튼, 16px 24px
-  xl: "py-4 pl-[108px] pr-[99px]", // mobile 아이콘 있는 버튼에 적용
+  sm: "px-3 py-2 md:px-4 md:py-2.5",
+  md: "px-4 py-3 md:px-5 md:py-4",
+  lg: "px-5 py-3.5 md:px-6 md:py-4",
+  xl: "px-5 py-4 md:px-8 md:py-5",
 };
 
 const radiusMap: Record<Radius, string> = {
@@ -74,8 +71,8 @@ const radiusMap: Record<Radius, string> = {
 };
 
 const fontSizeMap: Record<TextSize, string> = {
-  mobile: "text-[16px]",
-  desktop: "text-[20px]",
+  mobile: "text-[16px] md:text-[18px]",
+  desktop: "text-[16px] md:text-[20px]",
 };
 
 export default function Button({
@@ -97,7 +94,8 @@ export default function Button({
   showIcon = false,
   ...rest // 버튼 고유 속성(type, onClick, disabled 등) 상속
 }: ButtonProps) {
-  const base = "inline-flex items-center justify-center transition-colors select-none";
+  const base =
+    "inline-flex items-center justify-center transition-colors select-none min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary";
   const isDisabled = disabled || loading;
 
   return (
