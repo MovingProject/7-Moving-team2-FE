@@ -34,15 +34,12 @@ export default function TagForm({ Tags, colType, label }: TagFormProps) {
             <div
               key={tag}
               onClick={() => handleTagClick(tag)}
-              className={clsx(
-                "w-fit cursor-pointer rounded-full transition", // 둥근 테두리
-                {
-                  "border-2 border-blue-500 bg-blue-100": isSelected,
-                  "border border-gray-300 bg-white": !isSelected,
-                }
-              )}
+              className={clsx("w-fit cursor-pointer rounded-full transition", {
+                "border-2 border-blue-500 bg-blue-100": isSelected,
+                "border border-gray-300 bg-white": !isSelected,
+              })}
             >
-              <Tag type="default" content={tag} borderType="radius" />
+              <Tag type="default" content={tag} borderType="radius" selected={isSelected} />
             </div>
           );
         })}
