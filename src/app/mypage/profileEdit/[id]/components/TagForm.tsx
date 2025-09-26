@@ -33,7 +33,7 @@ export default function TagForm({
       : "grid grid-cols-[52px_52px_52px_52px_52px] grid-rows-[h-fit] gap-2";
 
   return (
-    <div className="mt-4 border-b border-gray-500 pb-8">
+    <div className="mt-4 border-b border-[#F2F2F2] pb-8">
       <label className="mb-2 block font-medium">{label}</label>
       <div className={containerClass}>
         {Tags.map((tag) => {
