@@ -8,6 +8,7 @@ import FilterContainer from "@/components/ui/Modal/FilterContainer";
 
 export default function ModalTest() {
   const [open, setOpen] = useState<null | string>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [selectedAddress, setSelectedAddress] = useState<any>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
