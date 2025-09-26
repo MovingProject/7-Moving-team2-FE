@@ -43,7 +43,7 @@ const dropdownSizeMap: Record<DropdownType, Record<DropdownLayout, string>> = {
   },
   notification: {
     default: clsx(
-      "w-[310px] py-2.5 px-4 text-sm",
+      "w-[250px] py-2.5 px-4 text-sm",
       "lg:w-[360px] lg:py-[16px] lg:px-[14px] lg:text-base"
     ),
     grid: "",
