@@ -20,7 +20,8 @@ async function fetchUser(userId: string) {
 }
 
 export default async function ProfilePage({ params }: { params: { id: string } }) {
-  const user = await fetchUser(params.id);
+  const { id } = await params;
+  const user = await fetchUser(id);
 
   const defaultCardData = {
     profileData1: {
