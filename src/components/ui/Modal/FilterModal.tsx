@@ -28,8 +28,8 @@ export default function FilterModal({
       onClose={onClose}
       className={(size) =>
         size === "sm"
-          ? "fixed bottom-[-250px] max-h-[90vh] w-full rounded-t-[32px]"
-          : "h-auto w-[375px] rounded-[32px]"
+          ? "fixed bottom-[-250px] max-h-[90vh] w-full rounded-t-4xl"
+          : "h-auto w-[375px] rounded-4xl"
       }
     >
       <ResponsiveMoveAndFilter

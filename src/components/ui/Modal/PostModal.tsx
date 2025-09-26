@@ -51,16 +51,16 @@ export default function PostModal({
       className={(size) => {
         if (size === "sm") {
           return type === "review"
-            ? "fixed bottom-[-130px] max-h-[90vh] w-full rounded-t-[32px]"
-            : "fixed bottom-[-160px] max-h-[90vh] w-full rounded-t-[32px]";
+            ? "fixed bottom-[-130px] max-h-[90vh] w-full rounded-t-4xl"
+            : "fixed bottom-[-160px] max-h-[90vh] w-full rounded-t-4xl";
         }
         return "h-auto w-[600px]";
       }}
     >
       <div className="space-y-6">
         <div className="align-center flex gap-[12px]">
-          <Tag type="smallMove" size="default" content="소형 이사" borderType="default" />
-          <Tag type="requestQuote" size="default" content="견적 요청" borderType="default" />
+          <Tag type="smallMove" size="sm" content="소형 이사" borderType="default" />
+          <Tag type="requestQuote" size="sm" content="견적 요청" borderType="default" />
         </div>
         {/* 프로필 영역 */}
         <div className="flex items-center rounded-xl border border-gray-200 bg-white p-4">
@@ -73,12 +73,12 @@ export default function PostModal({
                 <span className="text-sm font-semibold md:text-base">{technician.name} 기사님</span>
                 <div className="mt-1 flex flex-col gap-1 text-xs text-gray-600 md:flex-row md:flex-wrap md:items-center md:gap-2 md:text-sm">
                   <div className="flex items-center gap-2">
-                    <span className="rounded-[4px] bg-[#F4F7FB] px-[6px] py-[4px]">이사일</span>
+                    <span className="rounded-[4px] bg-slate-50 px-1.5 py-1">이사일</span>
                     <p className="text-xs font-medium md:text-base">{technician.movingDate}</p>
                   </div>
                   <span className="hidden text-gray-300 md:inline">|</span>
                   <div className="flex items-center gap-2">
-                    <span className="rounded-[4px] bg-[#F4F7FB] px-[6px] py-[4px]">견적가</span>
+                    <span className="rounded-[4px] bg-slate-50 px-1.5 py-1">견적가</span>
                     <p className="text-xs font-medium md:text-base">{technician.estimatePrice}</p>
                   </div>
                 </div>
@@ -91,14 +91,14 @@ export default function PostModal({
                   {rejectInfo.customerName} 고객님
                 </span>
                 <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-600 md:text-sm">
-                  <span className="rounded-[4px] bg-[#F4F7FB] px-[6px] py-[4px]">이사일</span>
+                  <span className="rounded-[4px] bg-slate-50 px-1.5 py-1">이사일</span>
                   <p className="text-sm font-medium md:text-base">{rejectInfo.movingDate}</p>
                 </div>
                 <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-600 md:text-sm">
-                  <span className="rounded-[4px] bg-[#F4F7FB] px-[6px] py-[4px]">출발</span>
+                  <span className="rounded-[4px] bg-slate-50 px-1.5 py-1">출발</span>
                   <p className="text-sm font-medium md:text-base">{rejectInfo.departure}</p>
                   <span className="text-gray-300">|</span>
-                  <span className="rounded-[4px] bg-[#F4F7FB] px-[6px] py-[4px]">도착</span>
+                  <span className="rounded-[4px] bg-slate-50 px-1.5 py-1">도착</span>
                   <p className="text-sm font-medium md:text-base">{rejectInfo.arrival}</p>
                 </div>
               </div>
@@ -110,7 +110,7 @@ export default function PostModal({
 
         {/* 인풋 영역 */}
         <div className="flex flex-col gap-3">
-          <p className="mb-2 text-lg font-bold text-[#373737]">
+          <p className="mb-2 text-lg font-bold text-gray-700">
             {type === "review" ? "상세 후기를 작성해 주세요." : "반려 사유를 입력해 주세요."}
           </p>
           <Input
