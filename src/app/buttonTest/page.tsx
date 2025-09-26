@@ -31,10 +31,16 @@ export default function TestPage() {
       />
 
       {/* 로딩 버튼 (왼쪽 스피너) */}
-      <Button text="신고하기" loading={loading} spinnerPosition="left" onClick={handleClick} />
+      <Button
+        text="신고하기"
+        loading={loading}
+        spinnerPosition="left"
+        onClick={handleClick}
+        showIcon
+      />
 
       {/* 비활성 버튼 */}
-      <Button text="비활성" disabled />
+      <Button text="비활성" disabled showIcon />
     </div>
   );
 }
