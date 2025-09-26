@@ -1,6 +1,6 @@
 "use client";
 import SearchIcon from "@/assets/icon/Search.svg";
-import SearchIconSm from "@/assets/icon/search-1.svg";
+import SearchIconSm from "@/assets/icon/Search-1.svg";
 import XIcon from "@/assets/icon/X.svg";
 import XIconSm from "@/assets/icon/X-1.svg";
 import clsx from "clsx";
