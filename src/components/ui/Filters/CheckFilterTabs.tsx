@@ -36,8 +36,8 @@ export function CheckFilterTabs({ filters }: CheckFilterTabsProps) {
             className={clsx(
               "flex py-2 transition-colors",
               active === f.key
-                ? "text-[18px] font-semibold text-[#1F1F1F]"
-                : "text-[18px] text-[#ABABAB]"
+                ? "text-[18px] font-semibold text-gray-900"
+                : "text-[18px] text-gray-400"
             )}
           >
             {f.title}

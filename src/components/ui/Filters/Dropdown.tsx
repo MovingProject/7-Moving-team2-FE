@@ -72,7 +72,7 @@ export default function Dropdown({
   return (
     <div
       className={clsx(
-        "absolute z-10 mt-2 border border-[#E6E6E6] bg-white shadow-lg",
+        "absolute z-10 mt-2 border border-gray-200 bg-white shadow-lg",
         dropdownSizeMap[type][layout],
         dropdownRadiusMap[type],
         scrollClass
@@ -85,8 +85,8 @@ export default function Dropdown({
             key={opt}
             className={clsx(
               "cursor-pointer px-4 py-2 hover:bg-gray-100",
-              type === "notification" && idx !== 0 && "border-t border-[#E5E7EB]", // 알림일 때만 border-top
-              layout === "grid" && idx % 2 === 1 && "border-l border-[#E5E7EB]"
+              type === "notification" && idx !== 0 && "border-t border-gray-200", // 알림일 때만 border-top
+              layout === "grid" && idx % 2 === 1 && "border-l border-gray-200"
             )}
             onClick={() => onSelect(opt)}
           >
@@ -94,7 +94,7 @@ export default function Dropdown({
           </li>
         ))}
       </ul>
-      {footer && <div className="border-t border-[#E5E7EB] text-center">{footer}</div>}
+      {footer && <div className="border-t border-gray-200 text-center">{footer}</div>}
     </div>
   );
 }
