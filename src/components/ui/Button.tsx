@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import clsx from "clsx";
 import ButtonSpinner from "./ButtonSpinner";
+import writingIcon from "@/assets/icon/writing.svg";
 
 // ## 기본 값(<Button />만 넣었을 때)
 // * variant="primary" / 파란색 백그라운드, secondary는 하얀색 백그라운드
@@ -19,7 +20,10 @@ import ButtonSpinner from "./ButtonSpinner";
 // ## 비활성화 버튼
 // <Button disabled />
 //------------
-// ## 로딩 스피너 사용방법
+// ## 연필 아이콘 추가
+// <Button showIcon />
+//------------
+// // ## 로딩 스피너 사용방법
 // <Button text="블라블라" loading={loading} />
 
 type Variant = "primary" | "secondary";
@@ -42,6 +46,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean;
   loadingText?: string;
   spinnerPosition?: "left" | "right";
+  showIcon?: boolean;
 }
 
 const variantMap: Record<Variant, string> = {
@@ -93,6 +98,7 @@ export default function Button({
   disabled,
   loading = false,
   loadingText,
+  showIcon = false,
   spinnerPosition = "right",
   ...rest // 버튼 고유 속성(type, onClick, disabled 등) 상속
 }: ButtonProps) {
@@ -129,6 +135,8 @@ export default function Button({
       <span className={clsx(loading && "opacity-80")}>
         {children ?? (loading && loadingText ? loadingText : text)}
       </span>
+
+      {showIcon && <img src={writingIcon.src} alt="" aria-hidden className="ml-2 h-6 w-6" />}
 
       {loading && spinnerPosition === "right" && (
         <ButtonSpinner size="sm" className="text-current" />
