@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import clsx from "clsx";
-import { CheckFilter } from "./CheckFilter"; // 공통 단일 체크필터 컴포넌트
+import CheckFilter from "./CheckFilter"; // 공통 단일 체크필터 컴포넌트
 
 interface CheckFilterOption {
   label: string;
@@ -21,7 +21,7 @@ interface CheckFilterTabsProps {
   filters: FilterGroup[];
 }
 
-export function CheckFilterTabs({ filters }: CheckFilterTabsProps) {
+export default function CheckFilterTabs({ filters }: CheckFilterTabsProps) {
   const [active, setActive] = useState(filters[0].key);
   const activeFilter = filters.find((f) => f.key === active);
 
