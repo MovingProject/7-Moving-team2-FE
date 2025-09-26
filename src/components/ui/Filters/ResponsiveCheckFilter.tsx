@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckFilter } from "./CheckFilter";
-import { CheckFilterTabs } from "./CheckFilterTabs";
+import CheckFilter from "./CheckFilter";
+import CheckFilterTabs from "./CheckFilterTabs";
 
 interface ResponsiveCheckFilterProps {
   filters: {
@@ -15,7 +15,10 @@ interface ResponsiveCheckFilterProps {
   breakpoint?: number; // 기본: lg (1024px)
 }
 
-export function ResponsiveCheckFilter({ filters, breakpoint = 1023 }: ResponsiveCheckFilterProps) {
+export default function ResponsiveCheckFilter({
+  filters,
+  breakpoint = 1023,
+}: ResponsiveCheckFilterProps) {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {

@@ -16,7 +16,7 @@ interface CheckFilterProps {
   showSelectAll?: boolean; // 전체 선택 표시 여부 (default: true)
 }
 
-export function CheckFilter({
+export default function CheckFilter({
   title,
   options,
   selected,
