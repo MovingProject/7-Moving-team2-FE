@@ -14,7 +14,7 @@ export default function TestPage() {
   };
 
   return (
-    <div className="flex max-w-80 flex-col items-center justify-center gap-4 p-20">
+    <div className="flex flex-col items-center justify-center gap-4 p-20">
       {/* 기본 버튼 */}
       <Button />
 
