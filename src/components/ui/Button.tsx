@@ -1,6 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import clsx from "clsx";
-import ButtonSpinner from "./ButtonSpinner";
 import writingIcon from "@/assets/icon/writing.svg";
 
 // ## 기본 값(<Button />만 넣었을 때)
@@ -43,10 +42,8 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   textColor?: string;
   hideOnMobile?: boolean;
   className?: string;
-  loading?: boolean;
-  loadingText?: string;
-  spinnerPosition?: "left" | "right";
   showIcon?: boolean;
+  loading?: boolean;
 }
 
 const variantMap: Record<Variant, string> = {
@@ -97,9 +94,7 @@ export default function Button({
   style, // 직접 스타일링 가능 하도록 확장
   disabled,
   loading = false,
-  loadingText,
   showIcon = false,
-  spinnerPosition = "right",
   ...rest // 버튼 고유 속성(type, onClick, disabled 등) 상속
 }: ButtonProps) {
   const base = "inline-flex items-center justify-center transition-colors select-none";
@@ -113,7 +108,7 @@ export default function Button({
       aria-live={loading ? "polite" : undefined}
       className={clsx(
         base,
-        loading && "cursor-wait gap-2",
+        loading && "cursor-wait",
         variantMap[variant],
         sizeMap[size],
         radiusMap[radius],
@@ -128,19 +123,9 @@ export default function Button({
       style={style}
       {...rest}
     >
-      {loading && spinnerPosition === "left" && (
-        <ButtonSpinner size="sm" className="text-current" />
-      )}
-
-      <span className={clsx(loading && "opacity-80")}>
-        {children ?? (loading && loadingText ? loadingText : text)}
-      </span>
+      <span className={clsx(loading && "opacity-80")}>{children ?? text}</span>
 
       {showIcon && <img src={writingIcon.src} alt="" aria-hidden className="ml-2 h-6 w-6" />}
-
-      {loading && spinnerPosition === "right" && (
-        <ButtonSpinner size="sm" className="text-current" />
-      )}
     </button>
   );
 }
