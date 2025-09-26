@@ -1,17 +1,15 @@
 import Input from "@/components/ui/Input";
 import { useState } from "react";
 import Button from "@/components/ui/Button";
-import Link from "next/link";
-import LogoText from "@/components/ui/LogoText";
-import SlidToggle from "@/components/ui/SlidToggle";
+import { useLogin } from "@/utils/hook/login/api";
 
-export default function LoginForm() {
+export default function LoginForm({ role }: any) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
-  const [role, setRole] = useState<"user" | "pro">("user");
+  const { mutate: login } = useLogin();
 
   const handleEmailChange = (value: string) => {
     setEmail(value);
@@ -31,10 +29,27 @@ export default function LoginForm() {
     }
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.includes("@") || password.length < 6) return;
+
+    login(
+      { email, password, role: role },
+      {
+        onSuccess: (res) => {
+          console.log("로그인성공");
+        },
+        onError: (err: any) => {
+          console.log("로그인실패");
+        },
+      }
+    );
+  };
+
   //TODO : FIX : INPUT에서 바꿔야할거생김 <input tpye:{} /> 이부분 조절할수있도록해야됨.
   return (
     <div className="w-full max-w-[640px]">
-      <form className="flex w-full max-w-[640px] flex-col gap-3.5">
+      <form className="flex w-full max-w-[640px] flex-col gap-3.5" onSubmit={handleSubmit}>
         <label>이메일</label>
         <Input
           type="basic"
@@ -55,7 +70,7 @@ export default function LoginForm() {
           inputType="password"
         ></Input>
         <div className="m-4" />
-        <Button>로그인</Button>
+        <Button type="submit">로그인</Button>
       </form>
     </div>
   );
