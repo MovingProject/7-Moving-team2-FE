@@ -14,7 +14,7 @@ export default function TestPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-4 p-20">
+    <div className="flex max-w-80 flex-col items-center justify-center gap-4 p-20">
       {/* 기본 버튼 */}
       <Button />
 
@@ -31,13 +31,7 @@ export default function TestPage() {
       />
 
       {/* 로딩 버튼 (왼쪽 스피너) */}
-      <Button
-        text="신고하기"
-        loading={loading}
-        spinnerPosition="left"
-        onClick={handleClick}
-        showIcon
-      />
+      <Button text="신고하기" loading={loading} onClick={handleClick} showIcon />
 
       {/* 비활성 버튼 */}
       <Button text="비활성" disabled showIcon />
