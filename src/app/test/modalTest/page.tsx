@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { DefaultModal } from "@/components/ui/Modal/Modals";
+import DefaultModal from "@/components/ui/Modal/DefaultModal";
 import AddressModal from "@/components/ui/Modal/AddressModal";
 import PostModal from "@/components/ui/Modal/PostModal";
 import FilterContainer from "@/components/ui/Modal/FilterContainer";
@@ -62,9 +62,9 @@ export default function ModalTest() {
         isOpen={open === "review"}
         onClose={() => setOpen(null)}
         type="review"
-        technician={{
+        driver={{
           name: "김코드",
-          profileImageUrl: "/images/avatars/avatartion3.jpg",
+          image: "/images/avatars/avatartion3.jpg",
           movingDate: "2024.07.01",
           estimatePrice: "210,000원",
         }}
@@ -74,7 +74,7 @@ export default function ModalTest() {
         onClose={() => setOpen(null)}
         type="reject"
         rejectInfo={{
-          customerName: "홍길동",
+          consumerName: "홍길동",
           movingDate: "2024.07.01(월)",
           departure: "서울시 중구",
           arrival: "경기도 수원시",
@@ -85,7 +85,17 @@ export default function ModalTest() {
         onClose={() => setOpen(null)}
         onSelectAddress={(addr) => setSelectedAddress(addr)}
       />
-      <DefaultModal isOpen={open === "default"} onClose={() => setOpen(null)} />
+      <DefaultModal
+        isOpen={open === "default"}
+        onClose={() => setOpen(null)}
+        title="지정 견적 요청하기"
+        buttonText="일반 견적 요청 하기"
+        onButtonClick={() => {
+          setOpen(null);
+        }}
+      >
+        <p className="text-[16px]">일반 견적 요청을 먼저 진행해 주세요.</p>
+      </DefaultModal>
     </div>
   );
 }
