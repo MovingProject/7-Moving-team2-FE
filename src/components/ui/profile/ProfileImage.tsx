@@ -3,18 +3,16 @@ import clsx from "clsx";
 
 interface ProfileImageProps {
   src: string;
-  size?: "sm" | "md" | "lg";
   shape?: "circle" | "square";
 }
 
-const sizeClasses = {
-  sm: "w-12 h-12",
-  md: "w-21 h-21",
-  lg: "w-40 h-40",
+const shapeClasses = {
+  circle: "min-w-12 w-12 h-12 lg:min-w-21 lg:w-21 lg:h-21",
+  square: "w-25 h-25 lg:min-w-40 lg:w-40 lg:h-40",
 };
 
-export default function ProfileImage({ src, size = "md", shape = "circle" }: ProfileImageProps) {
-  const containerClasses = clsx("relative", "border-2", "overflow-hidden", sizeClasses[size], {
+export default function ProfileImage({ src, shape = "circle" }: ProfileImageProps) {
+  const containerClasses = clsx("relative", "border-2", "overflow-hidden", shapeClasses[shape], {
     "rounded-full": shape === "circle",
     "rounded-lg": shape === "square",
   });
