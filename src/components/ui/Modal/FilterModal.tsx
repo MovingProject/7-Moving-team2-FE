@@ -33,25 +33,27 @@ export default function FilterModal({
           : "h-auto w-[375px] rounded-4xl"
       }
     >
-      {/* 일단 하드 코딩, 추후 API 연동 시 변경 예정 */}
-      <ResponsiveCheckFilter
-        filters={[
-          {
-            key: "moveType",
-            title: "이사 유형",
-            options: MOVE_TYPE_OPTIONS,
-            selected: moveTypeSelected,
-            onToggle: onToggleMove,
-          },
-          {
-            key: "filter",
-            title: "추가 필터",
-            options: CHECK_FILTER_OPTIONS,
-            selected: filterSelected,
-            onToggle: onToggleFilter,
-          },
-        ]}
-      />
+      <div className="flex justify-center">
+        {/* 일단 하드 코딩, 추후 API 연동 시 변경 예정 */}
+        <ResponsiveCheckFilter
+          filters={[
+            {
+              key: "moveType",
+              title: "이사 유형",
+              options: MOVE_TYPE_OPTIONS,
+              selected: moveTypeSelected,
+              onToggle: onToggleMove,
+            },
+            {
+              key: "filter",
+              title: "추가 필터",
+              options: CHECK_FILTER_OPTIONS,
+              selected: filterSelected,
+              onToggle: onToggleFilter,
+            },
+          ]}
+        />
+      </div>
     </Modal>
   );
 }
