@@ -8,15 +8,23 @@ interface TagFormProps {
   Tags: string[];
   colType: "flex" | "grid"; // flex: 자동 줄 바꿈, grid: 지정 컬럼
   label: string;
+  selectedTags: string[];
+  setSelectedTags: (tags: string[]) => void;
 }
 
-export default function TagForm({ Tags, colType, label }: TagFormProps) {
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-
+export default function TagForm({
+  Tags,
+  colType,
+  label,
+  selectedTags,
+  setSelectedTags,
+}: TagFormProps) {
   const handleTagClick = (tag: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-    );
+    if (selectedTags.includes(tag)) {
+      setSelectedTags(selectedTags.filter((t) => t !== tag));
+    } else {
+      setSelectedTags([...selectedTags, tag]);
+    }
   };
 
   const containerClass =
@@ -25,7 +33,7 @@ export default function TagForm({ Tags, colType, label }: TagFormProps) {
       : "grid grid-cols-[52px_52px_52px_52px_52px] grid-rows-[h-fit] gap-2";
 
   return (
-    <div>
+    <div className="mt-4 border-b border-gray-500 pb-8">
       <label className="mb-2 block font-medium">{label}</label>
       <div className={containerClass}>
         {Tags.map((tag) => {
