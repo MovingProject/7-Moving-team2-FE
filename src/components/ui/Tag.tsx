@@ -45,6 +45,7 @@ interface TagProps {
    * radius -> 둥근 모서리
    */
   borderType?: BoxType;
+  selected?: boolean;
 }
 
 const iconMap: Record<Exclude<IconType, "default">, Record<IconSize, Icon>> = {
@@ -78,7 +79,7 @@ const iconMap: Record<Exclude<IconType, "default">, Record<IconSize, Icon>> = {
  * @param content - 태그에 표시할 텍스트 (선택)
  * @param borderType - 모서리 스타일 (default -> 사각형, radius -> 둥근 모서리) (선택)
  */
-export default function Tag({ type, size, content, borderType }: TagProps) {
+export default function Tag({ type, size, content, borderType, selected }: TagProps) {
   const { size: cardSize } = useCard();
   const finalSize: IconSize = (cardSize !== "md" ? cardSize : (size ?? "md")) as IconSize;
 
@@ -87,11 +88,13 @@ export default function Tag({ type, size, content, borderType }: TagProps) {
   const containerClass = clsx(
     "inline-flex items-center px-2 whitespace-nowrap h-8 flex-shrink-0",
     finalSize === "sm" ? "text-sm gap-1" : "gap-2",
-    ["smallMove", "homeMove", "officeMove"].includes(type)
-      ? "bg-[var(--Primary-blue-100,#E9F4FF)] text-[var(--Primary-blue-200,#1B92FF)]"
-      : type === "requestQuote"
-        ? "bg-[#FFEEF0] text-[#FF4F64]"
-        : "bg-[var(--Background-Background-100,#FAFAFA)] text-black",
+    selected
+      ? "bg-blue-100 text-blue-600"
+      : ["smallMove", "homeMove", "officeMove"].includes(type)
+        ? "bg-[var(--Primary-blue-100,#E9F4FF)] text-[var(--Primary-blue-200,#1B92FF)]"
+        : type === "requestQuote"
+          ? "bg-[#FFEEF0] text-[#FF4F64]"
+          : "bg-[var(--Background-Background-100,#FAFAFA)] text-black",
     borderType === "radius" ? "rounded-full" : "rounded-md"
   );
 
