@@ -1,23 +1,29 @@
 "use client";
 import React from "react";
 import clsx from "clsx";
-import { CardProvider, CardLayoutSize, CardSize } from "./CardContext";
-
+import { CardProvider, cardTypes } from "./CardContext";
+import { UserData, RequestData, QuotationData, DriverUser } from "@/types/card";
+import { IconType } from "../Tag";
 interface BaseCardProps {
   children: React.ReactNode;
-  layoutSize?: CardLayoutSize;
-  size?: CardSize;
+  cardType?: cardTypes;
   className?: string;
 }
 
-export default function BaseCard({
-  children,
-  layoutSize = "xl",
-  size = "md",
-  className,
-}: BaseCardProps) {
+export interface CommonCardProps {
+  user: UserData;
+  request?: RequestData;
+  quotation?: QuotationData;
+}
+
+export type TagData = {
+  type: IconType;
+  content: string;
+};
+
+export default function BaseCard({ children, cardType = "default", className }: BaseCardProps) {
   return (
-    <CardProvider layoutSize={layoutSize} size={size}>
+    <CardProvider cardType={cardType}>
       <div className={clsx("flex flex-col rounded-xl", className)}>{children}</div>
     </CardProvider>
   );
