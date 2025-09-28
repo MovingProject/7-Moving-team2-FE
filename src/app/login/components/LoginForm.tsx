@@ -3,14 +3,17 @@ import { useState } from "react";
 import Button from "@/components/ui/Button";
 import { useLogin } from "@/utils/hook/login/api";
 import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function LoginForm({ role }: any) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [passwordError, setPasswordError] = useState("");
-
+  const router = useRouter();
   const queryClient = useQueryClient();
+  const user = queryClient.getQueryData<any>(["user"]);
 
   const { mutate: login } = useLogin();
 
@@ -41,7 +44,8 @@ export default function LoginForm({ role }: any) {
       {
         onSuccess: (res) => {
           console.log("로그인성공");
-          queryClient.setQueryData(["user"], res.data);
+          queryClient.setQueryData(["user"], res);
+          router.push("/landing");
         },
         onError: (err: any) => {
           console.log("로그인실패");
@@ -50,6 +54,12 @@ export default function LoginForm({ role }: any) {
       }
     );
   };
+
+  useEffect(() => {
+    if (user) {
+      router.replace("/landing");
+    }
+  }, [user, router]);
 
   //TODO : FIX : INPUT에서 바꿔야할거생김 <input tpye:{} /> 이부분 조절할수있도록해야됨.
   return (
