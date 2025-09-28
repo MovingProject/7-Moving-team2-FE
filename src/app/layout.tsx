@@ -14,9 +14,10 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body>
-        <Nav />
-        {children}
-        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        <QueryClientProvider client={queryClient}>
+          <Nav />
+          {children}
+        </QueryClientProvider>
       </body>
     </html>
   );
