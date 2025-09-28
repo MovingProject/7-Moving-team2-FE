@@ -2,12 +2,15 @@ import Input from "@/components/ui/Input";
 import { useState } from "react";
 import Button from "@/components/ui/Button";
 import { useLogin } from "@/utils/hook/login/api";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function LoginForm({ role }: any) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+
+  const queryClient = useQueryClient();
 
   const { mutate: login } = useLogin();
 
@@ -38,9 +41,11 @@ export default function LoginForm({ role }: any) {
       {
         onSuccess: (res) => {
           console.log("로그인성공");
+          queryClient.setQueryData(["user"], res.data);
         },
         onError: (err: any) => {
           console.log("로그인실패");
+          //TODO : 로그인실패 모달 연동
         },
       }
     );
