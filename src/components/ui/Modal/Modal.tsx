@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+
 // 모달 UI 컴포넌트 파일입니다.
 "use client";
 
