@@ -22,22 +22,19 @@ export default function RootLayout({
     });
     setPersister(asyncPersister);
   }, []);
+
   return (
     <html lang="ko">
       <body>
-        <QueryClientProvider client={queryClient}>
-          <Nav />
-          {persister ? (
-            <PersistQueryClientProvider client={queryClient} persistOptions={{ persister }}>
-              {children}
-              {process.env.NODE_ENV === "development" && (
-                <ReactQueryDevtools initialIsOpen={false} />
-              )}
-            </PersistQueryClientProvider>
-          ) : (
-            children
-          )}
-        </QueryClientProvider>
+        {persister ? (
+          <PersistQueryClientProvider client={queryClient} persistOptions={{ persister }}>
+            <Nav />
+            {children}
+            {process.env.NODE_ENV === "development" && <ReactQueryDevtools initialIsOpen={false} />}
+          </PersistQueryClientProvider>
+        ) : (
+          <div></div>
+        )}
       </body>
     </html>
   );
