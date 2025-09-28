@@ -1,62 +1,47 @@
 "use client";
 
 import React from "react";
-import clsx from "clsx";
-import BaseCard from "./BaseCard";
-import { CardSize, CardLayoutSize, TagData } from "./CardContext";
+import BaseCard, { CommonCardProps } from "./BaseCard";
 import CardText from "./CardText";
 import Tag from "../Tag";
-import TechnicianProfile from "../profile/TechnicianProfile";
-import { MovingInfo } from "../profile/MovingInfoViewer";
+import { DriverUser } from "@/types/card";
+import { MoveTypeMap } from "@/types/moveTypes";
+import UserProfileArea from "../profile/UserProfileArea";
+import { isDriverUser } from "@/utils/type-guards";
 
-interface DefaultCardProps {
-  size?: CardSize;
-  layoutSize?: CardLayoutSize;
-  profileData: {
-    greeting?: string;
-    price?: number;
-    tags: TagData[];
-    name: string;
-    imageUrl: string;
-    movingInfo: MovingInfo;
-    likes: {
-      count: number;
-      isLiked: boolean;
-    };
-  };
-}
+interface DefaultCardProps extends CommonCardProps {}
 
-const layoutizeClasses: Record<CardLayoutSize, string> = {
-  sm: "px-[14px] py-4 gap-[14px]",
-  md: "px-[14px] py-4 gap-[14px]",
-  lg: "px-6 py-5 gap-4",
-  xl: "px-6 py-5 gap-4 w-full",
-};
-
-export default function DefaultCard({
-  layoutSize = "xl",
-  size = "md",
-  profileData: { greeting, price, tags, ...restProfileData },
-}: DefaultCardProps) {
-  const cardClasses = clsx(
-    "gap-[14px] bg-white border border-gray-200",
-    layoutizeClasses[layoutSize]
-  );
+export default function DefaultCard({ user, request, quotation }: DefaultCardProps) {
+  const isDriver = isDriverUser(user);
+  if (!isDriver) {
+    return null;
+  }
+  const driverUser = user as DriverUser;
+  const profileData = driverUser.profile;
+  const { nickname, oneLiner, rating, confirmedCount, driverServiceTypes, ...restProfileData } =
+    profileData;
+  const price = quotation?.price;
 
   return (
-    <BaseCard size={size} layoutSize={layoutSize} className={cardClasses}>
+    <BaseCard className="gap-[14px] border border-gray-300 bg-white px-[14px] py-4 lg:gap-4 lg:px-6 lg:py-5">
       <div className="flex justify-between">
         <div className="flex gap-2">
-          {tags.map((tag, index) => (
-            <Tag key={index} type={tag.type} content={tag.content} />
+          {driverServiceTypes?.map((tag, index) => (
+            <Tag
+              key={index}
+              type={MoveTypeMap[tag].clientType}
+              content={MoveTypeMap[tag].content}
+            />
           ))}
         </div>
       </div>
 
-      {greeting && <CardText className="text-sm font-semibold lg:text-xl">{greeting}</CardText>}
+      {oneLiner && <CardText className="text-sm font-semibold lg:text-xl">{oneLiner}</CardText>}
 
-      <TechnicianProfile
-        profile={restProfileData}
+      <UserProfileArea
+        user={user}
+        request={request}
+        quotation={quotation}
         show={["name", "reviews", "likes"]}
         className="rounded-lg border border-gray-200 p-[10px]"
       />
