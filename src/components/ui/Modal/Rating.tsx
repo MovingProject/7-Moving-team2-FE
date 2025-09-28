@@ -1,6 +1,7 @@
+/* eslint-disable @next/next/no-img-element */
+
 "use client";
 
-import { useEffect, useState } from "react";
 import StarEmpty from "@/assets/icon/StarEmpty.svg";
 import StarFilled from "@/assets/icon/StarFilled.svg";
 
