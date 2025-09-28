@@ -8,6 +8,7 @@ import AlramIcon from "@/assets/icon/alram.svg";
 import LogoMobile from "@/assets/icon/Logo-1.svg";
 import { useQueryClient } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 
 interface NavProps {
   option?: string;
@@ -16,23 +17,36 @@ interface NavProps {
 export default function Nav({ option }: NavProps) {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
-  const { data: user } = useQuery<any, Error>({
+  const { data: user, refetch } = useQuery<any, Error>({
     queryKey: ["user"],
-    queryFn: () => Promise.resolve(queryClient.getQueryData<any>(["user"])),
+    queryFn: () => queryClient.getQueryData<any>(["user"]) ?? null,
     staleTime: Infinity,
-    enabled: !!queryClient.getQueryData(["user"]),
   });
   const isLoggedIn = !!user;
-
+  const router = useRouter();
   const optionFont =
     "text-[#1F1F1F] font-[Pretendard] text-base font-medium leading-[26px] cursor-pointer";
+
+  const handleLogout = async () => {
+    queryClient.clear();
+    queryClient.setQueryData(["user"], null);
+    refetch();
+    localStorage.removeItem("REACT_QUERY_OFFLINE_CACHE");
+    router.push("/login");
+  };
 
   return (
     <>
       <div className="flex items-center justify-between border-b border-gray-300 pb-5">
         <div className="flex pt-5 pl-5">
           {!isLoggedIn ? (
-            <img className="cursor-pointer" src={Logo.src} width={100} alt="logo" />
+            <img
+              className="cursor-pointer"
+              src={Logo.src}
+              width={100}
+              alt="logo"
+              onClick={() => router.push("/landing")}
+            />
           ) : (
             <>
               <img
@@ -53,13 +67,22 @@ export default function Nav({ option }: NavProps) {
             {isLoggedIn && <p className={optionFont}>견적 요청</p>}
             <p className={optionFont}>기사님 찾기</p>
             {isLoggedIn && <p className={optionFont}>내 견적 관리</p>}
+            <p
+              className={optionFont}
+              onClick={() => {
+                if (isLoggedIn) handleLogout();
+                else router.push("/login");
+              }}
+            >
+              {isLoggedIn ? "로그아웃" : "로그인"}
+            </p>
           </div>
         </div>
         <div className="flex gap-8 pt-5 pr-5">
           {!isLoggedIn ? (
             <button
               className="hidden cursor-pointer rounded rounded-[16px] bg-blue-500 px-5.5 py-2 text-white md:block"
-              onClick={() => {}}
+              onClick={() => router.push("/login")}
             >
               로그인
             </button>
@@ -94,7 +117,13 @@ export default function Nav({ option }: NavProps) {
           </div>
           <div className="flex flex-col gap-6 p-4">
             <p className={optionFont}>기사님 찾기</p>
-            <p className={optionFont} onClick={() => {}}>
+            <p
+              className={optionFont}
+              onClick={() => {
+                if (isLoggedIn) handleLogout();
+                else router.push("/login");
+              }}
+            >
               {isLoggedIn ? "로그아웃" : "로그인"}
             </p>
             {isLoggedIn && <p className={optionFont}>견적 요청</p>}
