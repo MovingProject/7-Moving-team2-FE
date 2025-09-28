@@ -1,57 +1,43 @@
 "use client";
 import React from "react";
-import clsx from "clsx";
-import BaseCard from "./BaseCard";
-import { CardSize, CardLayoutSize, TagData } from "./CardContext";
-import CardText from "./CardText";
+import BaseCard, { CommonCardProps } from "./BaseCard";
 import Tag from "../Tag";
-import TechnicianProfile from "../profile/TechnicianProfile";
-import { MovingInfo } from "../profile/MovingInfoViewer";
 import Button from "../Button";
+import { MoveTypeMap } from "@/types/moveTypes";
+import { ReviewData } from "@/types/card";
+import UserProfileArea from "../profile/UserProfileArea";
 
-interface ReviewCardProps {
-  size?: CardSize;
-  layoutSize?: CardLayoutSize;
-  time: string;
-  tags: TagData[];
-  profileData: {
-    name: string;
-    imageUrl: string;
-    movingInfo: MovingInfo;
-  };
-  messages: string;
+interface ReviewCardProps extends CommonCardProps {
+  review?: ReviewData;
 }
 
-const layoutizeClasses: Record<CardLayoutSize, string> = {
-  sm: "px-[14px] py-4 gap-4 max-w-[327px]",
-  md: "px-[14px] py-4 gap-4 max-w-[600px]",
-  lg: "px-6 py-5 gap-4 max-w-[995px]",
-  xl: "px-6 py-5 gap-4 w-full",
-};
-
-export default function ReviewCard({
-  layoutSize = "xl",
-  size = "md",
-  tags,
-  time,
-  profileData,
-  messages,
-}: ReviewCardProps) {
-  const cardClasses = clsx("bg-white border border-gray-200", layoutizeClasses[layoutSize]);
-
+export default function ReviewCard({ user, request, quotation, review }: ReviewCardProps) {
+  const tags = request?.serviceType;
+  const reviewDate = review?.createdAt;
   return (
-    <BaseCard size={size} layoutSize={layoutSize} className={cardClasses}>
+    <BaseCard className="gap-4 border border-gray-300 bg-white px-[14px] py-4 lg:gap-4 lg:px-6 lg:py-5">
       <div className="flex justify-between">
-        <div className="flex gap-2">
-          {tags.map((tag, index) => (
-            <Tag key={index} type={tag.type} content={tag.content} />
-          ))}
-        </div>
-        <span className="text-sm text-gray-400">{time}</span>
+        {tags && (
+          <div className="flex gap-2">
+            {tags.map((tag, index) => (
+              <Tag
+                key={index}
+                type={MoveTypeMap[tag].clientType}
+                content={MoveTypeMap[tag].content}
+              />
+            ))}
+          </div>
+        )}
+        {reviewDate && <span className="text-sm text-gray-400">{reviewDate}</span>}
       </div>
-      <TechnicianProfile profile={profileData} size={size} show={["name", "estimated"]} />
-      {messages ? (
-        <p className="text-sm text-gray-600">{messages}</p>
+      <UserProfileArea
+        user={user}
+        request={request}
+        quotation={quotation}
+        show={["name", "estimated"]}
+      />
+      {review?.content ? (
+        <p className="text-sm text-gray-600 lg:text-base">{review.content}</p>
       ) : (
         <div>
           <Button size="sm" textSize="mobile" text="리뷰 작성" />
