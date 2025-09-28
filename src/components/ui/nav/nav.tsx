@@ -6,6 +6,8 @@ import XIcon from "@/assets/icon/X.svg";
 import UserIcon from "@/assets/icon/user.svg";
 import AlramIcon from "@/assets/icon/alram.svg";
 import LogoMobile from "@/assets/icon/Logo-1.svg";
+import { useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 interface NavProps {
   option?: string;
@@ -13,7 +15,14 @@ interface NavProps {
 
 export default function Nav({ option }: NavProps) {
   const [open, setOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const queryClient = useQueryClient();
+  const { data: user } = useQuery<any, Error>({
+    queryKey: ["user"],
+    queryFn: () => Promise.resolve(queryClient.getQueryData<any>(["user"])),
+    staleTime: Infinity,
+    enabled: !!queryClient.getQueryData(["user"]),
+  });
+  const isLoggedIn = !!user;
 
   const optionFont =
     "text-[#1F1F1F] font-[Pretendard] text-base font-medium leading-[26px] cursor-pointer";
@@ -50,7 +59,7 @@ export default function Nav({ option }: NavProps) {
           {!isLoggedIn ? (
             <button
               className="hidden cursor-pointer rounded rounded-[16px] bg-blue-500 px-5.5 py-2 text-white md:block"
-              onClick={() => setIsLoggedIn(true)}
+              onClick={() => {}}
             >
               로그인
             </button>
@@ -59,7 +68,7 @@ export default function Nav({ option }: NavProps) {
               <img src={AlramIcon.src} alt="알람" className="h-6 w-6 cursor-pointer" />
               <div className="flex cursor-pointer">
                 <img src={UserIcon.src} alt="유저" className="h-6 w-6" />
-                <p>이름</p>
+                <p>{user.data.name || "임시유저"}</p>
               </div>
             </div>
           )}
@@ -85,7 +94,7 @@ export default function Nav({ option }: NavProps) {
           </div>
           <div className="flex flex-col gap-6 p-4">
             <p className={optionFont}>기사님 찾기</p>
-            <p className={optionFont} onClick={() => setIsLoggedIn((prev) => !prev)}>
+            <p className={optionFont} onClick={() => {}}>
               {isLoggedIn ? "로그아웃" : "로그인"}
             </p>
             {isLoggedIn && <p className={optionFont}>견적 요청</p>}
