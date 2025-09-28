@@ -1,67 +1,60 @@
 "use client";
 
 import React from "react";
-import clsx from "clsx";
-import BaseCard from "./BaseCard";
-import { CardSize, CardLayoutSize, TagData } from "./CardContext";
+import BaseCard, { CommonCardProps } from "./BaseCard";
 import CardText from "./CardText";
 import Tag from "../Tag";
-import TechnicianProfile from "../profile/TechnicianProfile";
 import Button from "../Button";
-import { MovingInfo } from "../profile/MovingInfoViewer";
+import UserProfileArea from "../profile/UserProfileArea";
+import { DriverUser } from "@/types/card";
+import { isDriverUser } from "@/utils/type-guards";
+import { MoveTypeMap } from "@/types/moveTypes";
 
-interface OrderCardProps {
-  size?: CardSize;
-  layoutSize?: CardLayoutSize;
-  price: number;
-  profileData: {
-    tags: TagData[];
-    name: string;
-    imageUrl: string;
-    movingInfo: MovingInfo;
-    likes: {
-      count: number;
-      isLiked: boolean;
-    };
-  };
-}
+interface OrderCardProps extends CommonCardProps {}
 
-const layoutizeClasses: Record<CardLayoutSize, string> = {
-  sm: "px-3 py-5 gap-2 max-w-[327px]",
-  md: "px-3 py-[22px] gap-[14px] max-w-[600px]",
-  lg: "px-6 py-7 gap-6 max-w-[688px]",
-  xl: "px-6 py-7 gap-6 w-full",
-};
-
-export default function OrderCard({
-  layoutSize = "xl",
-  size = "md",
-  price,
-  profileData: { tags, ...restProfileData },
-}: OrderCardProps) {
-  const cardClasses = clsx("bg-white border border-gray-200", layoutizeClasses[layoutSize]);
+export default function OrderCard({ user, request, quotation }: OrderCardProps) {
+  const isDriver = isDriverUser(user);
+  if (!isDriver) {
+    return null;
+  }
+  const driverUser = user as DriverUser;
+  const profileData = driverUser.profile;
+  const { nickname, oneLiner, rating, confirmedCount, driverServiceTypes, ...restProfileData } =
+    profileData;
+  const price = quotation?.price;
+  const tags = request?.serviceType;
 
   return (
-    <BaseCard size={size} layoutSize={layoutSize} className={cardClasses}>
+    <BaseCard className="gap-2 px-3 py-5 md:gap-[14px] md:py-[22px] lg:gap-6 lg:px-6 lg:py-7">
       <div className="flex justify-between">
-        <div className="flex gap-2">
-          {tags.map((tag, index) => (
-            <Tag key={index} type={tag.type} content={tag.content} />
-          ))}
-        </div>
+        {tags && (
+          <div className="flex gap-2">
+            {tags.map((tag, index) => (
+              <Tag
+                key={index}
+                type={MoveTypeMap[tag].clientType}
+                content={MoveTypeMap[tag].content}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
-      <TechnicianProfile
-        profile={restProfileData}
+      <UserProfileArea
+        user={user}
+        request={request}
+        quotation={quotation}
         show={["name", "reviews", "likes"]}
-        className="rounded-lg border border-gray-200 p-[10px]"
+        className="rounded-lg border border-gray-300 p-[10px]"
       />
 
-      <div className="flex justify-end">
-        <CardText className="text-lg lg:text-xl">
-          견적 금액 <span className="font-semibold">{price.toLocaleString()}원</span>
-        </CardText>
-      </div>
+      {price && (
+        <div className="flex justify-end">
+          <CardText className="text-lg lg:text-xl">
+            견적 금액 <span className="font-semibold">{price.toLocaleString()}원</span>
+          </CardText>
+        </div>
+      )}
 
       <div className="flex gap-2">
         <Button size="sm" textSize="mobile" text="견적 제출하기" />

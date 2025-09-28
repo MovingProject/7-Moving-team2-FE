@@ -1,98 +1,74 @@
 "use client";
-import React from "react";
+import React, { useMemo } from "react";
 import clsx from "clsx";
-import BaseCard from "./BaseCard";
-import { CardSize, CardLayoutSize, TagData } from "./CardContext";
+import BaseCard, { CommonCardProps } from "./BaseCard";
 import CardText from "./CardText";
 import Tag from "../Tag";
 import TechnicianProfile from "../profile/TechnicianProfile";
 import MovingInfoViewer, { MovingInfo } from "../profile/MovingInfoViewer";
 import Button from "../Button";
+import UserProfileArea from "../profile/UserProfileArea";
+import { DriverUser } from "@/types/card";
+import { isDriverUser } from "@/utils/type-guards";
+import { AreaMap, AreaType } from "@/types/areaTypes";
+import { MoveTypeMap } from "@/types/moveTypes";
 
-interface ProfileCardProps {
-  size?: CardSize;
-  layoutSize?: CardLayoutSize;
-  profileData: {
-    greeting: string;
-    services: string[];
-    locals: string[];
-    name: string;
-    imageUrl: string;
-    movingInfo?: MovingInfo;
-  };
-}
+interface ProfileCardProps extends CommonCardProps {}
 
-const layoutizeClasses: Record<CardLayoutSize, string> = {
-  sm: "bg-white border rounded-2xl border-gray-200 px-3 py-4 gap-2",
-  md: "bg-white border rounded-2xl border-gray-200 border bpx-[14px] py-4 gap-4",
-  lg: "p-6 gap-6 max-w-[1400px]",
-  xl: "p-6 gap-6 w-full",
-};
+export default function ProfileCard({ user }: ProfileCardProps) {
+  const isDriver = isDriverUser(user);
+  if (!isDriver) {
+    return null;
+  }
+  const driverUser = user as DriverUser;
+  const profileData = driverUser.profile;
+  const movingInfo: MovingInfo = useMemo(() => {
+    const info: MovingInfo = {
+      serviceTypes: profileData.driverServiceTypes?.map((service) => MoveTypeMap[service].content),
+      serviceAreas: profileData.driverServiceAreas?.map((areaKey) => AreaMap[areaKey as AreaType]),
+      reviewCount: profileData.reviewCount,
+      rating: profileData.rating,
+      careerYears: profileData.careerYears,
+      confirmedCount: profileData.confirmedCount,
+    };
 
-export default function ProfileCard({
-  layoutSize = "xl",
-  size = "md",
-  profileData,
-}: ProfileCardProps) {
-  const cardClasses = clsx(layoutizeClasses[layoutSize]);
-  const isCompact = layoutSize === "sm" || layoutSize === "md";
-
+    return info;
+  }, [profileData]);
   return (
-    <BaseCard size={size} layoutSize={layoutSize}>
+    <BaseCard className="relative lg:gap-6 lg:rounded-xl lg:border lg:border-gray-300 lg:bg-gray-100 lg:p-6">
       <div className="flex flex-col gap-2">
-        {/* ✅ layoutSize에 따라 다른 마크업 렌더링 */}
-        {isCompact ? (
-          <div
-            className={`flex flex-col gap-2 ${layoutSize === "sm" ? "max-w-[327px]" : "max-w-[600px]"}`}
-          >
-            {/* sm, md 레이아웃일 때 */}
-            <div className={clsx("flex flex-col gap-2", cardClasses)}>
-              <TechnicianProfile
-                profile={{
-                  name: profileData.name,
-                  imageUrl: profileData.imageUrl,
-                  greeting: profileData.greeting,
-                }}
-                show={["name", "greeting"]}
-              />
-              {profileData.movingInfo && (
-                <div className="flex flex-col gap-2 rounded-lg border border-gray-200 p-[10px]">
-                  <MovingInfoViewer info={profileData.movingInfo} infoType="review" />
-                  <MovingInfoViewer info={profileData.movingInfo} infoType="localservice" />
-                </div>
-              )}
+        <div className="flex flex-col gap-2 rounded-2xl border border-gray-300 bg-white px-3 py-4 lg:hidden">
+          <UserProfileArea user={user} show={["name", "oneLiner"]} />
+          {movingInfo && (
+            <div className="flex flex-col gap-2 rounded-lg border border-gray-200 p-[10px]">
+              <MovingInfoViewer info={movingInfo} infoType="review" />
+              <MovingInfoViewer info={movingInfo} infoType="driverService" />
             </div>
-            <div className="flex flex-col gap-2">
-              <Button size="sm" textSize="mobile" variant="secondary" text="기본 정보 수정" />
-              <Button size="sm" textSize="mobile" text="내 프로필 수정" />
-            </div>
+          )}
+        </div>
+        <div className="hidden lg:flex lg:flex-col lg:gap-4">
+          <div className="flex max-w-1/2 flex-col gap-2">
+            {user.name && <CardText className="text-2xl">{user.name}</CardText>}
+            {profileData.oneLiner && (
+              <CardText className="text-gray-600">{profileData.oneLiner}</CardText>
+            )}
           </div>
-        ) : (
-          <div className={clsx("border border-gray-200 bg-white", cardClasses)}>
-            {/* lg, xl 등 다른 레이아웃일 때 */}
-            <div className="flex justify-between">
-              <div className="flex flex-col gap-1">
-                {profileData.name && <CardText>{profileData.name}</CardText>}
-                {profileData.greeting && <CardText>{profileData.greeting}</CardText>}
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  size="md"
-                  textSize="mobile"
-                  className="max-w-[140px]"
-                  variant="secondary"
-                  text="기본 정보 수정"
-                />
-                <Button size="md" textSize="mobile" className="w-[140px]" text="내 프로필 수정" />
-              </div>
-            </div>
-            <TechnicianProfile
-              profile={profileData}
-              show={["services", "reviews"]}
-              className="rounded-lg border border-gray-200 p-[10px]"
-            />
-          </div>
-        )}
+          <UserProfileArea
+            user={user}
+            show={["services", "reviews"]}
+            className="rounded-2xl border border-gray-300 bg-gray-200 px-[18px] py-6"
+          />
+        </div>
+        <div className="lg: flex flex-col gap-2 lg:absolute lg:top-6 lg:right-6 lg:flex-row">
+          <Button
+            size="sm"
+            textSize="mobile"
+            variant="secondary"
+            text="기본 정보 수정"
+            className="lg:w-[160px]"
+          />
+          <Button size="sm" textSize="mobile" text="내 프로필 수정" className="lg:w-[160px]" />
+        </div>
       </div>
     </BaseCard>
   );
