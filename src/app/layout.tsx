@@ -4,7 +4,6 @@ import "../styles/globals.css";
 import Nav from "@/components/ui/nav/nav";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { QueryPersister } from "@tanstack/react-query";
 
 const queryClient = new QueryClient();
 
