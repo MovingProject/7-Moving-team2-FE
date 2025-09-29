@@ -57,7 +57,7 @@ export default function Popup({
       )}
     >
       {type === "warning" && (
-        <Image src={WarningIcon} alt="warning" className="h-4 w-4 shrink-0 md:h-5 md:w-5" />
+        <Image src={WarningIcon} alt="warning" fill className="h-4 w-4 shrink-0 md:h-5 md:w-5" />
       )}
       <p>{message}</p>
     </div>
