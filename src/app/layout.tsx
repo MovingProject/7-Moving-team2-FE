@@ -7,6 +7,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import { ReactNode, useState, useEffect } from "react";
+import type { Persister } from "@tanstack/query-persist-client-core";
 
 const queryClient = new QueryClient();
 
@@ -15,7 +16,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [persister, setPersister] = useState<any>(null);
+  const [persister, setPersister] = useState<Persister | null>(null);
   useEffect(() => {
     const asyncPersister = createAsyncStoragePersister({
       storage: window.localStorage,

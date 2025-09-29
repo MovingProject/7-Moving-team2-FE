@@ -6,14 +6,30 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-export default function LoginForm({ role }: any) {
+type LoginFormProps = {
+  role: "DRIVER" | "CONSUMER";
+};
+
+type User = {
+  success: boolean;
+  data: {
+    id: string;
+    email: string;
+    name: string;
+    role: "DRIVER" | "CONSUMER";
+    createdAt: string;
+    isProfileRegistered: boolean;
+  };
+};
+
+export default function LoginForm({ role }: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const router = useRouter();
   const queryClient = useQueryClient();
-  const user = queryClient.getQueryData<any>(["user"]);
+  const user = queryClient.getQueryData<User>(["user"]);
 
   const { mutate: login } = useLogin();
 
@@ -47,7 +63,7 @@ export default function LoginForm({ role }: any) {
           queryClient.setQueryData(["user"], res);
           router.push("/landing");
         },
-        onError: (err: any) => {
+        onError: (err: unknown) => {
           console.log("로그인실패");
           //TODO : 로그인실패 모달 연동
         },
