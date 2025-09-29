@@ -77,7 +77,7 @@ export default function LoginForm({ role }: LoginFormProps) {
     }
   }, [user, router]);
 
-  //TODO : FIX : INPUT에서 바꿔야할거생김 <input tpye:{} /> 이부분 조절할수있도록해야됨.
+  //TODO : FIX : INPUT에서 바꿔야할거생김 <input type:{} /> 이부분 조절할수있도록해야됨.
   return (
     <div className="w-full max-w-[640px]">
       <form className="flex w-full max-w-[640px] flex-col gap-3.5" onSubmit={handleSubmit}>
