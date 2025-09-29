@@ -88,7 +88,7 @@ export default function Modal({
             <h2 className="text-lg font-semibold">{title}</h2>
           )}
           <button onClick={onClose} className="flex-shrink-0 cursor-pointer">
-            <Image src={CloseIcon} alt="close" className={CloseIconSize} />
+            <Image src={CloseIcon} alt="close" fill className={CloseIconSize} />
           </button>
         </div>
 

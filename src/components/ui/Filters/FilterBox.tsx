@@ -74,6 +74,7 @@ export default function FilterBox({
         <Image
           src={ArrowIconDown}
           alt="arrow"
+          fill
           className={clsx("transition-transform", typeIconMap[type], isOpen && "rotate-180")}
         />
       </button>
