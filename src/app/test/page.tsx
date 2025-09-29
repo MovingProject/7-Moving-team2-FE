@@ -6,8 +6,6 @@ import {
   ServiceFilter,
   SortFilter,
   SortTechFilter,
-  MoveTypeFilter,
-  FilterFilter,
   ResponsiveMoveAndFilter,
 } from "@/components/ui/Filters/Filters";
 import Dropdown from "@/components/ui/Filters/Dropdown";
@@ -59,7 +57,13 @@ export default function TestPage() {
           onClick={() => setProfileOpen((p) => !p)}
           className="flex w-[100px] items-center gap-2 rounded-full border px-4 py-2 hover:bg-gray-50"
         >
-          <Image src="/icons/profile.svg" alt="profile" className="h-6 w-6 rounded-full" />
+          <Image
+            src="/icons/profile.svg"
+            alt="profile"
+            width={24}
+            height={24}
+            className="rounded-full"
+          />
           <span>홍길동</span>
         </button>
         {profileOpen && (
@@ -91,7 +95,7 @@ export default function TestPage() {
           onClick={() => setNotificationOpen((p) => !p)}
           className="relative rounded-full p-2 hover:bg-gray-50"
         >
-          <Image src="/icons/bell.svg" alt="알림" className="h-6 w-6" />
+          <Image src="/icons/bell.svg" alt="알림" width={24} height={24} />
           {/* 알림 카운트 예시 */}
           <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
             3
@@ -113,11 +117,6 @@ export default function TestPage() {
       </div>
 
       {/* 체크 필터 테스트 */}
-      <div className="mt-10 flex-col space-y-6">
-        <h2 className="text-lg font-semibold">체크 필터 테스트</h2>
-        <MoveTypeFilter selected={moveTypeSelected} onToggle={toggleMoveType} />
-        <FilterFilter selected={filterTypeSelected} onToggle={toggleFilterType} />
-      </div>
       <div className="mt-10 flex-col space-y-6">
         <h2 className="text-lg font-semibold">반응형 체크 필터 테스트</h2>
         <ResponsiveMoveAndFilter
