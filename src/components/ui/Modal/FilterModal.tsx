@@ -1,7 +1,7 @@
 "use client";
 
 import Modal from "./Modal";
-import { ResponsiveCheckFilter } from "@/components/ui/Filters/ResponsiveCheckFilter";
+import ResponsiveCheckFilter from "@/components/ui/Filters/ResponsiveCheckFilter";
 import { MOVE_TYPE_OPTIONS, CHECK_FILTER_OPTIONS } from "@/components/ui/Filters/filterOptions";
 
 interface FilterModalProps {
