@@ -1,9 +1,9 @@
 "use client";
-import React from "react";
+import { QuotationData, RequestData, UserData } from "@/types/card";
 import clsx from "clsx";
-import { CardProvider, cardTypes } from "./CardContext";
-import { UserData, RequestData, QuotationData, DriverUser } from "@/types/card";
+import React from "react";
 import { IconType } from "../Tag";
+import { CardProvider, cardTypes } from "./CardContext";
 interface BaseCardProps {
   children: React.ReactNode;
   cardType?: cardTypes;

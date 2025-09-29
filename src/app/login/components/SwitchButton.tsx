@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 interface SwitchButtonProps {
   selected: "CONSUMER" | "DRIVER";
   setSelected: (role: "CONSUMER" | "DRIVER") => void;

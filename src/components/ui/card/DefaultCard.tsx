@@ -9,17 +9,14 @@ import { MoveTypeMap } from "@/types/moveTypes";
 import UserProfileArea from "../profile/UserProfileArea";
 import { isDriverUser } from "@/utils/type-guards";
 
-interface DefaultCardProps extends CommonCardProps {}
-
-export default function DefaultCard({ user, request, quotation }: DefaultCardProps) {
+export default function DefaultCard({ user, request, quotation }: CommonCardProps) {
   const isDriver = isDriverUser(user);
   if (!isDriver) {
     return null;
   }
   const driverUser = user as DriverUser;
   const profileData = driverUser.profile;
-  const { nickname, oneLiner, rating, confirmedCount, driverServiceTypes, ...restProfileData } =
-    profileData;
+  const { nickname, oneLiner, rating, confirmedCount, driverServiceTypes } = profileData;
   const price = quotation?.price;
 
   return (

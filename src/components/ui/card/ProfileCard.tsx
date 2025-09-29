@@ -10,13 +10,9 @@ import { isDriverUser } from "@/utils/type-guards";
 import { AreaMap, AreaType } from "@/types/areaTypes";
 import { MoveTypeMap } from "@/types/moveTypes";
 
-interface ProfileCardProps extends CommonCardProps {}
-
-export default function ProfileCard({ user }: ProfileCardProps) {
+export default function ProfileCard({ user }: CommonCardProps) {
   const isDriver = isDriverUser(user);
-  if (!isDriver) {
-    return null;
-  }
+
   const driverUser = user as DriverUser;
   const profileData = driverUser.profile;
   const movingInfo: MovingInfo = useMemo(() => {
@@ -31,6 +27,9 @@ export default function ProfileCard({ user }: ProfileCardProps) {
 
     return info;
   }, [profileData]);
+  if (!isDriver) {
+    return null;
+  }
   return (
     <BaseCard className="relative lg:gap-6 lg:rounded-xl lg:border lg:border-gray-300 lg:bg-gray-100 lg:p-6">
       <div className="flex flex-col gap-2">

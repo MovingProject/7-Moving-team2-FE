@@ -10,9 +10,7 @@ import { DriverUser } from "@/types/card";
 import { isDriverUser } from "@/utils/type-guards";
 import { MoveTypeMap } from "@/types/moveTypes";
 
-interface OrderCardProps extends CommonCardProps {}
-
-export default function OrderCard({ user, request, quotation }: OrderCardProps) {
+export default function OrderCard({ user, request, quotation }: CommonCardProps) {
   const isDriver = isDriverUser(user);
   if (!isDriver) {
     return null;

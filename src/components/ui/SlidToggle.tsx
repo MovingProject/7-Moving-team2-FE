@@ -1,5 +1,3 @@
-"use client";
-
 import { KeyboardEvent } from "react";
 
 type Value = "user" | "pro";

@@ -93,7 +93,7 @@ export default function Nav({ option }: NavProps) {
         <div className="flex gap-8 pt-5 pr-5">
           {!isLoggedIn ? (
             <button
-              className="hidden cursor-pointer rounded rounded-[16px] bg-blue-500 px-5.5 py-2 text-white md:block"
+              className="hidden cursor-pointer rounded-[16px] bg-blue-500 px-5.5 py-2 text-white md:block"
               onClick={() => router.push("/login")}
             >
               로그인

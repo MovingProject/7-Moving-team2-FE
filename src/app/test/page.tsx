@@ -11,6 +11,7 @@ import {
   ResponsiveMoveAndFilter,
 } from "@/components/ui/Filters/Filters";
 import Dropdown from "@/components/ui/Filters/Dropdown";
+import Image from "next/image";
 import { PROFILE_OPTIONS, NOTIFICATION_OPTIONS } from "@/components/ui/Filters/filterOptions";
 
 export default function TestPage() {
@@ -58,7 +59,7 @@ export default function TestPage() {
           onClick={() => setProfileOpen((p) => !p)}
           className="flex w-[100px] items-center gap-2 rounded-full border px-4 py-2 hover:bg-gray-50"
         >
-          <img src="/icons/profile.svg" alt="profile" className="h-6 w-6 rounded-full" />
+          <Image src="/icons/profile.svg" alt="profile" className="h-6 w-6 rounded-full" />
           <span>홍길동</span>
         </button>
         {profileOpen && (
@@ -90,7 +91,7 @@ export default function TestPage() {
           onClick={() => setNotificationOpen((p) => !p)}
           className="relative rounded-full p-2 hover:bg-gray-50"
         >
-          <img src="/icons/bell.svg" alt="알림" className="h-6 w-6" />
+          <Image src="/icons/bell.svg" alt="알림" className="h-6 w-6" />
           {/* 알림 카운트 예시 */}
           <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white">
             3

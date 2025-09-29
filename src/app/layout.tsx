@@ -1,13 +1,12 @@
 "use client";
-import type { Metadata } from "next";
-import "../styles/globals.css";
 import Nav from "@/components/ui/nav/nav";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
+import type { Persister } from "@tanstack/query-persist-client-core";
+import { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
-import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
-import { ReactNode, useState, useEffect } from "react";
-import type { Persister } from "@tanstack/query-persist-client-core";
+import { useEffect, useState } from "react";
+import "../styles/globals.css";
 
 const queryClient = new QueryClient();
 

@@ -24,9 +24,6 @@ export default function UserProfileArea({
   show = ["name", "reviews"],
   className,
 }: UserProfileInfoProps) {
-  if (!user) {
-    return null;
-  }
   const isVisible = (key: "name" | "oneLiner" | "services" | "reviews" | "estimated" | "likes") =>
     show.includes(key);
 
@@ -52,6 +49,9 @@ export default function UserProfileArea({
 
     return info;
   }, [driverProfile, quotation?.price, request?.moveAt]);
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className={`relative flex items-center gap-3 ${className ?? ""}`}>

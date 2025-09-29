@@ -1,7 +1,6 @@
 "use client";
 import LoginForm from "@/app/login/components/LoginForm";
 import SocialLogin from "./components/SocialLogin";
-import Link from "next/link";
 import SwitchButton from "./components/SwitchButton";
 import LogoText from "@/assets/icon/Logo-2.svg";
 import Image from "next/image";

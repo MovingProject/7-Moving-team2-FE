@@ -1,8 +1,8 @@
 "use client"; // 이 파일은 클라이언트에서 실행됩니다.
 
-import { useState, useEffect } from "react";
 import ProfileImage from "@/components/ui/profile/ProfileImage";
 import { getRandomProfileImage } from "@/utils/constant/getProfileImage";
+import { useState } from "react";
 
 interface ProfileViewerProps {
   initialImageUrl: string;
@@ -14,5 +14,5 @@ export default function ProfileViewer({ initialImageUrl, size = "md" }: ProfileV
     initialImageUrl || getRandomProfileImage()
   );
 
-  return <>{profileImageSrc && <ProfileImage src={profileImageSrc} size={size} />}</>;
+  return <>{profileImageSrc && <ProfileImage src={profileImageSrc} />}</>;
 }
