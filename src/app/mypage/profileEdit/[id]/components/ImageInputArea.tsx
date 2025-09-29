@@ -40,6 +40,8 @@ export default function ImageInputArea({ size = "w-32 h-32" }: ImageInputAreaPro
         <Image
           src={preview || upload.src} // 👉 upload 이미지가 기본값
           alt="업로드 이미지"
+          width={100}
+          height={100}
           className={`${size} h-4 w-4 border border-gray-300 object-cover shadow-sm transition hover:opacity-80`} // 사이즈 임의로 넣었음
         />
       </label>
