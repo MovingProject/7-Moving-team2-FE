@@ -1,10 +1,7 @@
 "use client";
 import React, { useMemo } from "react";
-import clsx from "clsx";
 import BaseCard, { CommonCardProps } from "./BaseCard";
 import CardText from "./CardText";
-import Tag from "../Tag";
-import TechnicianProfile from "../profile/TechnicianProfile";
 import MovingInfoViewer, { MovingInfo } from "../profile/MovingInfoViewer";
 import Button from "../Button";
 import UserProfileArea from "../profile/UserProfileArea";
