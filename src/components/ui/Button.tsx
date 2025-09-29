@@ -1,4 +1,5 @@
-import type { ButtonHTMLAttributes, ReactNode, MouseEventHandler } from "react";
+"use client";
+import type { ButtonHTMLAttributes, ReactNode, MouseEvent as ReactMouseEvent } from "react";
 import clsx from "clsx";
 import writingIcon from "@/assets/icon/writing.svg";
 import Image from "next/image";
@@ -28,7 +29,8 @@ type Size = "sm" | "md" | "lg" | "xl";
 type Radius = "default" | "full";
 type TextSize = "desktop" | "mobile";
 
-/** 공통(버튼 고유) 속성들: children, onClick은 재정의 위해 제외 */
+type ButtonClickHandler = (event: ReactMouseEvent<HTMLButtonElement>) => void | Promise<void>;
+
 type BaseProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children" | "onClick"> & {
   variant?: Variant;
   size?: Size;
@@ -44,7 +46,7 @@ type BaseProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children" | "onC
   style?: React.CSSProperties;
 
   /** 허용 범위 확장: 이벤트 핸들러 or 콜백 둘 다 가능 */
-  onClick?: MouseEventHandler<HTMLButtonElement> | (() => void);
+  onClick?: ButtonClickHandler;
 };
 
 /** 둘 중 하나만 허용 (XOR):
@@ -116,6 +118,8 @@ export default function Button(props: ButtonProps) {
   // children > text > 기본 "버튼"
   const label: ReactNode = "children" in props ? props.children : (props.text ?? "버튼");
 
+  const handleClick = onClick;
+
   return (
     <button
       type={type}
@@ -139,8 +143,7 @@ export default function Button(props: ButtonProps) {
       style={style}
       // onClick 정규화: MouseEventHandler든 () => void든 모두 호출
       onClick={(e) => {
-        if (!onClick) return;
-        (onClick as any)(e); // 무인자 콜백은 여분 인자(e)를 무시하므로 안전
+        handleClick?.(e);
       }}
       {...rest}
     >
