@@ -7,9 +7,7 @@ import Button from "../Button";
 import UserProfileArea from "../profile/UserProfileArea";
 import { MoveTypeMap } from "@/types/moveTypes";
 
-interface RequestCardProps extends CommonCardProps {}
-
-export default function RequestCard({ user, request, quotation }: RequestCardProps) {
+export default function RequestCard({ user, request, quotation }: CommonCardProps) {
   const tags = request?.serviceType;
   const requestedAt = request?.createdAt;
   const movingInfo: MovingInfo = useMemo(() => {
