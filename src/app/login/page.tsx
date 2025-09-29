@@ -4,14 +4,43 @@ import SocialLogin from "./components/SocialLogin";
 import SwitchButton from "./components/SwitchButton";
 import LogoText from "@/assets/icon/Logo-2.svg";
 import Image from "next/image";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { useState } from "react";
+type UserResponse = {
+  success: boolean;
+  data: {
+    id: string;
+    email: string;
+    name: string;
+    role: "DRIVER" | "CONSUMER";
+    createdAt: string;
+    isProfileRegistered: boolean;
+  };
+};
+
 export default function Login() {
   const pretendardXs = "text-[#6B6B6B] font-pretendard text-[16px] font-normal leading-[18px]";
   const pretendardXsUnderline =
     "text-[var(--Primary-blue-300,#1B92FF)] font-pretendard text-[16px] font-semibold leading-[20px] underline";
 
   const [role, setRole] = useState<"CONSUMER" | "DRIVER">("CONSUMER");
+
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const { data: user } = useQuery<UserResponse | null, Error>({
+    queryKey: ["user"],
+    queryFn: () => queryClient.getQueryData<UserResponse>(["user"]) ?? null,
+    staleTime: Infinity,
+  });
+
+  useEffect(() => {
+    if (user?.success) {
+      router.replace("/landing");
+    }
+  }, [user, router]);
 
   return (
     <div className="mt-10 flex justify-center">
