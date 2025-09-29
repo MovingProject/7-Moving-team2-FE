@@ -13,13 +13,24 @@ import { useRouter } from "next/navigation";
 interface NavProps {
   option?: string;
 }
+type UserResponse = {
+  success: boolean;
+  data: {
+    id: string;
+    email: string;
+    name: string;
+    role: "DRIVER" | "CONSUMER";
+    createdAt: string;
+    isProfileRegistered: boolean;
+  };
+};
 
 export default function Nav({ option }: NavProps) {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
-  const { data: user, refetch } = useQuery<any, Error>({
+  const { data: user, refetch } = useQuery<UserResponse | null, Error>({
     queryKey: ["user"],
-    queryFn: () => queryClient.getQueryData<any>(["user"]) ?? null,
+    queryFn: () => queryClient.getQueryData<UserResponse>(["user"]) ?? null,
     staleTime: Infinity,
   });
   const isLoggedIn = !!user;
