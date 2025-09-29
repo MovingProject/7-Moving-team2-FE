@@ -17,7 +17,7 @@ export default function Login() {
     <div className="mt-10 flex justify-center">
       <div className="flex w-full max-w-[480px] flex-col items-center">
         <div className="mb-[40px] flex flex-col items-center">
-          <Image className="mb-[24px]" src={LogoText.src} alt=""></Image>
+          <Image className="mb-[24px]" src={LogoText.src} alt="" width={100} height={100}></Image>
           <SwitchButton selected={role} setSelected={setRole} />
         </div>
         <LoginForm role={role}></LoginForm>
