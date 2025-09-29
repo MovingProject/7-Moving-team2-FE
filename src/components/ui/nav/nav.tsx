@@ -56,6 +56,7 @@ export default function Nav({ option }: NavProps) {
               className="cursor-pointer"
               src={Logo.src}
               width={100}
+              height={100}
               alt="logo"
               onClick={() => router.push("/landing")}
             />
@@ -65,12 +66,14 @@ export default function Nav({ option }: NavProps) {
                 className="block cursor-pointer md:hidden"
                 src={LogoMobile.src}
                 width={32}
+                height={32}
                 alt="logo"
               />
               <Image
                 className="hidden cursor-pointer md:block"
                 src={Logo.src}
                 width={100}
+                height={100}
                 alt="logo"
               />
             </>
@@ -100,9 +103,15 @@ export default function Nav({ option }: NavProps) {
             </button>
           ) : (
             <div className="flex items-center gap-8 space-x-2">
-              <Image src={AlramIcon.src} alt="알람" className="h-6 w-6 cursor-pointer" />
+              <Image
+                src={AlramIcon.src}
+                alt="알람"
+                className="h-6 w-6 cursor-pointer"
+                width={100}
+                height={100}
+              />
               <div className="flex cursor-pointer">
-                <Image src={UserIcon.src} alt="유저" className="h-6 w-6" />
+                <Image src={UserIcon.src} alt="유저" className="h-6 w-6" width={100} height={100} />
                 <p>{user.data.name || "임시유저"}</p>
               </div>
             </div>
@@ -112,6 +121,8 @@ export default function Nav({ option }: NavProps) {
             src={Menu.src}
             alt="Menu"
             onClick={() => setOpen((prev) => !prev)}
+            width={100}
+            height={100}
           />
         </div>
       </div>
@@ -125,6 +136,8 @@ export default function Nav({ option }: NavProps) {
               src={XIcon.src}
               alt="취소"
               onClick={() => setOpen(false)}
+              width={100}
+              height={100}
             />
           </div>
           <div className="flex flex-col gap-6 p-4">

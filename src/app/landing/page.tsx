@@ -17,30 +17,50 @@ export default function Landing() {
         </p>
 
         <div className="flex flex-col outline-none lg:h-[600px] lg:flex-row lg:items-stretch lg:gap-0">
-          <Image src={MovingSmall.src} className="cursor-pointer outline-none lg:hidden" alt="" />
+          <Image
+            src={MovingSmall.src}
+            className="cursor-pointer outline-none lg:hidden"
+            alt=""
+            width={100}
+            height={100}
+          />
           <Image
             src={MovingSmallMd.src}
             className="hidden cursor-pointer outline-none lg:block lg:h-[508px] lg:w-[432px] lg:object-contain"
             alt=""
+            width={100}
+            height={100}
           />
 
           <div className="flex flex-col outline-none lg:h-[508px] lg:w-[604px] lg:gap-0">
-            <Image src={MovingHome.src} className="cursor-pointer outline-none lg:hidden" alt="" />
+            <Image
+              src={MovingHome.src}
+              className="cursor-pointer outline-none lg:hidden"
+              alt=""
+              width={100}
+              height={100}
+            />
             <Image
               src={MovingHomeMd.src}
               className="hidden cursor-pointer outline-none lg:block lg:h-[287px] lg:w-[764px] lg:object-contain"
               alt=""
+              width={100}
+              height={100}
             />
 
             <Image
               src={MovingBusiness.src}
               className="cursor-pointer outline-none lg:hidden"
               alt=""
+              width={100}
+              height={100}
             />
             <Image
               src={MovingBusinessMd.src}
               className="hidden cursor-pointer outline-none lg:block lg:h-[287px] lg:w-[764px] lg:object-contain"
               alt=""
+              width={100}
+              height={100}
             />
           </div>
         </div>
