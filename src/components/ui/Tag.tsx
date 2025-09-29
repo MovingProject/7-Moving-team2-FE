@@ -9,7 +9,6 @@ import OfficeMoveIcon from "@/assets/icon/OfficeMoveIcon.svg";
 import OfficeMoveIconSm from "@/assets/icon/OfficeMoveIcon-1.svg";
 import RequestQuoteIcon from "@/assets/icon/RequestQuoteIcon.svg";
 import RequestQuoteIconSm from "@/assets/icon/RequestQuoteIcon-1.svg";
-import { useCard } from "./card/CardContext";
 import Image from "next/image";
 
 export type IconType = "smallMove" | "homeMove" | "officeMove" | "requestQuote" | "default";
@@ -80,15 +79,10 @@ const iconMap: Record<Exclude<IconType, "default">, Record<IconSize, Icon>> = {
  * @param content - 태그에 표시할 텍스트 (선택)
  * @param borderType - 모서리 스타일 (default -> 사각형, radius -> 둥근 모서리) (선택)
  */
-export default function Tag({ type, size, content, borderType, selected }: TagProps) {
-  const { size: cardSize } = useCard();
-  const finalSize: IconSize = (cardSize !== "md" ? cardSize : (size ?? "md")) as IconSize;
-
-  const icon = type === "default" ? null : iconMap[type]?.[finalSize] || iconMap[type]?.md;
-
+export default function Tag({ type, size = "md", content, borderType, selected }: TagProps) {
+  const icon = type === "default" ? null : iconMap[type]?.[size] || iconMap[type]?.md;
   const containerClass = clsx(
-    "inline-flex items-center px-2 whitespace-nowrap h-8 flex-shrink-0",
-    finalSize === "sm" ? "text-sm gap-1" : "gap-2",
+    "inline-flex items-center px-2 whitespace-nowrap h-8 flex-shrink-0 gap-2",
     selected
       ? "bg-blue-100 text-blue-600"
       : ["smallMove", "homeMove", "officeMove"].includes(type)
