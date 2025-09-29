@@ -1,3 +1,4 @@
+"use client";
 import MovingSmall from "@/assets/img/Landing1.svg";
 import MovingHome from "@/assets/img/Landing2.svg";
 import MovingBusiness from "@/assets/img/Landing3.svg";
@@ -6,8 +7,31 @@ import MovingSmallMd from "@/assets/img/Landing_md_01.svg";
 import MovingHomeMd from "@/assets/img/Landing_md_02.svg";
 import MovingBusinessMd from "@/assets/img/Landing_md_03.svg";
 import Image from "next/image";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+
+type UserResponse = {
+  success: boolean;
+  data: {
+    id: string;
+    email: string;
+    name: string;
+    role: "DRIVER" | "CONSUMER";
+    createdAt: string;
+    isProfileRegistered: boolean;
+  };
+};
 
 export default function Landing() {
+  const queryClient = useQueryClient();
+  const { data: user } = useQuery<UserResponse | null, Error>({
+    queryKey: ["user"],
+    queryFn: () => queryClient.getQueryData<UserResponse>(["user"]) ?? null,
+    staleTime: Infinity,
+  });
+
+  const isLoggedIn = !!user?.success;
+
+  console.log("user", user, "succ", isLoggedIn);
   return (
     <div className="min-h-screen bg-[#F4F7FB] outline-none">
       <div className="flex min-h-screen flex-col items-center justify-between caret-transparent outline-none focus:ring-0">
@@ -66,12 +90,16 @@ export default function Landing() {
         </div>
 
         <div className="mt-8 flex w-full flex-col items-center gap-4 pb-10 lg:flex-row lg:justify-center lg:gap-6">
-          <Button className="w-[320px]" radius="full">
-            로그인
-          </Button>
-          <Button className="w-[320px]" variant="secondary" radius="full">
-            회원가입
-          </Button>
+          {!isLoggedIn && (
+            <>
+              <Button className="w-[320px]" radius="full">
+                로그인
+              </Button>
+              <Button className="w-[320px]" variant="secondary" radius="full">
+                회원가입
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </div>
