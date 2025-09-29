@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode, MouseEventHandler } from "react";
 import clsx from "clsx";
 import writingIcon from "@/assets/icon/writing.svg";
 import Image from "next/image";
@@ -28,8 +28,8 @@ type Size = "sm" | "md" | "lg" | "xl";
 type Radius = "default" | "full";
 type TextSize = "desktop" | "mobile";
 
-/** 공통(버튼 고유) 속성들: children은 의도적으로 제외 */
-type BaseProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> & {
+/** 공통(버튼 고유) 속성들: children, onClick은 재정의 위해 제외 */
+type BaseProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children" | "onClick"> & {
   variant?: Variant;
   size?: Size;
   padding?: string; // 직접 제어 할 때 사용
@@ -42,16 +42,19 @@ type BaseProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> & {
   showIcon?: boolean;
   loading?: boolean;
   style?: React.CSSProperties;
+
+  /** 허용 범위 확장: 이벤트 핸들러 or 콜백 둘 다 가능 */
+  onClick?: MouseEventHandler<HTMLButtonElement> | (() => void);
 };
 
-/** 둘 중 하나만 허용: children 또는 text (동시 사용 금지) */
-type WithChildren = BaseProps & { children: ReactNode; text?: never };
-type WithText = BaseProps & { text: string; children?: never };
+/** 둘 중 하나만 허용 (XOR):
+ *  - children이 있으면 text는 반드시 undefined
+ *  - children이 없으면 text는 string | undefined (undefined면 "버튼")
+ */
+type WithChildren = BaseProps & { children: ReactNode; text?: undefined };
+type WithTextOrNone = BaseProps & { children?: undefined; text?: string };
 
-/** 기존 동작 유지: 아무 것도 안 주면 기본 라벨("버튼") 표시 허용 */
-type WithNone = BaseProps & { text?: undefined; children?: undefined };
-
-export type ButtonProps = WithChildren | WithText | WithNone;
+export type ButtonProps = WithChildren | WithTextOrNone;
 
 const variantMap: Record<Variant, string> = {
   // disabled 상태 폰트 색상 white -> gray-500으로 변경(가독성)
@@ -102,6 +105,7 @@ export default function Button(props: ButtonProps) {
     disabled,
     loading = false,
     showIcon = false,
+    onClick,
     ...rest // 버튼 고유 속성(type, onClick, disabled 등) 상속
   } = props;
 
@@ -109,9 +113,8 @@ export default function Button(props: ButtonProps) {
     "inline-flex items-center justify-center transition-colors select-none min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary";
   const isDisabled = disabled || loading;
 
-  // children XOR text(+ none 허용): 둘 다 쓰면 TS에서 에러, 둘 다 없으면 기본 라벨
-  const label: ReactNode =
-    "text" in props ? props.text : "children" in props ? props.children : "버튼";
+  // children > text > 기본 "버튼"
+  const label: ReactNode = "children" in props ? props.children : (props.text ?? "버튼");
 
   return (
     <button
@@ -134,6 +137,11 @@ export default function Button(props: ButtonProps) {
         className
       )}
       style={style}
+      // onClick 정규화: MouseEventHandler든 () => void든 모두 호출
+      onClick={(e) => {
+        if (!onClick) return;
+        (onClick as any)(e); // 무인자 콜백은 여분 인자(e)를 무시하므로 안전
+      }}
       {...rest}
     >
       <span className={clsx(loading && "opacity-80")}>{label}</span>
