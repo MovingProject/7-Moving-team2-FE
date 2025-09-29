@@ -1,7 +1,6 @@
-/* eslint-disable @next/next/no-img-element */
-
 "use client";
 
+import Image from "next/image";
 import StarEmpty from "@/assets/icon/StarEmpty.svg";
 import StarFilled from "@/assets/icon/StarFilled.svg";
 
@@ -28,8 +27,8 @@ export default function Rating({ rate, setRate, max = 5 }: RatingProps) {
                 else setRate(star);
               }}
             >
-              <img
-                src={isActive ? StarFilled.src : StarEmpty.src}
+              <Image
+                src={isActive ? StarFilled : StarEmpty}
                 alt={isActive ? "filled star" : "empty star"}
                 className="h-6 w-6 lg:h-12 lg:w-12"
               />
