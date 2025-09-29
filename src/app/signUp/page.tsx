@@ -162,7 +162,6 @@ export default function Signup() {
           </label>
         ))}
         <Button className="mt-14 mb-4" type="submit" text="시작하기" disabled />
-        <Button />
       </form>
 
       <div className="mx-auto flex max-w-160 flex-row justify-center">
