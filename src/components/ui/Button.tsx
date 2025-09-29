@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import clsx from "clsx";
 import writingIcon from "@/assets/icon/writing.svg";
+import Image from "next/image";
 
 // ## 기본 값(<Button />만 넣었을 때)
 // * variant="primary" / 파란색 백그라운드, secondary는 하얀색 백그라운드
@@ -123,7 +124,16 @@ export default function Button({
     >
       <span className={clsx(loading && "opacity-80")}>{children ?? text}</span>
 
-      {showIcon && <img src={writingIcon.src} alt="" aria-hidden className="ml-2 h-6 w-6" />}
+      {showIcon && (
+        <Image
+          src={writingIcon.src}
+          alt="연필 아이콘"
+          aria-hidden
+          className="ml-2"
+          width={24}
+          height={24}
+        />
+      )}
     </button>
   );
 }

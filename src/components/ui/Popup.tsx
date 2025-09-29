@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import clsx from "clsx";
+import Image from "next/image";
 import WarningIcon from "@/assets/icon/WarningIcon.svg";
 
 type PopupType = "info" | "warning";
@@ -56,7 +57,7 @@ export default function Popup({
       )}
     >
       {type === "warning" && (
-        <img src={WarningIcon.src} alt="warning" className="h-4 w-4 shrink-0 md:h-5 md:w-5" />
+        <Image src={WarningIcon} alt="warning" className="h-4 w-4 shrink-0 md:h-5 md:w-5" />
       )}
       <p>{message}</p>
     </div>

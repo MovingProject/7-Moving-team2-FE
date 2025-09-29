@@ -1,17 +1,37 @@
 import Input from "@/components/ui/Input";
 import { useState } from "react";
 import Button from "@/components/ui/Button";
-import Link from "next/link";
-import LogoText from "@/components/ui/LogoText";
-import SlidToggle from "@/components/ui/SlidToggle";
+import { useLogin } from "@/utils/hook/login/api";
+import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-export default function LoginForm() {
+type LoginFormProps = {
+  role: "DRIVER" | "CONSUMER";
+};
+
+type User = {
+  success: boolean;
+  data: {
+    id: string;
+    email: string;
+    name: string;
+    role: "DRIVER" | "CONSUMER";
+    createdAt: string;
+    isProfileRegistered: boolean;
+  };
+};
+
+export default function LoginForm({ role }: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const user = queryClient.getQueryData<User>(["user"]);
 
-  const [role, setRole] = useState<"user" | "pro">("user");
+  const { mutate: login } = useLogin();
 
   const handleEmailChange = (value: string) => {
     setEmail(value);
@@ -31,20 +51,36 @@ export default function LoginForm() {
     }
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.includes("@") || password.length < 6) return;
+
+    login(
+      { email, password, role: role },
+      {
+        onSuccess: (res) => {
+          console.log("로그인성공");
+          queryClient.setQueryData(["user"], res);
+          router.push("/landing");
+        },
+        onError: (err: unknown) => {
+          console.log("로그인실패");
+          //TODO : 로그인실패 모달 연동
+        },
+      }
+    );
+  };
+
+  useEffect(() => {
+    if (user) {
+      router.replace("/landing");
+    }
+  }, [user, router]);
+
   //TODO : FIX : INPUT에서 바꿔야할거생김 <input tpye:{} /> 이부분 조절할수있도록해야됨.
   return (
-    <div>
-      <form className="flex w-[480px] flex-col gap-3.5">
-        <div className="mb-[40px] flex flex-col items-center gap-8">
-          <Link href="/">
-            <LogoText
-              className={`h-auto w-48 transition-colors duration-300 ${role === "user" ? "text-blue-500" : "text-amber-400"}`}
-            />
-          </Link>
-          <div className="mx-auto">
-            <SlidToggle value={role} onChange={setRole} />
-          </div>
-        </div>
+    <div className="w-full max-w-[640px]">
+      <form className="flex w-full max-w-[640px] flex-col gap-3.5" onSubmit={handleSubmit}>
         <label>이메일</label>
         <Input
           type="basic"
@@ -65,7 +101,7 @@ export default function LoginForm() {
           inputType="password"
         ></Input>
         <div className="m-4" />
-        <Button>로그인</Button>
+        <Button type="submit">로그인</Button>
       </form>
     </div>
   );

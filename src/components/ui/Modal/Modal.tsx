@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import clsx from "clsx";
+import Image from "next/image";
 import CloseIcon from "@/assets/icon/X.svg";
 
 type ModalType = "post" | "address" | "filter" | "default";
@@ -87,7 +88,7 @@ export default function Modal({
             <h2 className="text-lg font-semibold">{title}</h2>
           )}
           <button onClick={onClose} className="flex-shrink-0 cursor-pointer">
-            <img src={CloseIcon.src} alt="close" className={CloseIconSize} />
+            <Image src={CloseIcon} alt="close" className={CloseIconSize} />
           </button>
         </div>
 

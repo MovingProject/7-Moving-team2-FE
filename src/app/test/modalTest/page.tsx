@@ -1,16 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DefaultModal from "@/components/ui/Modal/DefaultModal";
 import AddressModal from "@/components/ui/Modal/AddressModal";
+import type { Address } from "@/components/ui/Modal/AddressModal";
 import PostModal from "@/components/ui/Modal/PostModal";
 import FilterContainer from "@/components/ui/Modal/FilterContainer";
 
 export default function ModalTest() {
   const [open, setOpen] = useState<null | string>(null);
-  const [selectedAddress, setSelectedAddress] = useState<any>(null);
-  const [isOpen, setIsOpen] = useState(false);
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
+
+  useEffect(() => {
+    if (selectedAddress) {
+      console.log("선택된 주소:", selectedAddress);
+    }
+  }, [selectedAddress]);
 
   return (
     <div className="space-y-6 p-10">

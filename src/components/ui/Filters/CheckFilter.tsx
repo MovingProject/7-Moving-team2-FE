@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import CheckBox from "@/assets/icon/CheckBox.svg";
 import CheckBoxEmpty from "@/assets/icon/CheckBoxEmpty.svg";
 
@@ -42,8 +43,8 @@ export default function CheckFilter({
                 }
                 className="peer hidden"
               />
-              <img src={CheckBoxEmpty.src} alt="unchecked" className="peer-checked:hidden" />
-              <img src={CheckBox.src} alt="checked" className="hidden peer-checked:block" />
+              <Image src={CheckBoxEmpty} alt="unchecked" className="peer-checked:hidden" />
+              <Image src={CheckBox} alt="checked" className="hidden peer-checked:block" />
               전체선택
             </label>
           )}
@@ -67,8 +68,8 @@ export default function CheckFilter({
                   }
                   className="peer hidden"
                 />
-                <img src={CheckBoxEmpty.src} alt="unchecked" className="peer-checked:hidden" />
-                <img src={CheckBox.src} alt="checked" className="hidden peer-checked:block" />
+                <Image src={CheckBoxEmpty} alt="unchecked" className="peer-checked:hidden" />
+                <Image src={CheckBox} alt="checked" className="hidden peer-checked:block" />
               </span>
             </label>
           </div>
@@ -86,8 +87,8 @@ export default function CheckFilter({
               onChange={() => onToggle(opt.value)}
               className="peer hidden"
             />
-            <img src={CheckBoxEmpty.src} alt="unchecked" className="peer-checked:hidden" />
-            <img src={CheckBox.src} alt="checked" className="hidden peer-checked:block" />
+            <Image src={CheckBoxEmpty} alt="unchecked" className="peer-checked:hidden" />
+            <Image src={CheckBox} alt="checked" className="hidden peer-checked:block" />
           </label>
         ))}
       </ul>
