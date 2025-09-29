@@ -9,9 +9,15 @@ export default function SocialLogin() {
     <div className="mt-[40px] flex flex-col items-center">
       <p className={pretendardXs}>SNS 계정으로 간편 가입하기</p>
       <div className="mt-[24px] flex gap-5">
-        <Image className="cursor-pointer" src={Google.src} alt="소셜로그인" />
-        <Image className="cursor-pointer" src={Kakao.src} alt="소셜로그인" />
-        <Image className="cursor-pointer" src={Naver.src} alt="소셜로그인" />
+        <Image
+          className="cursor-pointer"
+          src={Google.src}
+          alt="소셜로그인"
+          width={50}
+          height={50}
+        />
+        <Image className="cursor-pointer" src={Kakao.src} alt="소셜로그인" width={50} height={50} />
+        <Image className="cursor-pointer" src={Naver.src} alt="소셜로그인" width={50} height={50} />
       </div>
     </div>
   );
