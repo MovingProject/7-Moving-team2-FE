@@ -30,6 +30,7 @@ export default function Rating({ rate, setRate, max = 5 }: RatingProps) {
               <Image
                 src={isActive ? StarFilled : StarEmpty}
                 alt={isActive ? "filled star" : "empty star"}
+                fill
                 className="h-6 w-6 lg:h-12 lg:w-12"
               />
             </button>
