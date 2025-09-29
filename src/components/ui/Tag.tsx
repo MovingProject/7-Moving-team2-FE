@@ -10,6 +10,7 @@ import OfficeMoveIconSm from "@/assets/icon/OfficeMoveIcon-1.svg";
 import RequestQuoteIcon from "@/assets/icon/RequestQuoteIcon.svg";
 import RequestQuoteIconSm from "@/assets/icon/RequestQuoteIcon-1.svg";
 import { useCard } from "./card/CardContext";
+import Image from "next/image";
 
 export type IconType = "smallMove" | "homeMove" | "officeMove" | "requestQuote" | "default";
 export type IconSize = "sm" | "md";
@@ -100,7 +101,9 @@ export default function Tag({ type, size, content, borderType, selected }: TagPr
 
   return (
     <div className={containerClass}>
-      {icon && <img src={icon.src} width={icon.width} height={icon.height} alt={`${type} icon`} />}
+      {icon && (
+        <Image src={icon.src} width={icon.width} height={icon.height} alt={`${type} icon`} />
+      )}
       {content && <span className="inline-block">{content}</span>}
     </div>
   );
