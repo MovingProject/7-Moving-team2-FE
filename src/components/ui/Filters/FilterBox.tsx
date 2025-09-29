@@ -1,9 +1,8 @@
-/* eslint-disable @next/next/no-img-element */
-
 "use client";
 
 import { useState } from "react";
 import clsx from "clsx";
+import Image from "next/image";
 import Dropdown from "./Dropdown";
 import ArrowIconDown from "@/assets/icon/ArrowIconDown.svg";
 
@@ -72,8 +71,8 @@ export default function FilterBox({
         )}
       >
         <span>{selected || label}</span>
-        <img
-          src={ArrowIconDown.src}
+        <Image
+          src={ArrowIconDown}
           alt="arrow"
           className={clsx("transition-transform", typeIconMap[type], isOpen && "rotate-180")}
         />
