@@ -4,6 +4,7 @@ import SocialLogin from "./components/SocialLogin";
 import Link from "next/link";
 import SwitchButton from "./components/SwitchButton";
 import LogoText from "@/assets/icon/Logo-2.svg";
+import Image from "next/image";
 
 import { useState } from "react";
 export default function Login() {
@@ -17,7 +18,7 @@ export default function Login() {
     <div className="mt-10 flex justify-center">
       <div className="flex w-full max-w-[480px] flex-col items-center">
         <div className="mb-[40px] flex flex-col items-center">
-          <img className="mb-[24px]" src={LogoText.src}></img>
+          <Image className="mb-[24px]" src={LogoText.src} alt=""></Image>
           <SwitchButton selected={role} setSelected={setRole} />
         </div>
         <LoginForm role={role}></LoginForm>

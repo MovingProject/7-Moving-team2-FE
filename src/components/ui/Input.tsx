@@ -4,6 +4,7 @@ import SearchIconSm from "@/assets/icon/Search-1.svg";
 import XIcon from "@/assets/icon/X.svg";
 import XIconSm from "@/assets/icon/X-1.svg";
 import clsx from "clsx";
+import Image from "next/image";
 
 export type InputType = "basic" | "search" | "textArea";
 type IconType = "left" | "right";
@@ -53,7 +54,6 @@ export default function Input({
   inputType = "text",
   className,
 }: InputProps) {
-  const baseWidth = type === "basic" ? 640 : 560;
   const fontSizeClass = size === "half" ? "text-sm" : "text-base";
   const widthClass =
     size === "half"
@@ -96,7 +96,9 @@ export default function Input({
 
   return (
     <div className={wrapperClass + " relative"} style={wrapperStyle} aria-invalid={!!error}>
-      {icon && icon === "left" && <img src={size === "half" ? SearchIconSm.src : SearchIcon.src} />}
+      {icon && icon === "left" && (
+        <Image src={size === "half" ? SearchIconSm.src : SearchIcon.src} alt="" />
+      )}
 
       {type === "textArea" ? (
         <textarea
@@ -116,10 +118,10 @@ export default function Input({
       )}
 
       {icon && icon === "right" && (
-        <img src={size === "half" ? XIconSm.src : XIcon.src} onClick={handleClear} />
+        <Image src={size === "half" ? XIconSm.src : XIcon.src} onClick={handleClear} alt="" />
       )}
       {icon && icon === "right" && (
-        <img src={size === "half" ? SearchIconSm.src : SearchIcon.src} />
+        <Image src={size === "half" ? SearchIconSm.src : SearchIcon.src} alt="" />
       )}
 
       {error && (
