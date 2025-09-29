@@ -5,6 +5,7 @@ import Button from "@/components/ui/Button";
 import MovingSmallMd from "@/assets/img/Landing_md_01.svg";
 import MovingHomeMd from "@/assets/img/Landing_md_02.svg";
 import MovingBusinessMd from "@/assets/img/Landing_md_03.svg";
+import Image from "next/image";
 
 export default function Landing() {
   return (
@@ -16,23 +17,30 @@ export default function Landing() {
         </p>
 
         <div className="flex flex-col outline-none lg:h-[600px] lg:flex-row lg:items-stretch lg:gap-0">
-          <img src={MovingSmall.src} className="cursor-pointer outline-none lg:hidden" />
-          <img
+          <Image src={MovingSmall.src} className="cursor-pointer outline-none lg:hidden" alt="" />
+          <Image
             src={MovingSmallMd.src}
             className="hidden cursor-pointer outline-none lg:block lg:h-[508px] lg:w-[432px] lg:object-contain"
+            alt=""
           />
 
           <div className="flex flex-col outline-none lg:h-[508px] lg:w-[604px] lg:gap-0">
-            <img src={MovingHome.src} className="cursor-pointer outline-none lg:hidden" />
-            <img
+            <Image src={MovingHome.src} className="cursor-pointer outline-none lg:hidden" alt="" />
+            <Image
               src={MovingHomeMd.src}
               className="hidden cursor-pointer outline-none lg:block lg:h-[287px] lg:w-[764px] lg:object-contain"
+              alt=""
             />
 
-            <img src={MovingBusiness.src} className="cursor-pointer outline-none lg:hidden" />
-            <img
+            <Image
+              src={MovingBusiness.src}
+              className="cursor-pointer outline-none lg:hidden"
+              alt=""
+            />
+            <Image
               src={MovingBusinessMd.src}
               className="hidden cursor-pointer outline-none lg:block lg:h-[287px] lg:w-[764px] lg:object-contain"
+              alt=""
             />
           </div>
         </div>
