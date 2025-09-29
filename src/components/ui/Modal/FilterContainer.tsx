@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import FilterModal from "./FilterModal";
-import { ResponsiveCheckFilter } from "../Filters/ResponsiveCheckFilter";
+import ResponsiveCheckFilter from "../Filters/ResponsiveCheckFilter";
 import { MOVE_TYPE_OPTIONS, CHECK_FILTER_OPTIONS } from "../Filters/filterOptions";
 
 interface FilterContainerProps {
