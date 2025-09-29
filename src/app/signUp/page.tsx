@@ -10,6 +10,7 @@ import { useAuthForm } from "@/hooks/useAuthForm";
 import Google from "@/assets/icon/google.svg";
 import Kakao from "@/assets/icon/kakao.svg";
 import Naver from "@/assets/icon/naver.svg";
+import Image from "next/image";
 
 export default function Signup() {
   const fields = [
@@ -174,13 +175,13 @@ export default function Signup() {
         <span className="mb-6 text-[20px]">SNS 계정으로 간편 가입하기</span>
         <div className="mb-22 flex gap-8">
           <Link href="https://google.com">
-            <img src={Google.src} alt="구글 회원가입" className="h-18 w-18" />
+            <Image src={Google.src} alt="구글 회원가입" width={54} height={54} />
           </Link>
           <Link href="https://kakao.com">
-            <img src={Kakao.src} alt="카카오 회원가입" className="w18 h-18" />
+            <Image src={Kakao.src} alt="카카오 회원가입" width={54} height={54} />
           </Link>
           <Link href="https://naver.com">
-            <img src={Naver.src} alt="네이버 회원가입" className="w=18 h-18" />
+            <Image src={Naver.src} alt="네이버 회원가입" width={54} height={54} />
           </Link>
         </div>
       </div>
