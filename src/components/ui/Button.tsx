@@ -28,9 +28,8 @@ type Size = "sm" | "md" | "lg" | "xl";
 type Radius = "default" | "full";
 type TextSize = "desktop" | "mobile";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  children?: ReactNode;
-  text?: string;
+/** 공통(버튼 고유) 속성들: children은 의도적으로 제외 */
+type BaseProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> & {
   variant?: Variant;
   size?: Size;
   padding?: string; // 직접 제어 할 때 사용
@@ -42,7 +41,17 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
   showIcon?: boolean;
   loading?: boolean;
-}
+  style?: React.CSSProperties;
+};
+
+/** 둘 중 하나만 허용: children 또는 text (동시 사용 금지) */
+type WithChildren = BaseProps & { children: ReactNode; text?: never };
+type WithText = BaseProps & { text: string; children?: never };
+
+/** 기존 동작 유지: 아무 것도 안 주면 기본 라벨("버튼") 표시 허용 */
+type WithNone = BaseProps & { text?: undefined; children?: undefined };
+
+export type ButtonProps = WithChildren | WithText | WithNone;
 
 const variantMap: Record<Variant, string> = {
   // disabled 상태 폰트 색상 white -> gray-500으로 변경(가독성)
@@ -76,28 +85,33 @@ const fontSizeMap: Record<TextSize, string> = {
   desktop: "text-[16px] md:text-[20px]",
 };
 
-export default function Button({
-  children,
-  text = "버튼",
-  variant = "primary",
-  size = "md",
-  padding,
-  radius = "default",
-  bgColor,
-  textSize = "desktop",
-  textColor,
-  hideOnMobile = false,
-  className = "w-full",
-  type = "button",
-  style, // 직접 스타일링 가능 하도록 확장
-  disabled,
-  loading = false,
-  showIcon = false,
-  ...rest // 버튼 고유 속성(type, onClick, disabled 등) 상속
-}: ButtonProps) {
+export default function Button(props: ButtonProps) {
+  const {
+    // 공통 기본값
+    variant = "primary",
+    size = "md",
+    padding,
+    radius = "default",
+    bgColor,
+    textSize = "desktop",
+    textColor,
+    hideOnMobile = false,
+    className = "w-full",
+    type = "button",
+    style, // 직접 스타일링 가능 하도록 확장
+    disabled,
+    loading = false,
+    showIcon = false,
+    ...rest // 버튼 고유 속성(type, onClick, disabled 등) 상속
+  } = props;
+
   const base =
     "inline-flex items-center justify-center transition-colors select-none min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary";
   const isDisabled = disabled || loading;
+
+  // children XOR text(+ none 허용): 둘 다 쓰면 TS에서 에러, 둘 다 없으면 기본 라벨
+  const label: ReactNode =
+    "text" in props ? props.text : "children" in props ? props.children : "버튼";
 
   return (
     <button
@@ -122,7 +136,7 @@ export default function Button({
       style={style}
       {...rest}
     >
-      <span className={clsx(loading && "opacity-80")}>{children ?? text}</span>
+      <span className={clsx(loading && "opacity-80")}>{label}</span>
 
       {showIcon && (
         <Image
