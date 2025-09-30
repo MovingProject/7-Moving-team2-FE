@@ -9,7 +9,6 @@ import { useState } from "react";
 export default function BasicEditPage() {
   const router = useRouter();
 
-  // 상태 관리
   const [name, setName] = useState("김코드");
   const [email] = useState("kcode@email.com"); // 수정 불가
   const [phone, setPhone] = useState("01012345678");
@@ -23,20 +22,37 @@ export default function BasicEditPage() {
 
   const handleSubmit = () => {
     console.log("제출 데이터:", { name, email, phone, currentPw, newPw, confirmPw });
-    // TODO: 수정하기 API 연동
+    // TODO: API 연동
   };
 
   return (
-    <main className="px-[24px] py-10 md:px-[200px] lg:px-[260px]">
+    <main className="px-[24px] py-10 md:px-[200px] lg:px-[100px] xl:px-[260px]">
       <Header />
-
+      <section className="w-full py-3">
+        <div className="border-t border-gray-200" />
+      </section>
       {/* Input Section */}
-      <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <section className="flex flex-col lg:grid lg:grid-cols-2 lg:gap-6 lg:divide-y-0">
         {/* 왼쪽 */}
         <div className="flex flex-col divide-y divide-gray-200">
-          <InputArea label="이름" value={name} onChange={setName} />
-          <InputArea label="이메일" value={email} onChange={() => {}} />
-          <InputArea label="전화번호" value={phone} onChange={setPhone} />
+          <InputArea
+            label="이름"
+            value={name}
+            onChange={setName}
+            className="!max-w-full border-0 bg-gray-100"
+          />
+          <InputArea
+            label="이메일"
+            value={email}
+            onChange={() => {}}
+            className="pointer-events-none !max-w-full border-0 bg-gray-100 text-gray-400"
+          />
+          <InputArea
+            label="전화번호"
+            value={phone}
+            onChange={setPhone}
+            className="!max-w-full border-0 bg-gray-100"
+          />
         </div>
 
         {/* 오른쪽 */}
@@ -48,6 +64,7 @@ export default function BasicEditPage() {
             value={currentPw}
             onChange={setCurrentPw}
             placeholder="현재 비밀번호를 입력해주세요"
+            className="!max-w-full border-0 bg-gray-100"
           />
           <InputArea
             label="새 비밀번호"
@@ -56,6 +73,7 @@ export default function BasicEditPage() {
             value={newPw}
             onChange={setNewPw}
             placeholder="새 비밀번호를 입력해주세요"
+            className="!max-w-full border-0 bg-gray-100"
           />
           <InputArea
             label="새 비밀번호 확인"
@@ -64,18 +82,19 @@ export default function BasicEditPage() {
             value={confirmPw}
             onChange={setConfirmPw}
             placeholder="새 비밀번호를 다시 입력해주세요"
+            className="!max-w-full border-0 bg-gray-100"
           />
         </div>
       </section>
 
       {/* Button Section */}
-      <section className="mt-10 flex flex-col gap-3 lg:flex-row lg:justify-between">
+      <section className="mt-10 flex flex-col gap-6 lg:flex-row lg:items-center">
         <Button
           text="취소"
           variant="secondary"
           size="md"
           radius="default"
-          className="w-full md:w-auto lg:w-[510px]"
+          className="w-full md:w-auto lg:!max-w-full lg:flex-1"
           onClick={handleCancel}
         />
         <Button
@@ -83,7 +102,7 @@ export default function BasicEditPage() {
           variant="primary"
           size="md"
           radius="default"
-          className="w-full md:w-auto lg:w-[510px]"
+          className="w-full md:w-auto lg:!max-w-full lg:flex-1"
           onClick={handleSubmit}
         />
       </section>
