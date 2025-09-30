@@ -74,12 +74,12 @@ export default function Input({
   const wrapperClass = clsx(
     `flex ${widthClass} ${heightClass} ` +
       (type === "basic"
-        ? "px-4 items-center shrink-0 rounded-2xl bg-[#FFF]"
+        ? "px-4 items-center shrink-0 rounded-2xl bg-white"
         : type === "search"
-          ? "px-6 items-center shrink-0 rounded-2xl bg-[#FAFAFA]"
-          : "px-6 py-4 items-start shrink-0 rounded-2xl bg-[#F7F7F7]"),
+          ? "px-6 items-center shrink-0 rounded-2xl bg-gray-100"
+          : "px-6 py-4 items-start shrink-0 rounded-2xl bg-gray-100"),
     // 기본 타입이면 테두리 색을 error 여부에 따라 설정
-    type === "basic" && (error ? "border border-red-500" : "border border-[#E6E6E6]"),
+    type === "basic" && (error ? "border border-red-500" : "border border-gray-300"),
     className
   );
 
@@ -97,7 +97,7 @@ export default function Input({
   return (
     <div className={wrapperClass + " relative"} style={wrapperStyle} aria-invalid={!!error}>
       {icon && icon === "left" && (
-        <Image src={size === "half" ? SearchIconSm.src : SearchIcon.src} alt="" />
+        <Image src={size === "half" ? SearchIconSm : SearchIcon} alt="" />
       )}
 
       {type === "textArea" ? (
@@ -118,15 +118,15 @@ export default function Input({
       )}
 
       {icon && icon === "right" && (
-        <Image src={size === "half" ? XIconSm.src : XIcon.src} onClick={handleClear} alt="" />
+        <Image src={size === "half" ? XIconSm : XIcon} onClick={handleClear} alt="" />
       )}
       {icon && icon === "right" && (
-        <Image src={size === "half" ? SearchIconSm.src : SearchIcon.src} alt="" />
+        <Image src={size === "half" ? SearchIconSm : SearchIcon} alt="" />
       )}
 
       {error && (
         <span
-          className={`absolute text-xs text-red-500 ${
+          className={`text-warning absolute text-xs ${
             errorPosition === "right" ? "right-2" : "left-2"
           } bottom-[-20px]`}
         >

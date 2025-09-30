@@ -68,7 +68,7 @@ export default function RequestCard({ user, request, quotation }: CommonCardProp
         </div>
       ) : (
         <div className="flex gap-2">
-          {quotation && <Button text="견적 보내기" />}
+          {quotation && <Button text="채팅방 개설하기" />}
           <Button size="sm" textSize="mobile" variant="secondary" text="반려" />
         </div>
       )}
