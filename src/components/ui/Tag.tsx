@@ -86,10 +86,10 @@ export default function Tag({ type, size = "md", content, borderType, selected }
     selected
       ? "bg-blue-100 text-blue-600"
       : ["smallMove", "homeMove", "officeMove"].includes(type)
-        ? "bg-[var(--Primary-blue-100,#E9F4FF)] text-[var(--Primary-blue-200,#1B92FF)]"
+        ? "bg-primary-light text-primary"
         : type === "requestQuote"
-          ? "bg-[#FFEEF0] text-[#FF4F64]"
-          : "bg-[var(--Background-Background-100,#FAFAFA)] text-black",
+          ? "bg-warning-light text-warning"
+          : "bg-gray-100 text-black",
     borderType === "radius" ? "rounded-full" : "rounded-md"
   );
 
