@@ -4,7 +4,7 @@ import ReviewContainer from "./components/ReviewContainer";
 
 export default function Mypage() {
   return (
-    <main className="min-h-screen w-full bg-[#FFF] px-[260px]">
+    <main className="min-h-screen w-full bg-white sm:px-6 md:px-18 xl:px-65">
       {/* 헤더 */}
       <Header />
       {/* 프로필 영역 */}
@@ -12,7 +12,7 @@ export default function Mypage() {
         <ProfileSection />
       </section>
       <section className="my-10 px-6">
-        <div className="border-t border-[#F2F2F2]" />
+        <div className="border-t border-gray-100" />
       </section>
       {/* 리뷰 영역 */}
       <section className="mt-10 mb-14 px-6">
