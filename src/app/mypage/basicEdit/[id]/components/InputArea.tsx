@@ -9,6 +9,7 @@ interface InputAreaProps {
   inputType?: string; // password, text 등
   size?: "full" | "half";
   error?: string;
+  className?: string;
 }
 
 export default function InputArea({
@@ -20,10 +21,11 @@ export default function InputArea({
   inputType = "text",
   size = "full",
   error,
+  className,
 }: InputAreaProps) {
   return (
     <div className="flex flex-col py-8">
-      <label className="mb-2 text-sm font-semibold text-gray-700">{label}</label>
+      <label className="text-md mb-2 font-semibold text-gray-700 lg:text-lg">{label}</label>
       <Input
         type={type}
         value={value}
@@ -32,6 +34,7 @@ export default function InputArea({
         inputType={inputType}
         size={size}
         error={error}
+        className={className}
       />
     </div>
   );
