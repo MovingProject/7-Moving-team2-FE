@@ -7,6 +7,7 @@ import SearchBar from "./components/SearchBar";
 import { SortTechFilter, ResponsiveMoveAndFilter } from "@/components/ui/Filters/Filters";
 import { CommonCardProps } from "@/components/ui/card/BaseCard";
 import FilterContainer from "@/components/ui/Modal/FilterContainer";
+import NodataArea from "@/components/ui/nodata/NodataArea";
 
 export default function RequestPage() {
   const [sortTech, setSortTech] = useState("이사 빠른순");
@@ -30,52 +31,53 @@ export default function RequestPage() {
     data: CommonCardProps[];
   }
 
-  const serverData: ServerData = {
-    totalCount: 2,
-    data: [
-      {
-        user: {
-          userId: "user-consumer-001",
-          name: "김철수",
-          role: "CONSUMER",
-        },
-        request: {
-          requestId: "req-789",
-          serviceType: ["SMALL_MOVE"],
-          departureAddress: "인천시 남동구",
-          arrivalAddress: "경기도 고양시",
-          requestStatement: "PENDING",
-          moveAt: "2024-07-01",
-          createdAt: "2025-09-25",
-        },
-        quotation: {
-          quotationId: "q-123",
-          departureAddress: "서울시 강남구",
-          arrivalAddress: "경기도 성남시",
-          price: 180000,
-          moveAt: "2025-10-15",
-          createdAt: "2025-09-25",
-          quotationStatement: "ACCEPTED",
-        },
-      },
-      {
-        user: {
-          userId: "user-consumer-002",
-          name: "홍길동",
-          role: "CONSUMER",
-        },
-        request: {
-          requestId: "req-780",
-          serviceType: ["SMALL_MOVE"],
-          departureAddress: "서울시 강남구",
-          arrivalAddress: "경기도 성남시",
-          requestStatement: "PENDING",
-          moveAt: "2025-10-15",
-          createdAt: "2025-09-25",
-        },
-      },
-    ],
-  };
+  const responseData: ServerData | null = null;
+  // const responseData: ServerData | null = {
+  //   totalCount: 2,
+  //   data: [
+  //     {
+  //       user: {
+  //         userId: "user-consumer-001",
+  //         name: "김철수",
+  //         role: "CONSUMER",
+  //       },
+  //       request: {
+  //         requestId: "req-789",
+  //         serviceType: ["SMALL_MOVE"],
+  //         departureAddress: "인천시 남동구",
+  //         arrivalAddress: "경기도 고양시",
+  //         requestStatement: "PENDING",
+  //         moveAt: "2024-07-01",
+  //         createdAt: "2025-09-25",
+  //       },
+  //       quotation: {
+  //         quotationId: "q-123",
+  //         departureAddress: "서울시 강남구",
+  //         arrivalAddress: "경기도 성남시",
+  //         price: 180000,
+  //         moveAt: "2025-10-15",
+  //         createdAt: "2025-09-25",
+  //         quotationStatement: "ACCEPTED",
+  //       },
+  //     },
+  //     {
+  //       user: {
+  //         userId: "user-consumer-002",
+  //         name: "홍길동",
+  //         role: "CONSUMER",
+  //       },
+  //       request: {
+  //         requestId: "req-780",
+  //         serviceType: ["SMALL_MOVE"],
+  //         departureAddress: "서울시 강남구",
+  //         arrivalAddress: "경기도 성남시",
+  //         requestStatement: "PENDING",
+  //         moveAt: "2025-10-15",
+  //         createdAt: "2025-09-25",
+  //       },
+  //     },
+  //   ],
+  // };
 
   return (
     <>
@@ -95,7 +97,9 @@ export default function RequestPage() {
           <div className="flex flex-1 flex-col gap-3 md:gap-4 lg:gap-8">
             <SearchBar />
             <div className="flex items-center justify-between py-1">
-              <p className="text-sm lg:text-base">전체 {serverData.totalCount}건</p>
+              <p className="text-sm lg:text-base">
+                전체 {responseData ? (responseData as ServerData).totalCount : 0}건
+              </p>
               <div className="flex items-center gap-2">
                 <SortTechFilter selected={sortTech} onChange={setSortTech} />
                 <button
@@ -108,14 +112,18 @@ export default function RequestPage() {
               </div>
             </div>
             <div className="flex flex-col gap-6 md:gap-8 lg:gap-12">
-              {serverData.data.map((cardData) => (
-                <RequestCard
-                  key={cardData.request?.requestId}
-                  user={cardData.user}
-                  request={cardData.request}
-                  quotation={cardData.quotation}
-                />
-              ))}
+              {responseData && (responseData as ServerData).data.length > 0 ? (
+                (responseData as ServerData).data.map((cardData, index) => (
+                  <RequestCard
+                    key={cardData.request?.requestId || index}
+                    user={cardData.user}
+                    request={cardData.request}
+                    quotation={cardData.quotation}
+                  />
+                ))
+              ) : (
+                <NodataArea content="아직 받은 요청이 없어요!" />
+              )}
             </div>
           </div>
         </div>
