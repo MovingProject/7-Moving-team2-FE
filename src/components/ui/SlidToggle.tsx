@@ -1,9 +1,9 @@
 import { KeyboardEvent } from "react";
 
-type Value = "user" | "pro";
+type RoleType = "CONSUMER" | "DRIVER";
 type Props = {
-  value: Value;
-  onChange: (v: Value) => void;
+  value: RoleType;
+  onChange: (v: RoleType) => void;
   leftLabel?: string;
   rightLabel?: string;
   userColorClassName?: string; // 고객님 배경
@@ -18,15 +18,15 @@ export default function SlidToggle({
   userColorClassName = "bg-blue-500",
   proColorClassName = "bg-amber-400",
 }: Props) {
-  const isUser = value === "user";
-  const handleToggle = () => onChange(isUser ? "pro" : "user");
+  const isUser = value === "CONSUMER";
+  const handleToggle = () => onChange(isUser ? "DRIVER" : "CONSUMER");
   const onKey = (e: KeyboardEvent<HTMLButtonElement>) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       handleToggle();
     }
-    if (e.key === "ArrowLeft") onChange("user");
-    if (e.key === "ArrowRight") onChange("pro");
+    if (e.key === "ArrowLeft") onChange("CONSUMER");
+    if (e.key === "ArrowRight") onChange("DRIVER");
   };
 
   return (
@@ -87,13 +87,13 @@ export default function SlidToggle({
         <button
           type="button"
           className="pointer-events-auto"
-          onClick={() => onChange("user")}
+          onClick={() => onChange("CONSUMER")}
           aria-label={`${leftLabel} 선택`}
         />
         <button
           type="button"
           className="pointer-events-auto"
-          onClick={() => onChange("pro")}
+          onClick={() => onChange("DRIVER")}
           aria-label={`${rightLabel} 선택`}
         />
       </div>
