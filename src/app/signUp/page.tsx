@@ -21,7 +21,7 @@ export default function Signup() {
     {
       key: "callNumber",
       label: "전화번호",
-      placeholder: "전화번호를 입력해 주세요",
+      placeholder: "하이픈(-) 포함 전화번호를 입력해 주세요",
       inputType: "tel",
     },
     {
