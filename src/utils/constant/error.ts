@@ -1,14 +1,16 @@
-import { PASSWORD_LENGTH } from "../validation";
+import { PASSWORD_MIN_LENGTH } from "../validation";
+import { PASSWORD_MAX_LENGTH } from "../validation";
 
 export const errors = {
   userNameEmpty: "이름을 입력해 주세요.",
+  userNameInvalid: "이름을 2자 이상 입력해 주세요.",
   emailEmpty: "이메일을 입력해 주세요.",
   emailInvalid: "잘못된 이메일 형식입니다.",
   telNumberEmpty: "전화번호를 입력해 주세요.",
-  telNumberInvalid: "숫자만 입력해 주세요.",
+  telNumberInvalid: "010-XXXX-XXXX 형식으로 입력해 주세요.",
   nicknameEmpty: "닉네임을 입력해 주세요.",
   passwordEmpty: "비밀번호를 입력해 주세요.",
-  passwordInvalid: `비밀번호를 ${PASSWORD_LENGTH}자 이상 입력해 주세요.`,
+  passwordInvalid: `비밀번호는 ${PASSWORD_MIN_LENGTH}자 이상 ${PASSWORD_MAX_LENGTH}자 이하로 입력해 주세요.`,
   passwordMismatch: "비밀번호가 일치하지 않습니다.",
   emailExists: "사용 중인 이메일입니다.",
   // TODO: 사용 안함

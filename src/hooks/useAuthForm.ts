@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { isValidEmail, isValidPassword, isValidTel } from "@/utils/validation";
+import { isValidEmail, isValidPassword, isValidTel, isValidName } from "@/utils/validation";
 import { errors } from "@/utils/constant/error";
 
 export function useAuthForm() {
@@ -51,6 +51,8 @@ export function useAuthForm() {
   const validateUserName = (value: string) => {
     if (!value.trim()) {
       setUserNameError(errors.userNameEmpty);
+    } else if (!isValidName(value)) {
+      setUserNameError(errors.userNameInvalid);
     } else {
       setUserNameError("");
     }
