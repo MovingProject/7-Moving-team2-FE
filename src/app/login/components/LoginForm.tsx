@@ -2,25 +2,24 @@ import Input from "@/components/ui/Input";
 import { useState } from "react";
 import Button from "@/components/ui/Button";
 import { useLogin } from "@/utils/hook/login/api";
-import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useAuthStore } from "@/store/authStore";
 
 type LoginFormProps = {
   role: "DRIVER" | "CONSUMER";
 };
 
-type User = {
-  success: boolean;
-  data: {
-    id: string;
-    email: string;
-    name: string;
-    role: "DRIVER" | "CONSUMER";
-    createdAt: string;
-    isProfileRegistered: boolean;
-  };
-};
+// type User = {
+//   success: boolean;
+//   data: {
+//     id: string;
+//     email: string;
+//     name: string;
+//     role: "DRIVER" | "CONSUMER";
+//     createdAt: string;
+//     isProfileRegistered: boolean;
+//   };
+// };
 
 export default function LoginForm({ role }: LoginFormProps) {
   const [email, setEmail] = useState("");
@@ -28,10 +27,9 @@ export default function LoginForm({ role }: LoginFormProps) {
   const [error, setError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const router = useRouter();
-  const queryClient = useQueryClient();
-  const user = queryClient.getQueryData<User>(["user"]);
+  const user = useAuthStore((s) => s.user);
 
-  const { mutate: login } = useLogin();
+  const { mutate: login, isPending } = useLogin();
 
   const handleEmailChange = (value: string) => {
     setEmail(value);
@@ -56,26 +54,19 @@ export default function LoginForm({ role }: LoginFormProps) {
     if (!email.includes("@") || password.length < 6) return;
 
     login(
-      { email, password, role: role },
+      { email, password, role },
       {
-        onSuccess: (res) => {
+        onSuccess: () => {
           console.log("로그인성공");
-          queryClient.setQueryData(["user"], res);
           router.push("/landing");
         },
-        onError: (err: unknown) => {
+        onError: () => {
           console.log("로그인실패");
           //TODO : 로그인실패 모달 연동
         },
       }
     );
   };
-
-  useEffect(() => {
-    if (user) {
-      router.replace("/landing");
-    }
-  }, [user, router]);
 
   //TODO : FIX : INPUT에서 바꿔야할거생김 <input type:{} /> 이부분 조절할수있도록해야됨.
   return (
@@ -101,7 +92,9 @@ export default function LoginForm({ role }: LoginFormProps) {
           inputType="password"
         ></Input>
         <div className="m-4" />
-        <Button type="submit">로그인</Button>
+        <Button type="submit" disabled={isPending}>
+          {isPending ? "로그인 중..." : "로그인"}
+        </Button>
       </form>
     </div>
   );

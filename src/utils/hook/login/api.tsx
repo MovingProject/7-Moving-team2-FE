@@ -1,41 +1,27 @@
-import axios from "axios";
 import { useMutation } from "@tanstack/react-query";
+import { useAuthStore, User, RoleType } from "@/store/authStore";
+import apiClient from "@/lib/apiClient";
 
-const host = "/api";
-const api = axios.create({
-  baseURL: host,
-  headers: { "Content-Type": "application/json" },
-});
-
-type roleType = "CONSUMER" | "DRIVER";
 interface LoginDTO {
   email: string;
   password: string;
-  role: roleType;
-}
-
-interface UserData {
-  id: string;
-  email: string;
-  name: string;
-  role: roleType;
-  createdAt: string;
-  isProfileRegistered: boolean;
-}
-
-interface LoginResponse {
-  success: boolean;
-  data: UserData;
+  role: RoleType;
 }
 
 export function useLogin() {
-  return useMutation<LoginResponse, Error, LoginDTO>({
+  const { setUser } = useAuthStore();
+
+  return useMutation<User, Error, LoginDTO>({
     mutationFn: async (data: LoginDTO) => {
-      const res = await api.post<LoginResponse>("/auth/signin", data);
+      await apiClient.post("/auth/signin", data);
+      const res = await apiClient.get<User>("/users/me");
       return res.data;
     },
+    onSuccess: (user) => {
+      setUser(user);
+    },
     onError: (error) => {
-      // TODO : ERROR 모달로 이동해서 로그인실패했습니다 ㄱ
+      console.error("로그인 실패:", error);
     },
   });
 }
