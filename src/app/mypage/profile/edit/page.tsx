@@ -1,9 +1,9 @@
 "use client";
 import Input from "@/components/ui/Input";
-import InputArea from "./components/InputArea";
+import InputArea from "../components/InputArea";
 import upload from "@/assets/img/upload.svg";
-import ImageInputArea from "./components/ImageInputArea";
-import TagForm from "./components/TagForm";
+import ImageInputArea from "../components/ImageInputArea";
+import TagForm from "../components/TagForm";
 import Button from "@/components/ui/Button";
 import { useState } from "react";
 
