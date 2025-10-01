@@ -11,6 +11,10 @@ import Google from "@/assets/icon/google.svg";
 import Kakao from "@/assets/icon/kakao.svg";
 import Naver from "@/assets/icon/naver.svg";
 import Image from "next/image";
+import React from "react";
+import { useSignup, type SignUpDTO } from "@/utils/hook/signup/api";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
 export default function Signup() {
   const fields = [
@@ -37,13 +41,14 @@ export default function Signup() {
   ];
 
   // local UI state
-  const [role, setRole] = useState<"user" | "pro">("user");
+  const [role, setRole] = useState<"CONSUMER" | "DRIVER">("CONSUMER");
 
   // hook 상태 / 유효성 함수
   const {
     email,
     setEmail,
     emailError,
+    setEmailError,
     password,
     setPassword,
     passwordError,
@@ -72,8 +77,22 @@ export default function Signup() {
     if (key === "pwCheck") validatePasswordCheck(passwordCheck);
   };
 
+  const router = useRouter();
+  const signupMutation = useSignup();
+
+  const isFormFilled = !!(email && password && passwordCheck && userName && telNumber);
+  const hasErrors = !!(
+    userNameError ||
+    emailError ||
+    telNumberError ||
+    passwordError ||
+    passwordCheckError
+  );
+  const isSubmitDisabled = signupMutation.status === "pending" || !isFormFilled || hasErrors;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (signupMutation.status === "pending") return; // 이중 제출 방지
     // 전체 검사 실행
     validateUserName(userName);
     validateEmail(email);
@@ -86,15 +105,39 @@ export default function Signup() {
       return;
     }
 
-    // TODO: 서버 제출 처리 (useAuthForm에 등록 함수가 있으면 호출)
-    console.log("submit payload:", { userName, email, telNumber, password, role });
+    const payload: SignUpDTO = {
+      email,
+      password,
+      passwordConfirm: passwordCheck,
+      name: userName,
+      phoneNumber: telNumber,
+      role,
+    };
+
+    signupMutation.mutate(payload, {
+      onSuccess: () => {
+        // 자동 로그인은 아직 사용하지 않으므로 성공 시 바로 리다이렉트
+        router.push("/login");
+      },
+      onError: (err: unknown) => {
+        if (axios.isAxiosError(err)) {
+          if (err.response?.status === 409) {
+            setEmailError("이미 사용중인 이메일입니다.");
+            return;
+          }
+          console.error("회원가입 실패:", err.response?.data ?? err.message);
+        } else {
+          console.error("회원가입 실패:", err);
+        }
+      },
+    });
   };
 
   return (
     <div className="mt-18 flex flex-col items-center gap-8">
       <Link href="/">
         <LogoText
-          className={`h-auto w-48 transition-colors duration-300 ${role === "user" ? "text-blue-500" : "text-amber-400"}`}
+          className={`h-auto w-48 transition-colors duration-300 ${role === "CONSUMER" ? "text-blue-500" : "text-amber-400"}`}
         />
       </Link>
 
@@ -121,7 +164,7 @@ export default function Signup() {
                           ? password
                           : passwordCheck
                 }
-                onChange={(v) => {
+                onChange={(v: string) => {
                   if (f.key === "userName") {
                     setUserName(v);
                     validateUserName(v);
@@ -161,7 +204,7 @@ export default function Signup() {
             </div>
           </label>
         ))}
-        <Button className="mt-14 mb-4" type="submit" text="시작하기" disabled />
+        <Button className="mt-14 mb-4" type="submit" text="시작하기" disabled={isSubmitDisabled} />
       </form>
 
       <div className="mx-auto flex max-w-160 flex-row justify-center">
