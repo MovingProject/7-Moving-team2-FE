@@ -1,6 +1,7 @@
 import { PASSWORD_MIN_LENGTH } from "../validation";
 import { PASSWORD_MAX_LENGTH } from "../validation";
 
+// signIn, Up 관련 error
 export const errors = {
   userNameEmpty: "이름을 입력해 주세요.",
   userNameInvalid: "이름을 2자 이상 입력해 주세요.",
@@ -16,4 +17,14 @@ export const errors = {
   // TODO: 사용 안함
   signupSuccess: "회원가입이 성공적으로 처리되었습니다.",
   loginError: "존재하지 않는 이메일, 혹은 비밀번호입니다.",
+} as const;
+
+// driverProfileForm 관련 error
+export const error = {
+  nickNameEmpty: "별명을 입력해주세요.",
+  histotyInvalid: "숫자만 입력해주세요.",
+  overViewInvalid: "8자 이상 입력해주세요.",
+  details: "10자 이상 입력해주세요.",
+  service: "*1개 이상 선택해주세요.",
+  serviceArea: "*1개 이상 선택해주세요.",
 } as const;
