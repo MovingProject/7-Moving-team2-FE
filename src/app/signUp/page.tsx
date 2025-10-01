@@ -172,7 +172,7 @@ export default function Signup() {
                           ? password
                           : passwordCheck
                 }
-                onChange={(v) => {
+                onChange={(v: string) => {
                   if (f.key === "userName") {
                     setUserName(v);
                     validateUserName(v);
