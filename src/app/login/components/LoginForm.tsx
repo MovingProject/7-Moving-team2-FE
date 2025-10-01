@@ -1,7 +1,7 @@
 import Input from "@/components/ui/Input";
 import { useState } from "react";
 import Button from "@/components/ui/Button";
-import { useLogin } from "@/utils/hook/login/api";
+import { useLogin } from "@/utils/hook/auth/useLogin";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 

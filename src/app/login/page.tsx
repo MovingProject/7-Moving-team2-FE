@@ -39,9 +39,9 @@ export default function Login() {
           <SwitchButton selected={role} setSelected={setRole} />
         </div>
         <LoginForm role={role} />
-        <p className="font-pretendard mt-[24px] text-[16px] leading-[18px] font-normal text-[#6B6B6B]">
+        <p className="font-pretendard mt-[24px] text-[16px] leading-[18px] font-normal text-gray-500">
           아직 무빙 회원이 아니신가요?{" "}
-          <a className="font-pretendard text-[16px] leading-[20px] font-semibold text-[var(--Primary-blue-300,#1B92FF)] underline">
+          <a className="font-pretendard text-primary text-[16px] leading-[20px] font-semibold underline">
             이메일로 회원가입하기
           </a>
         </p>
