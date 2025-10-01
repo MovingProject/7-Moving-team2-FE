@@ -8,14 +8,17 @@ interface LoginDTO {
   role: RoleType;
 }
 
+interface LoginResponse {
+  user: User;
+}
+
 export function useLogin() {
   const { setUser } = useAuthStore();
 
   return useMutation<User, Error, LoginDTO>({
     mutationFn: async (data: LoginDTO) => {
-      await apiClient.post("/auth/signin", data);
-      const res = await apiClient.get<User>("/users/me");
-      return res.data;
+      const res = await apiClient.post<LoginResponse>("/auth/signin", data);
+      return res.data.user;
     },
     onSuccess: (user) => {
       setUser(user);
