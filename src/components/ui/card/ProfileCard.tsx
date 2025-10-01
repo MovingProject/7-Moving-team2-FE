@@ -17,12 +17,12 @@ export default function ProfileCard({ user }: CommonCardProps) {
   const profileData = driverUser.profile;
   const movingInfo: MovingInfo = useMemo(() => {
     const info: MovingInfo = {
-      serviceTypes: profileData.driverServiceTypes?.map((service) => MoveTypeMap[service].content),
-      serviceAreas: profileData.driverServiceAreas?.map((areaKey) => AreaMap[areaKey as AreaType]),
-      reviewCount: profileData.reviewCount,
-      rating: profileData.rating,
-      careerYears: profileData.careerYears,
-      confirmedCount: profileData.confirmedCount,
+      serviceTypes: profileData?.driverServiceTypes?.map((service) => MoveTypeMap[service].content),
+      serviceAreas: profileData?.driverServiceAreas?.map((areaKey) => AreaMap[areaKey as AreaType]),
+      reviewCount: profileData?.reviewCount,
+      rating: profileData?.rating,
+      careerYears: profileData?.careerYears,
+      confirmedCount: profileData?.confirmedCount,
     };
 
     return info;
@@ -45,7 +45,7 @@ export default function ProfileCard({ user }: CommonCardProps) {
         <div className="hidden lg:flex lg:flex-col lg:gap-4">
           <div className="flex max-w-1/2 flex-col gap-2">
             {user.name && <CardText className="text-2xl">{user.name}</CardText>}
-            {profileData.oneLiner && (
+            {profileData?.oneLiner && (
               <CardText className="text-gray-600">{profileData.oneLiner}</CardText>
             )}
           </div>
