@@ -14,7 +14,7 @@ import Image from "next/image";
 import React from "react";
 import { useSignup, type SignUpDTO } from "@/utils/hook/signup/api";
 import { useRouter } from "next/navigation";
-import { useSignIn } from "@/utils/hook/signIn/api";
+import axios from "axios";
 
 export default function Signup() {
   const fields = [
@@ -79,7 +79,6 @@ export default function Signup() {
 
   const router = useRouter();
   const signupMutation = useSignup();
-  const signInMutation = useSignIn();
 
   const isFormFilled = !!(email && password && passwordCheck && userName && telNumber);
   const hasErrors = !!(
@@ -116,26 +115,19 @@ export default function Signup() {
     };
 
     signupMutation.mutate(payload, {
-      onSuccess: async () => {
-        try {
-          await signInMutation.mutateAsync({
-            email: payload.email,
-            password: payload.password,
-            role: payload.role,
-          });
-        } catch (e) {
-          console.error("자동 로그인 실패:", e);
-        } finally {
-          router.push("/");
-        }
+      onSuccess: () => {
+        // 자동 로그인은 아직 사용하지 않으므로 성공 시 바로 리다이렉트
+        router.push("/login");
       },
       onError: (err: unknown) => {
-        const axiosErr = err as any;
-        if (axiosErr?.response?.status === 409) {
-          // 이메일 중복 등 충돌 메시지를 폼에 표시
-          setEmailError("이미 사용중인 이메일입니다.");
+        if (axios.isAxiosError(err)) {
+          if (err.response?.status === 409) {
+            setEmailError("이미 사용중인 이메일입니다.");
+            return;
+          }
+          console.error("회원가입 실패:", err.response?.data ?? err.message);
         } else {
-          console.error("회원가입 실패:", axiosErr?.response?.data || axiosErr);
+          console.error("회원가입 실패:", err);
         }
       },
     });
