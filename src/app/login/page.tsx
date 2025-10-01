@@ -52,7 +52,9 @@ export default function Login() {
         <LoginForm role={role}></LoginForm>
         <p className={`mt-[24px] ${pretendardXs}`}>
           아직 무빙 회원이 아니신가요?{" "}
-          <a className={pretendardXsUnderline}>이메일로 회원가입하기</a>
+          <a className={pretendardXsUnderline} href="/signUp">
+            이메일로 회원가입하기
+          </a>
         </p>
         <SocialLogin></SocialLogin>
       </div>

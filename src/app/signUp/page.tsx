@@ -13,6 +13,8 @@ import Naver from "@/assets/icon/naver.svg";
 import Image from "next/image";
 import React from "react";
 import { useSignup, type SignUpDTO } from "@/utils/hook/signup/api";
+import { useRouter } from "next/navigation";
+import { useSignIn } from "@/utils/hook/signIn/api";
 
 export default function Signup() {
   const fields = [
@@ -21,7 +23,7 @@ export default function Signup() {
     {
       key: "callNumber",
       label: "전화번호",
-      placeholder: "하이픈(-) 포함 전화번호를 입력해 주세요",
+      placeholder: "전화번호를 입력해 주세요",
       inputType: "tel",
     },
     {
@@ -46,6 +48,7 @@ export default function Signup() {
     email,
     setEmail,
     emailError,
+    setEmailError,
     password,
     setPassword,
     passwordError,
@@ -74,7 +77,9 @@ export default function Signup() {
     if (key === "pwCheck") validatePasswordCheck(passwordCheck);
   };
 
+  const router = useRouter();
   const signupMutation = useSignup();
+  const signInMutation = useSignIn();
 
   const isFormFilled = !!(email && password && passwordCheck && userName && telNumber);
   const hasErrors = !!(
@@ -101,8 +106,6 @@ export default function Signup() {
       return;
     }
 
-    // TODO: 서버 제출 처리 (useAuthForm에 등록 함수가 있으면 호출)
-    console.log("submit payload:", { userName, email, telNumber, password, role });
     const payload: SignUpDTO = {
       email,
       password,
@@ -113,11 +116,27 @@ export default function Signup() {
     };
 
     signupMutation.mutate(payload, {
-      onSuccess: (user) => {
-        console.log("회원가입 성공:", user);
+      onSuccess: async () => {
+        try {
+          await signInMutation.mutateAsync({
+            email: payload.email,
+            password: payload.password,
+            role: payload.role,
+          });
+        } catch (e) {
+          console.error("자동 로그인 실패:", e);
+        } finally {
+          router.push("/");
+        }
       },
-      onError: (err) => {
-        console.error("회원가입 실패:", err);
+      onError: (err: unknown) => {
+        const axiosErr = err as any;
+        if (axiosErr?.response?.status === 409) {
+          // 이메일 중복 등 충돌 메시지를 폼에 표시
+          setEmailError("이미 사용중인 이메일입니다.");
+        } else {
+          console.error("회원가입 실패:", axiosErr?.response?.data || axiosErr);
+        }
       },
     });
   };

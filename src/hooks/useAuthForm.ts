@@ -73,6 +73,7 @@ export function useAuthForm() {
     email,
     setEmail,
     emailError,
+    setEmailError,
     password,
     setPassword,
     passwordError,
