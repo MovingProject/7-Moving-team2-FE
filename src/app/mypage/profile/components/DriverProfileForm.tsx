@@ -19,16 +19,22 @@ type DriverFormState = Partial<DriverProfileData> & {
   description?: string;
 };
 
-const hasField = (obj: any, field: string): boolean => {
-  return obj && typeof obj === "object" && field in obj;
+const hasField = (obj: unknown, field: string): obj is Record<string, unknown> => {
+  return obj !== null && typeof obj === "object" && field in obj;
 };
 
-const getStringField = (obj: any, field: string): string => {
-  return hasField(obj, field) && typeof obj[field] === "string" ? obj[field] : "";
+const getStringField = (obj: unknown, field: string): string => {
+  if (hasField(obj, field) && typeof obj[field] === "string") {
+    return obj[field] as string;
+  }
+  return "";
 };
 
-const getArrayField = (obj: any, field: string): string[] => {
-  return hasField(obj, field) && Array.isArray(obj[field]) ? obj[field] : [];
+const getArrayField = (obj: unknown, field: string): string[] => {
+  if (hasField(obj, field) && Array.isArray(obj[field])) {
+    return obj[field] as string[];
+  }
+  return [];
 };
 
 export const REGIONS = [
@@ -94,7 +100,7 @@ export default function DriverProfileForm({ initialData, userId }: DriverFormPro
     }
   }, [initialData]);
 
-  const updateField = (key: keyof DriverFormState, value: any) => {
+  const updateField = <K extends keyof DriverFormState>(key: K, value: DriverFormState[K]) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
