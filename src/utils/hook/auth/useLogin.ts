@@ -9,7 +9,8 @@ interface LoginDTO {
 }
 
 interface LoginResponse {
-  user: User;
+  success: boolean;
+  data: User;
 }
 
 export function useLogin() {
@@ -18,9 +19,11 @@ export function useLogin() {
   return useMutation<User, Error, LoginDTO>({
     mutationFn: async (data: LoginDTO) => {
       const res = await apiClient.post<LoginResponse>("/auth/signin", data);
-      return res.data.user;
+      console.log("로그인 API 응답:", res.data);
+      return res.data.data;
     },
     onSuccess: (user) => {
+      console.log("zustand에 저장할 user:", user);
       setUser(user);
     },
     onError: (error) => {
