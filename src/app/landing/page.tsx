@@ -7,31 +7,14 @@ import MovingSmallMd from "@/assets/img/Landing_md_01.svg";
 import MovingHomeMd from "@/assets/img/Landing_md_02.svg";
 import MovingBusinessMd from "@/assets/img/Landing_md_03.svg";
 import Image from "next/image";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-
-type UserResponse = {
-  success: boolean;
-  data: {
-    id: string;
-    email: string;
-    name: string;
-    role: "DRIVER" | "CONSUMER";
-    createdAt: string;
-    isProfileRegistered: boolean;
-  };
-};
+import { useAuthStore } from "@/store/authStore";
 
 export default function Landing() {
-  const queryClient = useQueryClient();
-  const { data: user } = useQuery<UserResponse | null, Error>({
-    queryKey: ["user"],
-    queryFn: () => queryClient.getQueryData<UserResponse>(["user"]) ?? null,
-    staleTime: Infinity,
-  });
-
-  const isLoggedIn = !!user?.success;
+  const user = useAuthStore((s) => s.user);
+  const isLoggedIn = !!user;
 
   console.log("user", user, "succ", isLoggedIn);
+
   return (
     <div className="min-h-screen bg-[#F4F7FB] outline-none">
       <div className="flex min-h-screen flex-col items-center justify-between caret-transparent outline-none focus:ring-0">

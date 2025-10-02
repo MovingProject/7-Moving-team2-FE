@@ -7,6 +7,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { useEffect, useState } from "react";
 import "../styles/globals.css";
+import { useInitAuth } from "@/utils/hook/auth/useInitAuth";
 
 const queryClient = new QueryClient();
 
@@ -16,6 +17,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const [persister, setPersister] = useState<Persister | null>(null);
+
+  useInitAuth();
+
   useEffect(() => {
     const asyncPersister = createAsyncStoragePersister({
       storage: window.localStorage,
