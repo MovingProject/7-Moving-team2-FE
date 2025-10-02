@@ -71,15 +71,19 @@ export default function Input({
         ? "h-[160px]"
         : "h-[64px]";
 
+  const defaultBg =
+    type === "basic" ? "bg-white" : type === "search" || type === "textArea" ? "bg-gray-100" : "";
+
   const wrapperClass = clsx(
-    `flex ${widthClass} ${heightClass} ` +
-      (type === "basic"
-        ? "px-4 items-center shrink-0 rounded-2xl bg-white"
-        : type === "search"
-          ? "px-6 items-center shrink-0 rounded-2xl bg-gray-100"
-          : "px-6 py-4 items-start shrink-0 rounded-2xl bg-gray-100"),
-    // 기본 타입이면 테두리 색을 error 여부에 따라 설정
-    type === "basic" && (error ? "border border-red-500" : "border border-gray-300"),
+    `flex relative ${widthClass} ${heightClass}`,
+    type === "basic" && "px-4 items-center shrink-0 rounded-2xl border",
+    (type === "search" || type === "textArea") && "px-6 rounded-2xl",
+    type === "search" && "items-center shrink-0",
+    type === "textArea" && "py-4 items-start shrink-0",
+    className?.includes("bg-") ? null : defaultBg,
+
+    // basic 타입 테두리 색 설정
+    type === "basic" && (error ? "border-warning" : "border-gray-300"),
     className
   );
 
@@ -95,7 +99,7 @@ export default function Input({
   };
 
   return (
-    <div className={wrapperClass + " relative"} style={wrapperStyle} aria-invalid={!!error}>
+    <div className={wrapperClass} style={wrapperStyle} aria-invalid={!!error}>
       {icon && icon === "left" && (
         <Image src={size === "half" ? SearchIconSm : SearchIcon} alt="" />
       )}
