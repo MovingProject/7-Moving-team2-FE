@@ -4,47 +4,39 @@ import Menu from "@/assets/icon/menu.svg";
 import { useState } from "react";
 import XIcon from "@/assets/icon/X.svg";
 import UserIcon from "@/assets/icon/user.svg";
-import AlramIcon from "@/assets/icon/alram.svg";
+import AlarmIcon from "@/assets/icon/alarm.svg";
 import LogoMobile from "@/assets/icon/Logo-1.svg";
-import { useQueryClient } from "@tanstack/react-query";
-import { useQuery } from "@tanstack/react-query";
+import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 interface NavProps {
   option?: string;
 }
-type UserResponse = {
-  success: boolean;
-  data: {
-    id: string;
-    email: string;
-    name: string;
-    role: "DRIVER" | "CONSUMER";
-    createdAt: string;
-    isProfileRegistered: boolean;
-  };
-};
 
 export default function Nav({ option }: NavProps) {
   const [open, setOpen] = useState(false);
-  const queryClient = useQueryClient();
-  const { data: user, refetch } = useQuery<UserResponse | null, Error>({
-    queryKey: ["user"],
-    queryFn: () => queryClient.getQueryData<UserResponse>(["user"]) ?? null,
-    staleTime: Infinity,
-  });
-  const isLoggedIn = !!user;
   const router = useRouter();
+  const user = useAuthStore((s) => s.user); // zustand에서 유저 가져오기
+  const clearUser = useAuthStore((s) => s.clearUser);
+  const isLoggedIn = !!user;
+
   const optionFont =
     "text-[#1F1F1F] font-[Pretendard] text-base font-medium leading-[26px] cursor-pointer";
 
   const handleLogout = async () => {
-    queryClient.clear();
-    queryClient.setQueryData(["user"], null);
-    refetch();
-    localStorage.removeItem("REACT_QUERY_OFFLINE_CACHE");
-    router.push("/login");
+    try {
+      // 실제 로그아웃 API 호출
+      await fetch("/api/auth/signout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (e) {
+      console.error("로그아웃 실패:", e);
+    } finally {
+      clearUser(); // zustand 상태 초기화
+      router.push("/login");
+    }
   };
 
   return (
@@ -104,21 +96,21 @@ export default function Nav({ option }: NavProps) {
           ) : (
             <div className="flex items-center gap-8 space-x-2">
               <Image
-                src={AlramIcon.src}
+                src={AlarmIcon}
                 alt="알람"
                 className="h-6 w-6 cursor-pointer"
                 width={100}
                 height={100}
               />
               <div className="flex cursor-pointer">
-                <Image src={UserIcon.src} alt="유저" className="h-6 w-6" width={100} height={100} />
-                <p>{user.data.name || "임시유저"}</p>
+                <Image src={UserIcon} alt="유저" className="h-6 w-6" width={100} height={100} />
+                <p>{user?.name || "임시유저"}</p>
               </div>
             </div>
           )}
           <Image
             className="h-8 w-8 cursor-pointer md:hidden"
-            src={Menu.src}
+            src={Menu}
             alt="Menu"
             onClick={() => setOpen((prev) => !prev)}
             width={100}
@@ -133,7 +125,7 @@ export default function Nav({ option }: NavProps) {
           <div className="flex flex-col items-end space-y-4 border-b border-gray-300 p-4">
             <Image
               className="cursor-pointer"
-              src={XIcon.src}
+              src={XIcon}
               alt="취소"
               onClick={() => setOpen(false)}
               width={100}
