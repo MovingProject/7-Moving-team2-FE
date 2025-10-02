@@ -4,7 +4,7 @@ import React from "react";
 import BaseCard, { CommonCardProps } from "./BaseCard";
 import CardText from "./CardText";
 import Tag from "../Tag";
-import { DriverUser } from "@/types/card";
+import { DriverProfileData, DriverUser } from "@/types/card";
 import { MoveTypeMap } from "@/types/moveTypes";
 import UserProfileArea from "../profile/UserProfileArea";
 import { isDriverUser } from "@/utils/type-guards";
@@ -16,7 +16,7 @@ export default function DefaultCard({ user, request, quotation }: CommonCardProp
   }
   const driverUser = user as DriverUser;
   const profileData = driverUser.profile;
-  const { nickname, oneLiner, rating, confirmedCount, driverServiceTypes } = profileData;
+  const { oneLiner, driverServiceTypes } = profileData as DriverProfileData;
   const price = quotation?.price;
 
   return (
