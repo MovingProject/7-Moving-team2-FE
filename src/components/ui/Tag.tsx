@@ -84,13 +84,13 @@ export default function Tag({ type, size = "md", content, borderType, selected }
   const containerClass = clsx(
     "inline-flex items-center px-2 whitespace-nowrap h-8 flex-shrink-0 gap-2",
     selected
-      ? "bg-blue-100 text-blue-600"
+      ? "bg-primary-light text-primary"
       : ["smallMove", "homeMove", "officeMove"].includes(type)
         ? "bg-primary-light text-primary"
         : type === "requestQuote"
           ? "bg-warning-light text-warning"
           : "bg-gray-100 text-black",
-    borderType === "radius" ? "rounded-full" : "rounded-md"
+    borderType === "radius" ? "px-3 py-1.5 rounded-full lg:px-5 lg:py-2.5" : "rounded-md"
   );
 
   return (

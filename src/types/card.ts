@@ -19,21 +19,27 @@ export interface DriverProfileData {
 }
 export interface ConsumerProfileData {
   consumerId: string;
-  name: string;
+  image?: string;
+  serviceType?: ServerMoveType[];
+  areas?: AreaType;
 }
 
 export interface DriverUser {
   userId: string;
   name: string;
   role: "DRIVER";
-  profile: DriverProfileData;
+  email?: string;
+  phoneNumber?: string;
+  profile: DriverProfileData | null;
 }
 
 export interface ConsumerUser {
   userId: string;
   name: string;
   role: "CONSUMER";
-  profile?: ConsumerProfileData;
+  email?: string;
+  phoneNumber?: string;
+  profile?: ConsumerProfileData | null;
 }
 
 // 최종 유저 데이터 타입

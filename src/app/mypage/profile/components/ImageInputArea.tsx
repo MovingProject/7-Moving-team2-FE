@@ -18,10 +18,10 @@ export default function ImageInputArea({ size = "w-32 h-32" }: ImageInputAreaPro
     }
   };
   return (
-    <div className="flex flex-col items-start gap-2 border-b border-[#F2F2F2] pb-8">
+    <div className="flex flex-col items-start gap-2 border-b border-gray-200 pb-8">
       <label
         htmlFor="imageUpload"
-        className="font-Pretendard text-[16px] leading-[26px] font-semibold text-[var(--Black-Black-300,#373737)]"
+        className="font-Pretendard leading-[26px] font-semibold lg:text-xl"
       >
         프로필 이미지
       </label>
