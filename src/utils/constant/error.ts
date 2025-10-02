@@ -19,7 +19,7 @@ export const errors = {
   loginError: "존재하지 않는 이메일, 혹은 비밀번호입니다.",
 } as const;
 
-// driverProfileForm 관련 error
+// ProfileForm 관련 error
 export const error = {
   nickNameEmpty: "별명을 입력해주세요.",
   histotyInvalid: "숫자만 입력해주세요.",
