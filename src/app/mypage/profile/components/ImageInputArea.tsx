@@ -3,12 +3,14 @@
 import { useState } from "react";
 import Image from "next/image";
 import upload from "@/assets/img/upload.svg"; // 👉 기본 이미지
+import clsx from "clsx";
 
 interface ImageInputAreaProps {
   size?: string; // Tailwind 크기 (예: "w-32 h-32")
+  className?: string;
 }
 
-export default function ImageInputArea({ size = "w-32 h-32" }: ImageInputAreaProps) {
+export default function ImageInputArea({ size = "w-32 h-32", className }: ImageInputAreaProps) {
   const [preview, setPreview] = useState<string | null>(null);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -18,7 +20,9 @@ export default function ImageInputArea({ size = "w-32 h-32" }: ImageInputAreaPro
     }
   };
   return (
-    <div className="flex flex-col items-start gap-2 border-b border-gray-200 pb-8">
+    <div
+      className={clsx("flex flex-col items-start gap-2 border-b border-gray-200 pb-8", className)}
+    >
       <label
         htmlFor="imageUpload"
         className="font-Pretendard leading-[26px] font-semibold lg:text-xl"
