@@ -6,7 +6,7 @@ import CardText from "./CardText";
 import Tag from "../Tag";
 import Button from "../Button";
 import UserProfileArea from "../profile/UserProfileArea";
-import { DriverUser } from "@/types/card";
+import { DriverUser, DriverProfileData } from "@/types/card";
 import { isDriverUser } from "@/utils/type-guards";
 import { MoveTypeMap } from "@/types/moveTypes";
 
@@ -18,7 +18,7 @@ export default function OrderCard({ user, request, quotation }: CommonCardProps)
   const driverUser = user as DriverUser;
   const profileData = driverUser.profile;
   const { nickname, oneLiner, rating, confirmedCount, driverServiceTypes, ...restProfileData } =
-    profileData;
+    profileData as DriverProfileData;
   const price = quotation?.price;
   const tags = request?.serviceType;
 
