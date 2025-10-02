@@ -11,9 +11,10 @@ import ConsumerProfileForm from "./components/ConsumerProfileForm";
 import DriverProfileForm from "./components/DriverProfileForm";
 
 async function getCurrentUser(): Promise<UserData | null> {
-  const isDriver = false; // 테스트를 위해 Driver/Consumer를 전환 가능
+  const isDriver = true; // 테스트를 위해 Driver/Consumer를 전환 가능
 
   if (isDriver) {
+    // 스키마에 맞춘 목데이터 (수정 모드 테스트용)
     const driverProfile: DriverProfileData = {
       driverId: "d-id-123",
       nickname: "베스트 드라이버",
@@ -23,7 +24,16 @@ async function getCurrentUser(): Promise<UserData | null> {
       careerYears: 5,
       confirmedCount: 200,
       likes: {},
-    };
+      // 추가 필드들 (as any로 타입 체크 우회)
+      oneLiner: "안전하고 빠른 이사를 약속드립니다",
+      description:
+        "10년 경력의 전문 이사 기사입니다. 고객만족을 최우선으로 생각하며, 안전하고 신속한 서비스를 제공합니다.",
+      services: ["소형이사", "가정이사"],
+      regions: ["서울", "경기", "인천"],
+    } as DriverProfileData;
+
+    // 등록 모드 테스트하려면 아래 주석 해제하고 위 코드 주석처리
+    // const driverProfile: DriverProfileData | null = null;
 
     const driverUser: DriverUser = {
       userId: "d123",
