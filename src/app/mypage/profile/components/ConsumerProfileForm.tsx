@@ -96,7 +96,7 @@ export default function ConsumerProfileForm({ initialData }: ConsumerFormProps) 
           </h2>
           {!formData.consumerId && (
             <p className="text-xs text-gray-600 lg:text-lg">
-              "추가 정보를 입력하여 회원가입을 완료해주세요.
+              추가 정보를 입력하여 회원가입을 완료해주세요.
             </p>
           )}
         </div>
