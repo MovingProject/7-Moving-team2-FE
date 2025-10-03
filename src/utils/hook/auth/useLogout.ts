@@ -7,9 +7,12 @@ export default function useLogout() {
 
   return useMutation({
     mutationFn: async () => {
-      await apiClient.post("/auth/signout");
+      const res = await apiClient.post("/auth/signout");
+      console.log("로그아웃 API 응답:", res.data);
+      return res.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("로그아웃 성공:", data);
       clearUser();
     },
     onError: (error) => {
