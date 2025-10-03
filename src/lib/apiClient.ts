@@ -42,7 +42,7 @@ apiClient.interceptors.response.use(
 
         console.log("[인터셉터] refresh 성공 → 원래 요청 재시도");
 
-        // user는 localStorage에서 자동 복원되므로 여기서 처리 안 함
+        // user는 localStorage에서 자동 복원
         // refresh 성공했으니 원래 요청 재시도
         return apiClient(originalRequest);
       } catch (refreshError) {
@@ -51,8 +51,9 @@ apiClient.interceptors.response.use(
         const { clearUser } = useAuthStore.getState();
         clearUser();
 
-        // 로그인 페이지로 리다이렉트
-        if (typeof window !== "undefined") {
+        // 리다이렉트 제거 또는 조건 추가
+        // 이미 로그인 페이지면 리다이렉트 안 함
+        if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
           window.location.href = "/login";
         }
 
