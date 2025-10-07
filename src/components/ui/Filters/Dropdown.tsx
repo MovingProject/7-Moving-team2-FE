@@ -29,7 +29,7 @@ const dropdownSizeMap: Record<DropdownType, Record<DropdownLayout, string>> = {
   },
   sort: {
     default: clsx(
-      "w-full max-w-[120px] py-1.5 pl-2 pr-1.5 text-xs",
+      "w-full max-w-[120px] py-1.5 pl-2 pr-1.5 text-xs whitespace-nowrap",
       "w-full lg:max-w-[135px] lg:py-2 lg:px-2.5 lg:text-sm"
     ),
     grid: "",
