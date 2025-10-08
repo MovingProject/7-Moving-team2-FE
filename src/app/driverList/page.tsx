@@ -1,23 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { RegionFilter, ServiceFilter, SortFilter } from "@/components/ui/Filters/Filters";
 import DefaultCard from "@/components/ui/card/DefaultCard";
 import { getRandomProfileImage } from "@/utils/constant/getProfileImage";
 import Input from "@/components/ui/Input";
-import { RequestData, UserData } from "@/types/card";
+import { RequestData, DriverUser, DriverProfileData } from "@/types/card";
+import { useRouter } from "next/navigation";
+import { AreaType } from "@/types/areaTypes";
+import { MoveType } from "@/types/moveTypes";
 
 export default function DriverListPage() {
+  const router = useRouter();
+
   const [region, setRegion] = useState("지역");
   const [service, setService] = useState("서비스");
   const [sort, setSort] = useState("리뷰 많은 순");
   const [query, setQuery] = useState("");
+
   const handleResetFilter = () => {
-    console.log("필터 초기화!");
+    setRegion("지역");
+    setService("서비스");
+    setSort("리뷰 많은 순");
+    setQuery("");
   };
 
   const defaultCardDataList: {
-    user: UserData;
+    user: DriverUser;
     request: RequestData;
   }[] = Array.from({ length: 13 }, (_, i) => ({
     id: i + 1,
@@ -53,9 +62,48 @@ export default function DriverListPage() {
     },
   }));
 
+  const handleCardClick = (id: string) => {
+    router.push(`/driver/${id}`);
+  };
+
+  // 필터 + 검색 + 정렬
+  const filteredData = useMemo(() => {
+    let result = [...defaultCardDataList];
+
+    const regionKey = region === "지역" ? null : (region.toUpperCase() as AreaType);
+    const serviceKey = service === "서비스" ? null : (service.toUpperCase() as MoveType);
+    const q = query.trim().toLowerCase();
+
+    result = result.filter((item) => {
+      const profile = item.user.profile;
+      if (!profile) return false; // profile null 방어
+
+      const passRegion = !regionKey || profile.driverServiceAreas?.includes(regionKey);
+      const passService =
+        !serviceKey || (profile.driverServiceTypes as MoveType[]).includes(serviceKey);
+
+      const passQuery =
+        !q ||
+        item.user.name.toLowerCase().includes(q) ||
+        profile.oneLiner?.toLowerCase().includes(q);
+
+      return passRegion && passService && passQuery;
+    });
+
+    if (sort === "리뷰 많은 순") {
+      result.sort(
+        (a, b) => (b.user.profile?.reviewCount ?? 0) - (a.user.profile?.reviewCount ?? 0)
+      );
+    } else if (sort === "이름순") {
+      result.sort((a, b) => a.user.name.localeCompare(b.user.name));
+    }
+
+    return result;
+  }, [defaultCardDataList, region, service, query, sort]);
+
   return (
     <main className="min-h-screen w-full bg-white px-[260px] py-10">
-      <header className="mb-8">
+      <header className="mb-15">
         <h1 className="text-2xl font-semibold text-gray-900">기사님 찾기</h1>
       </header>
       <section className="flex gap-10">
@@ -64,7 +112,7 @@ export default function DriverListPage() {
             <h2 className="text-lg font-semibold text-gray-800">필터</h2>
             <button
               onClick={handleResetFilter}
-              className="text-sm text-gray-400 transition hover:text-blue-500"
+              className="hover:text-primary text-sm text-gray-400 transition"
             >
               초기화
             </button>
@@ -82,18 +130,24 @@ export default function DriverListPage() {
           </div>
           {/* 찜한 기사님 */}
           <div>
-            <h3 className="mb-2 text-lg font-semibold text-gray-800">찜한 기사님</h3>
+            <h3 className="mb-8 text-lg font-semibold text-gray-800">찜한 기사님</h3>
             <div
               className="flex flex-col gap-3 overflow-x-hidden overflow-y-auto pr-1"
               style={{ maxHeight: "400px" }}
             >
               {defaultCardDataList.map((data, idx) => (
-                <DefaultCard key={idx} user={data.user} request={data.request} />
+                <div
+                  key={idx}
+                  onClick={() => handleCardClick(data.user.userId)}
+                  className="cursor-pointer"
+                >
+                  <DefaultCard user={data.user} request={data.request} />
+                </div>
               ))}
             </div>
           </div>
         </div>
-        <div className="flex flex-1 flex-col">
+        <div className="flex flex-1 flex-col gap-3">
           {/* Sort & Input */}
           <div className="mb-5 flex flex-col items-end gap-4">
             <div className="flex items-center">
@@ -111,9 +165,19 @@ export default function DriverListPage() {
 
           {/* Card List */}
           <div className="flex flex-col gap-4 overflow-y-auto pr-2" style={{ maxHeight: "700px" }}>
-            {defaultCardDataList.map((data, idx) => (
-              <DefaultCard key={idx} user={data.user} request={data.request} />
-            ))}
+            {filteredData.length > 0 ? (
+              filteredData.map((data, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => handleCardClick(data.user.userId)}
+                  className="cursor-pointer"
+                >
+                  <DefaultCard user={data.user} request={data.request} />
+                </div>
+              ))
+            ) : (
+              <p className="py-10 text-center text-gray-400">조건에 맞는 기사님이 없습니다</p>
+            )}
           </div>
         </div>
       </section>
