@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { RegionFilter, ServiceFilter, SortFilter } from "@/components/ui/Filters/Filters";
 import DefaultCard from "@/components/ui/card/DefaultCard";
 import { getRandomProfileImage } from "@/utils/constant/getProfileImage";
+import LikedDriverCard from "./components/LikedDriverCard";
 import Input from "@/components/ui/Input";
 import { RequestData, DriverUser, DriverProfileData } from "@/types/card";
 import { useRouter } from "next/navigation";
@@ -62,8 +63,11 @@ export default function DriverListPage() {
     },
   }));
 
-  const handleCardClick = (id: string) => {
-    router.push(`/driver/${id}`);
+  const handleCardClick = (driver: { user: DriverUser; request: RequestData }) => {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("selectedDriver", JSON.stringify(driver));
+    }
+    router.push(`/driverList/${driver.user.userId}`);
   };
 
   // 필터 + 검색 + 정렬
@@ -107,7 +111,7 @@ export default function DriverListPage() {
         <h1 className="text-2xl font-semibold text-gray-900">기사님 찾기</h1>
       </header>
       <section className="flex gap-10">
-        <div className="flex w-[300px] flex-shrink-0 flex-col gap-6">
+        <div className="flex-[0.25] flex-shrink-0 flex-col gap-6">
           <div className="flex items-center justify-between border-b border-gray-100 pb-2">
             <h2 className="text-lg font-semibold text-gray-800">필터</h2>
             <button
@@ -119,7 +123,7 @@ export default function DriverListPage() {
           </div>
           {/* Filter */}
           <div className="flex flex-col gap-5">
-            <div className="flex flex-col gap-5">
+            <div className="mt-3 flex flex-col gap-5">
               <h3>지역을 선택해주세요</h3>
               <RegionFilter selected={region} onChange={setRegion} />
             </div>
@@ -129,25 +133,21 @@ export default function DriverListPage() {
             </div>
           </div>
           {/* 찜한 기사님 */}
-          <div>
+          <div className="mt-5">
             <h3 className="mb-8 text-lg font-semibold text-gray-800">찜한 기사님</h3>
             <div
               className="flex flex-col gap-3 overflow-x-hidden overflow-y-auto pr-1"
               style={{ maxHeight: "400px" }}
             >
               {defaultCardDataList.map((data, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => handleCardClick(data.user.userId)}
-                  className="cursor-pointer"
-                >
-                  <DefaultCard user={data.user} request={data.request} />
+                <div key={idx} onClick={() => handleCardClick(data)} className="cursor-pointer">
+                  <LikedDriverCard user={data.user} request={data.request} />
                 </div>
               ))}
             </div>
           </div>
         </div>
-        <div className="flex flex-1 flex-col gap-3">
+        <div className="flex flex-[0.75] flex-col gap-3">
           {/* Sort & Input */}
           <div className="mb-5 flex flex-col items-end gap-4">
             <div className="flex items-center">
@@ -167,11 +167,7 @@ export default function DriverListPage() {
           <div className="flex flex-col gap-4 overflow-y-auto pr-2" style={{ maxHeight: "700px" }}>
             {filteredData.length > 0 ? (
               filteredData.map((data, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => handleCardClick(data.user.userId)}
-                  className="cursor-pointer"
-                >
+                <div key={idx} onClick={() => handleCardClick(data)} className="cursor-pointer">
                   <DefaultCard user={data.user} request={data.request} />
                 </div>
               ))
