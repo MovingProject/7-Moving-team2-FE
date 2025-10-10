@@ -119,7 +119,14 @@ export function useDriverProfileForm() {
   };
 
   // 초기 데이터로 폼 설정
-  const setInitialData = (data: any) => {
+  const setInitialData = (data: {
+    nickname?: string;
+    careerYears?: number;
+    oneLiner?: string;
+    description?: string;
+    services?: string[];
+    regions?: string[];
+  }) => {
     setNickname(data.nickname || "");
     setCareerYears(data.careerYears || 0);
     setOneLiner(data.oneLiner || "");
