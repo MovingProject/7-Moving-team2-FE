@@ -7,10 +7,12 @@ import { DriverUser, RequestData, DriverProfileData } from "@/types/card";
 import { AreaType } from "@/types/areaTypes";
 import { MoveType } from "@/types/moveTypes";
 import ReviewContainer from "@/app/mypage/components/ReviewContainer";
+import ShareSection from "../components/ShareSection";
+import Popup from "@/components/ui/Popup";
 
 export default function DriverDetailPage() {
   const [driver, setDriver] = useState<{ user: DriverUser; request: RequestData } | null>(null);
-
+  const [popup, setPopup] = useState<{ type: "info" | "warning"; message: string } | null>(null);
   useEffect(() => {
     const stored = sessionStorage.getItem("selectedDriver");
     if (stored) {
@@ -28,6 +30,11 @@ export default function DriverDetailPage() {
 
   return (
     <main className="min-h-screen w-full bg-white px-[260px] py-10">
+      {popup && (
+        <div className="absolute top-[70px] left-1/2 z-50 flex w-full -translate-x-1/2 justify-center">
+          <Popup type={popup.type} message={popup.message} onClose={() => setPopup(null)} />
+        </div>
+      )}
       <section className="flex gap-10">
         <div className="flex flex-[0.65] flex-col gap-10">
           <DefaultCard user={user} request={request} />
@@ -67,12 +74,15 @@ export default function DriverDetailPage() {
           </div>
         </div>
         <div className="flex flex-[0.35] flex-shrink-0 flex-col gap-6">
-          <div className="flex flex-col gap-4 rounded-xl border border-gray-200 p-6">
+          <div className="flex flex-col gap-4 border-b border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-800">
               {user.name} 기사님에게 지정 견적을 요청해보세요!
             </h3>
             <Button variant="secondary" text="❤ 기사님 찜하기" />
             <Button variant="primary" text="지정 견적 요청하기" />
+          </div>
+          <div>
+            <ShareSection setPopup={setPopup} />
           </div>
         </div>
       </section>
