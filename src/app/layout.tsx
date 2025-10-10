@@ -1,4 +1,6 @@
 "use client";
+
+import Script from "next/script";
 import Nav from "@/components/ui/nav/nav";
 import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
 import type { Persister } from "@tanstack/query-persist-client-core";
@@ -27,6 +29,8 @@ export default function RootLayout({
     setPersister(asyncPersister);
   }, []);
 
+  console.log("🌍 ENV Kakao key:", process.env.NEXT_PUBLIC_KAKAO_JS_KEY);
+
   return (
     <html lang="ko">
       <body>
@@ -39,6 +43,10 @@ export default function RootLayout({
         ) : (
           <div></div>
         )}
+        <Script
+          src="https://developers.kakao.com/sdk/js/kakao.min.js"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
