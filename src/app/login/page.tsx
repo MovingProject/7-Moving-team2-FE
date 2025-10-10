@@ -7,6 +7,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
+import Link from "next/link";
 
 // type UserResponse = {
 //   success: boolean;
@@ -41,9 +42,12 @@ export default function Login() {
         <LoginForm role={role} />
         <p className="font-pretendard mt-[24px] text-[16px] leading-[18px] font-normal text-gray-500">
           아직 무빙 회원이 아니신가요?{" "}
-          <a className="font-pretendard text-primary text-[16px] leading-[20px] font-semibold underline">
+          <Link
+            href={"/signUp"}
+            className="font-pretendard text-primary text-[16px] leading-[20px] font-semibold underline"
+          >
             이메일로 회원가입하기
-          </a>
+          </Link>
         </p>
         <SocialLogin />
       </div>
