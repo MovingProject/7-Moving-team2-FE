@@ -20,6 +20,17 @@ export function useInitAuth() {
       return;
     }
 
+    // 공개 페이지에서는 인증 초기화 건너뛰기
+    const publicPages = ['/signUp', '/login', '/landing', '/'];
+    if (typeof window !== 'undefined') {
+      const currentPath = window.location.pathname;
+      if (publicPages.includes(currentPath)) {
+        console.log("[useInitAuth] 공개 페이지 - 인증 초기화 건너뛰기:", currentPath);
+        setIsInitialized(true);
+        return;
+      }
+    }
+
     // 이미 초기화되었으면 스킵
     if (isInitialized) return;
 
