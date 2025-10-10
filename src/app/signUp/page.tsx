@@ -209,7 +209,7 @@ export default function Signup() {
 
       <div className="mx-auto flex max-w-160 flex-row justify-center">
         <span>이미 무빙 회원이신가요?</span>
-        <Link href="/login" className="text-primary mb-3 ml-2">
+        <Link href="/login" className="text-primary mb-3 ml-2 font-semibold">
           로그인
         </Link>
       </div>
