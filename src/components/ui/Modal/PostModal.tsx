@@ -62,7 +62,7 @@ export default function PostModal({
     >
       <div className="space-y-6">
         <div className="align-center flex gap-[12px]">
-          <Tag type="smallMove" size="sm" content="소형 이사" borderType="default" />
+          <Tag type="SMALL_MOVE" size="sm" content="소형 이사" borderType="default" />
           <Tag type="requestQuote" size="sm" content="견적 요청" borderType="default" />
         </div>
         {/* 프로필 영역 */}
