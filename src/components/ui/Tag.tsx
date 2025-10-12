@@ -11,7 +11,7 @@ import RequestQuoteIcon from "@/assets/icon/RequestQuoteIcon.svg";
 import RequestQuoteIconSm from "@/assets/icon/RequestQuoteIcon-1.svg";
 import Image from "next/image";
 
-export type IconType = "smallMove" | "homeMove" | "officeMove" | "requestQuote" | "default";
+export type IconType = "SMALL_MOVE" | "HOME_MOVE" | "OFFICE_MOVE" | "requestQuote" | "default";
 export type IconSize = "sm" | "md";
 export type BoxType = "default" | "radius";
 
@@ -49,15 +49,15 @@ interface TagProps {
 }
 
 const iconMap: Record<Exclude<IconType, "default">, Record<IconSize, Icon>> = {
-  smallMove: {
+  SMALL_MOVE: {
     sm: SmallMoveIconSm,
     md: SmallMoveIcon,
   },
-  homeMove: {
+  HOME_MOVE: {
     sm: HomeMoveIconSm,
     md: HomeMoveIcon,
   },
-  officeMove: {
+  OFFICE_MOVE: {
     sm: OfficeMoveIconSm,
     md: OfficeMoveIcon,
   },
