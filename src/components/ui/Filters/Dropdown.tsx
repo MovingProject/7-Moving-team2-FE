@@ -19,11 +19,11 @@ interface DropdownProps {
 const dropdownSizeMap: Record<DropdownType, Record<DropdownLayout, string>> = {
   filter: {
     default: clsx(
-      "w-full max-w-[125px] py-4 px-3.5 text-sm",
+      "w-full min-w-[120px] py-3 px-3 text-sm",
       "lg:w-full lg:max-w-[328px] lg:py-4 lg:px-6 lg:text-lg"
     ),
     grid: clsx(
-      "w-full max-w-[200px] py-4 px-3.5 text-sm",
+      "w-full min-w-[180px] py-3 px-3.5 text-sm",
       "lg:w-full lg:max-w-[328px] lg:py-4 lg:px-6 lg:text-lg"
     ),
   },
