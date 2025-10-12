@@ -9,7 +9,7 @@ interface CompactMovingInfoViewerProps {
 
 export default function CompactMovingInfoViewer({ info }: CompactMovingInfoViewerProps) {
   return (
-    <div className="flex items-center gap-1 text-[10px] text-gray-700">
+    <div className="flex items-center gap-1 text-[10px] whitespace-nowrap text-gray-700">
       {/* 별점 */}
       <dl className="flex items-center gap-1">
         <dt className="sr-only">별점</dt>
@@ -17,8 +17,8 @@ export default function CompactMovingInfoViewer({ info }: CompactMovingInfoViewe
           <Image
             src="/icon/star.svg"
             alt="별점"
-            width={14}
-            height={14}
+            width={10}
+            height={10}
             className="object-contain"
           />
           <span>{info.rating ?? 0}</span>
