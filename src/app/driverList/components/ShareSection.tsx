@@ -13,7 +13,7 @@ interface ShareSectionProps {
 export default function ShareSection({ setPopup }: ShareSectionProps) {
   // Kakao SDK 안전 초기화
   useEffect(() => {
-    const kakao = (window as any).Kakao;
+    const kakao = window.Kakao;
     if (!kakao) {
       console.warn("Kakao SDK not loaded yet");
       return;
@@ -45,7 +45,7 @@ export default function ShareSection({ setPopup }: ShareSectionProps) {
 
   // 카카오톡 공유
   const handleShareKakao = () => {
-    const kakao = (window as any).Kakao;
+    const kakao = window.Kakao;
     if (!kakao) {
       setPopup({ type: "warning", message: "카카오톡 공유 기능을 사용할 수 없습니다." });
       setTimeout(() => setPopup(null), 2000);
