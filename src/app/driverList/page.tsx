@@ -6,7 +6,7 @@ import DefaultCard from "@/components/ui/card/DefaultCard";
 import { getRandomProfileImage } from "@/utils/constant/getProfileImage";
 import LikedDriverCard from "./components/LikedDriverCard";
 import Input from "@/components/ui/Input";
-import { RequestData, DriverUser, DriverProfileData } from "@/types/card";
+import { RequestData, DriverUser } from "@/types/card";
 import { useRouter } from "next/navigation";
 import { AreaType } from "@/types/areaTypes";
 import { MoveType } from "@/types/moveTypes";
@@ -85,7 +85,6 @@ export default function DriverListPage() {
       const passRegion = !regionKey || profile.driverServiceAreas?.includes(regionKey);
       const passService =
         !serviceKey || (profile.driverServiceTypes as MoveType[]).includes(serviceKey);
-
       const passQuery =
         !q ||
         item.user.name.toLowerCase().includes(q) ||
@@ -106,12 +105,12 @@ export default function DriverListPage() {
   }, [defaultCardDataList, region, service, query, sort]);
 
   return (
-    <main className="min-h-screen w-full bg-white px-[260px] py-10">
-      <header className="mb-10">
+    <main className="min-h-screen w-full bg-white px-8 py-10 md:px-20 lg:px-30 xl:px-60">
+      <header className="mb-10 flex-shrink-0">
         <h1 className="text-2xl font-semibold text-gray-900">기사님 찾기</h1>
       </header>
-      <section className="flex gap-10">
-        <div className="flex-[0.25] flex-shrink-0 flex-col gap-6">
+      <section className="flex flex-col gap-10 lg:flex-row">
+        <div className="hidden flex-[0.25] flex-col gap-6 lg:block">
           <div className="flex items-center justify-between border-b border-gray-100 pb-2">
             <h2 className="text-lg font-semibold text-gray-800">필터</h2>
             <button
@@ -133,12 +132,9 @@ export default function DriverListPage() {
             </div>
           </div>
           {/* 찜한 기사님 */}
-          <div className="mt-5">
+          <div className="mt-5 flex flex-1 flex-col max-lg:hidden">
             <h3 className="mb-8 text-lg font-semibold text-gray-800">찜한 기사님</h3>
-            <div
-              className="flex flex-col gap-3 overflow-x-hidden overflow-y-auto pr-1"
-              style={{ maxHeight: "400px" }}
-            >
+            <div className="flex flex-col gap-3 pr-1" style={{ maxHeight: "400px" }}>
               {defaultCardDataList.map((data, idx) => (
                 <div key={idx} onClick={() => handleCardClick(data)} className="cursor-pointer">
                   <LikedDriverCard user={data.user} request={data.request} />
@@ -147,12 +143,14 @@ export default function DriverListPage() {
             </div>
           </div>
         </div>
-        <div className="flex flex-[0.75] flex-col gap-3">
+        <div className="flex w-full flex-[0.75] flex-col gap-3">
           {/* Sort & Input */}
-          <div className="mb-5 flex flex-col items-end gap-4">
-            <div className="flex items-center">
-              <SortFilter selected={sort} onChange={setSort} />
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-4 lg:justify-end">
+            <div className="flex max-w-[70%] flex-1 gap-3 lg:hidden">
+              <RegionFilter selected={region} onChange={setRegion} />
+              <ServiceFilter selected={service} onChange={setService} />
             </div>
+            <SortFilter selected={sort} onChange={setSort} />
             <Input
               type="search"
               value={query}
@@ -164,7 +162,7 @@ export default function DriverListPage() {
           </div>
 
           {/* Card List */}
-          <div className="flex flex-col gap-4 overflow-y-auto pr-2" style={{ maxHeight: "700px" }}>
+          <div className="flex flex-1 flex-col gap-4 overflow-y-auto pr-2">
             {filteredData.length > 0 ? (
               filteredData.map((data, idx) => (
                 <div key={idx} onClick={() => handleCardClick(data)} className="cursor-pointer">
