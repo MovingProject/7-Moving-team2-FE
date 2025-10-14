@@ -7,9 +7,7 @@ import TagForm from "./TagForm";
 import Button from "@/components/ui/Button";
 import { useDriverProfileForm } from "@/hooks/useDriverProFileForm";
 import { useProfileQuery } from "@/hooks/useProfileQuery";
-import { UpdateUserProfileDto } from "@/types/profile";
-import { MoveType } from "@/types/moveTypes";
-import { AreaType } from "@/types/areaTypes";
+import { UpdateDriverProfileRequest, DriverProfileData } from "@/types/card";
 
 export const REGIONS = [
   "서울",
@@ -31,6 +29,51 @@ export const REGIONS = [
   "제주",
 ];
 export type Region = (typeof REGIONS)[number];
+
+// 한글 지역명 → 백엔드 enum 값 매핑
+const REGION_MAP: Record<string, string> = {
+  서울: "SEOUL",
+  경기: "GYEONGGI",
+  인천: "INCHEON",
+  강원: "GANGWON",
+  충북: "CHUNGBUK",
+  충남: "CHUNGNAM",
+  세종: "SEJONG",
+  대전: "DAEJEON",
+  전북: "JEONBUK",
+  전남: "JEONNAM",
+  광주: "GWANGJU",
+  경북: "GYEONGBUK",
+  경남: "GYEONGNAM",
+  대구: "DAEGU",
+  울산: "ULSAN",
+  부산: "BUSAN",
+  제주: "JEJU",
+};
+
+// 한글 서비스명 → 백엔드 enum 값 매핑
+const SERVICE_MAP: Record<string, string> = {
+  소형이사: "SMALL_MOVE",
+  가정이사: "HOME_MOVE",
+  사무실이사: "OFFICE_MOVE",
+};
+
+// 역매핑: 백엔드 enum → 한글
+const REVERSE_REGION_MAP: Record<string, string> = Object.entries(REGION_MAP).reduce(
+  (acc, [ko, en]) => {
+    acc[en] = ko;
+    return acc;
+  },
+  {} as Record<string, string>
+);
+
+const REVERSE_SERVICE_MAP: Record<string, string> = Object.entries(SERVICE_MAP).reduce(
+  (acc, [ko, en]) => {
+    acc[en] = ko;
+    return acc;
+  },
+  {} as Record<string, string>
+);
 
 export default function DriverProfileForm() {
   const {
@@ -60,46 +103,73 @@ export default function DriverProfileForm() {
     validateRegions,
     validateAll,
     setInitialData,
-    hasErrors,
     isFormComplete,
   } = useDriverProfileForm();
 
-  const { data: userData, updateProfile, isLoading } = useProfileQuery();
-  const driverProfile = userData?.role === "DRIVER" ? userData.profile : null;
-  const isEditMode = !!driverProfile;
+  const {
+    user: userData,
+    updateProfile,
+    isUpdatingProfile,
+    updateProfileError,
+    error: profileError,
+  } = useProfileQuery();
 
+  const driverProfile =
+    userData?.role === "DRIVER" ? (userData.profile as DriverProfileData | null) : null;
+
+  const isEditMode = !!driverProfile;
   const [loading, setLoading] = useState(false);
 
+  // 초기 데이터 세팅
   useEffect(() => {
     if (driverProfile) {
+      // 백엔드 enum 값을 한글로 변환
+      const koreanServices = (driverProfile.driverServiceTypes ?? []).map(
+        (service) => REVERSE_SERVICE_MAP[service] ?? service
+      );
+
+      const koreanRegions = (driverProfile.driverServiceAreas ?? []).map(
+        (region) => REVERSE_REGION_MAP[region] ?? region
+      );
+
+      const careerNum = Number(driverProfile.careerYears) || 0;
+
       setInitialData({
-        nickname: driverProfile.nickname,
-        careerYears: driverProfile.careerYears,
-        oneLiner: driverProfile.oneLiner,
-        services: driverProfile.driverServiceTypes || [],
-        regions: driverProfile.driverServiceAreas || [],
+        nickname: driverProfile.nickname || "",
+        careerYears: careerNum,
+        oneLiner: driverProfile.oneLiner ?? "",
+        description: description,
+        services: koreanServices,
+        regions: koreanRegions,
       });
     }
-  }, [driverProfile, setInitialData]);
+  }, [driverProfile, setInitialData, description]);
 
+  // 폼 제출
   const handleSubmit = async () => {
     if (!validateAll()) {
       console.log("유효성 검사 실패");
       return;
     }
 
-    const dto: UpdateUserProfileDto = {
-      driverProfile: {
-        nickname,
-        careerYears,
-        oneLiner,
-        driverServiceTypes: selectedServices as MoveType[],
-        driverServiceAreas: selectedRegions as AreaType[],
-      },
-    };
+    setLoading(true);
 
     try {
-      setLoading(true);
+      // 한글 선택값을 백엔드 enum 값으로 변환
+      const backendServices = selectedServices.map((s) => SERVICE_MAP[s] ?? s);
+      const backendRegions = selectedRegions.map((r) => REGION_MAP[r] ?? r);
+
+      const dto: UpdateDriverProfileRequest = {
+        driverProfile: {
+          nickname,
+          careerYears: String(careerYears),
+          oneLiner,
+          description,
+          driverServiceTypes: backendServices,
+          driverServiceAreas: backendRegions,
+        },
+      };
+
       await updateProfile(dto);
       alert("프로필이 수정되었습니다!");
     } catch (err) {
@@ -110,17 +180,32 @@ export default function DriverProfileForm() {
     }
   };
 
+  // 취소하기 (초기 상태로 복원)
   const handleCancel = () => {
     if (driverProfile) {
+      const koreanServices = (driverProfile.driverServiceTypes ?? []).map(
+        (service) => REVERSE_SERVICE_MAP[service] ?? service
+      );
+
+      const koreanRegions = (driverProfile.driverServiceAreas ?? []).map(
+        (region) => REVERSE_REGION_MAP[region] ?? region
+      );
+
+      const careerNum = Number(driverProfile.careerYears) || 0;
+
       setInitialData({
-        nickname: driverProfile.nickname,
-        careerYears: driverProfile.careerYears,
-        oneLiner: driverProfile.oneLiner,
-        services: driverProfile.driverServiceTypes || [],
-        regions: driverProfile.driverServiceAreas || [],
+        nickname: driverProfile.nickname || "",
+        careerYears: careerNum,
+        oneLiner: driverProfile.oneLiner ?? "",
+        description: description,
+        services: koreanServices,
+        regions: koreanRegions,
       });
     }
   };
+
+  const isLoading = loading || isUpdatingProfile;
+  const errorMessage = updateProfileError?.message ?? profileError ?? null;
 
   return (
     <>
@@ -136,6 +221,11 @@ export default function DriverProfileForm() {
                   <span className="text-gray-500">
                     {isEditMode ? "" : "추가 정보를 입력하여 회원가입을 완료해주세요."}
                   </span>
+                  {errorMessage && (
+                    <p className="text-sm text-red-500">
+                      {typeof errorMessage === "string" ? errorMessage : "오류가 발생했습니다."}
+                    </p>
+                  )}
                 </div>
 
                 <ImageInputArea />
@@ -220,7 +310,7 @@ export default function DriverProfileForm() {
                   validateServices(tags);
                 }}
                 Tags={["소형이사", "가정이사", "사무실이사"]}
-                label="상세설명"
+                label="제공 서비스"
                 colType="flex"
               />
               <TagForm
@@ -240,7 +330,7 @@ export default function DriverProfileForm() {
             <Button
               className="w-full lg:order-2"
               text={isEditMode ? "수정하기" : "시작하기"}
-              disabled={loading || !isFormComplete}
+              disabled={isLoading || !isFormComplete}
               onClick={handleSubmit}
             />
             {isEditMode && (
@@ -248,7 +338,7 @@ export default function DriverProfileForm() {
                 className="w-full lg:order-1"
                 variant="secondary"
                 text="취소"
-                disabled={loading}
+                disabled={isLoading}
                 onClick={handleCancel}
               />
             )}

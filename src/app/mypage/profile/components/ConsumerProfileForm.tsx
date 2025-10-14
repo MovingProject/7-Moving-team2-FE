@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { AreaType } from "@/types/areaTypes";
 import Button from "@/components/ui/Button";
 import TagForm from "./TagForm";
 import { useRouter } from "next/navigation";
@@ -9,8 +8,11 @@ import ImageInputArea from "./ImageInputArea";
 import InputArea from "../../basicEdit/[id]/components/InputArea";
 import clsx from "clsx";
 import { useProfileQuery } from "@/hooks/useProfileQuery";
-import { UpdateUserProfileDto } from "@/types/profile";
-import { ServerMoveType } from "@/types/moveTypes";
+import {
+  UpdateConsumerProfileRequest,
+  UpdateBasicInfoRequest,
+  ConsumerProfileData,
+} from "@/types/card";
 
 const REGIONS = [
   "서울",
@@ -32,19 +34,64 @@ const REGIONS = [
   "제주",
 ];
 
+// 한글 지역명 → 백엔드 enum 값 매핑
+const REGION_MAP: Record<string, string> = {
+  서울: "SEOUL",
+  경기: "GYEONGGI",
+  인천: "INCHEON",
+  강원: "GANGWON",
+  충북: "CHUNGBUK",
+  충남: "CHUNGNAM",
+  세종: "SEJONG",
+  대전: "DAEJEON",
+  전북: "JEONBUK",
+  전남: "JEONNAM",
+  광주: "GWANGJU",
+  경북: "GYEONGBUK",
+  경남: "GYEONGNAM",
+  대구: "DAEGU",
+  울산: "ULSAN",
+  부산: "BUSAN",
+  제주: "JEJU",
+};
+
+// 한글 서비스명 → 백엔드 enum 값 매핑
+const SERVICE_MAP: Record<string, string> = {
+  소형이사: "SMALL_MOVE",
+  가정이사: "HOME_MOVE",
+  사무실이사: "OFFICE_MOVE",
+};
+
+// 역매핑: 백엔드 enum → 한글
+const REVERSE_SERVICE_MAP: Record<string, string> = Object.entries(SERVICE_MAP).reduce(
+  (acc, [ko, en]) => {
+    acc[en] = ko;
+    return acc;
+  },
+  {} as Record<string, string>
+);
+
 export default function ConsumerProfileForm() {
   const router = useRouter();
-  const { data: userData, updateProfile, isLoading } = useProfileQuery();
-  const consumerProfile = userData?.role === "CONSUMER" ? userData.profile : null;
+  const {
+    user: userData,
+    updateProfile,
+    updateBasicInfo,
+    isLoading,
+    error: queryError,
+  } = useProfileQuery();
+
+  const consumerProfile =
+    userData?.role === "CONSUMER" ? (userData.profile as ConsumerProfileData | undefined) : null;
 
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
   // 기본 회원 정보
-  const [name, setName] = useState(userData?.name ?? "");
-  const [email] = useState(userData?.email ?? "");
-  const [phone, setPhone] = useState(userData?.phoneNumber ?? "");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
 
   // 비밀번호 입력값
   const [currentPw, setCurrentPw] = useState("");
@@ -55,32 +102,94 @@ export default function ConsumerProfileForm() {
 
   // 초기 데이터 세팅
   useEffect(() => {
-    if (consumerProfile) {
-      setSelectedServices(consumerProfile.serviceType || []);
-      setSelectedAreas(consumerProfile.areas || []);
+    if (userData) {
+      setName(userData.name);
+      setEmail(userData.email);
+      setPhone(userData.phoneNumber);
     }
-  }, [consumerProfile]);
+
+    if (consumerProfile) {
+      // 백엔드에서 받은 데이터를 한글로 변환
+      if (consumerProfile.serviceType) {
+        const service = REVERSE_SERVICE_MAP[consumerProfile.serviceType];
+        if (service) {
+          setSelectedServices([service]);
+        }
+      }
+
+      if (consumerProfile.areas) {
+        const area = Object.entries(REGION_MAP).find(
+          ([, value]) => value === consumerProfile.areas
+        )?.[0];
+        if (area) {
+          setSelectedAreas([area]);
+        }
+      }
+    }
+  }, [userData, consumerProfile]);
 
   // 취소하기
   const handleCancel = () => {
     router.push("/mypage");
   };
 
+  // 비밀번호 검증
+  const validatePassword = (): boolean => {
+    if (newPw && newPw !== confirmPw) {
+      alert("새 비밀번호가 일치하지 않습니다.");
+      return false;
+    }
+    if (newPw && !currentPw) {
+      alert("새 비밀번호를 설정하려면 현재 비밀번호를 입력해주세요.");
+      return false;
+    }
+    return true;
+  };
+
   // 폼 제출 (등록 / 수정)
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!validatePassword()) {
+      return;
+    }
+
     setLoading(true);
 
-    const dto: UpdateUserProfileDto = {
-      consumerProfile: {
-        serviceType: selectedServices as ServerMoveType[],
-        areas: selectedAreas as AreaType[],
-      },
-    };
-
     try {
-      await updateProfile(dto);
+      // 1. 프로필 정보 수정 (서비스, 지역)
+      if (selectedServices.length > 0 || selectedAreas.length > 0) {
+        const profileDto: UpdateConsumerProfileRequest = {
+          consumerProfile: {
+            serviceType: selectedServices.length > 0 ? SERVICE_MAP[selectedServices[0]] : undefined,
+            areas: selectedAreas.length > 0 ? REGION_MAP[selectedAreas[0]] : undefined,
+          },
+        };
+        await updateProfile(profileDto);
+      }
+
+      // 2. 기본정보 및 비밀번호 수정
+      const hasBasicInfoChanges = name !== userData?.name || phone !== userData?.phoneNumber;
+      if (hasBasicInfoChanges || newPw) {
+        const basicInfoDto: UpdateBasicInfoRequest = {};
+        if (name !== userData?.name) {
+          basicInfoDto.name = name;
+        }
+        if (phone !== userData?.phoneNumber) {
+          basicInfoDto.phoneNumber = phone;
+        }
+        if (currentPw) {
+          basicInfoDto.currentPassword = currentPw;
+        }
+        if (newPw) {
+          basicInfoDto.newPassword = newPw;
+        }
+
+        await updateBasicInfo(basicInfoDto);
+      }
+
       alert("프로필이 성공적으로 수정되었습니다!");
+      router.push("/mypage");
     } catch (err) {
       console.error("프로필 수정 중 오류:", err);
       alert("프로필 수정 중 오류가 발생했습니다.");
@@ -102,6 +211,11 @@ export default function ConsumerProfileForm() {
           {!isEditMode && (
             <p className="text-xs text-gray-600 lg:text-lg">
               추가 정보를 입력하여 회원가입을 완료해주세요.
+            </p>
+          )}
+          {queryError && (
+            <p className="text-sm text-red-500">
+              {typeof queryError === "string" ? queryError : "오류가 발생했습니다."}
             </p>
           )}
         </div>
@@ -170,8 +284,8 @@ export default function ConsumerProfileForm() {
 
               {/* 관심 지역 태그 */}
               <TagForm
-                selectedTags={selectedServices}
-                setSelectedTags={setSelectedServices}
+                selectedTags={selectedAreas}
+                setSelectedTags={setSelectedAreas}
                 Tags={REGIONS}
                 label="내가 사는 지역"
                 subText="*내가 사는 지역은 언제든 수정 가능해요!"
@@ -184,18 +298,19 @@ export default function ConsumerProfileForm() {
           <div className="mt-8 flex w-full flex-col justify-end gap-4 pt-4 lg:flex-row lg:gap-10">
             {isEditMode && (
               <Button
-                type="submit"
+                type="button"
                 variant="secondary"
                 className="w-full px-8 py-2"
                 text="취소하기"
+                onClick={handleCancel}
               />
             )}
             <Button
               type="submit"
               className="w-full px-8 py-2"
-              disabled={loading}
+              disabled={loading || isLoading}
               text={
-                loading
+                loading || isLoading
                   ? `${isEditMode ? "수정" : "등록"} 중...`
                   : `${isEditMode ? "수정하기" : "시작하기"}`
               }
