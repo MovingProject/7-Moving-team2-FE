@@ -12,7 +12,7 @@ type ErrorPosition = "left" | "right";
 
 interface InputProps {
   type?: InputType;
-  value: string;
+  value: string | number;
   placeholder?: string;
   error?: string;
   onChange: (value: string) => void;
