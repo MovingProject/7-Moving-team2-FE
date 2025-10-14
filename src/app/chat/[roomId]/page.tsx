@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import useChatStore from "@/store/chatStore";
+import { messagesByRoomId, conversations, type Message, type Conversation } from "../mock/data";
 
 // 이 페이지는 클라이언트 측에서 동적으로 렌더링됩니다.
 export default function ChatRoomPage({ params }: { params: Promise<{ roomId: string }> }) {
@@ -9,6 +10,9 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
   const { socket, messages, addMessage, setMessages } = useChatStore();
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
+  const currentConvo = conversations.find(
+    (convo: Conversation) => convo.id === resolvedParams.roomId
+  );
 
   // 스크롤을 맨 아래로 이동시키는 함수
   const scrollToBottom = () => {
@@ -23,18 +27,10 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
   // 채팅방에 처음 입장했을 때, 기존 메시지 불러오기 (API 호출로 대체 필요)
   useEffect(() => {
     // TODO: API를 통해 `params.roomId`에 해당하는 채팅 내역을 불러와야 합니다.
-    // 현재는 임시 데이터로 초기화합니다.
-    const initialMessages = [
-      {
-        id: 1,
-        sender: "김기사",
-        avatar: "김",
-        text: "안녕하세요! 이사 일정 가능하신 날짜 있으실까요?",
-        time: "오후 12:02",
-        type: "incoming" as const,
-      },
-    ];
-    setMessages(initialMessages);
+    // 현재는 임시 목 데이터에서 채팅 내역을 불러옵니다.
+    const roomMessages =
+      (messagesByRoomId as { [key: string]: Message[] })[resolvedParams.roomId] || [];
+    setMessages(roomMessages);
   }, [resolvedParams.roomId, setMessages]);
 
   const handleSendMessage = () => {
@@ -64,7 +60,9 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
     <div className="flex h-full flex-col">
       {/* Chat Header - 데스크톱에서만 표시 */}
       <header className="hidden h-16 items-center border-b border-gray-200 bg-white p-4 md:flex">
-        <h2 className="text-lg font-bold">이사 견적 상담 (방 ID: {resolvedParams.roomId})</h2>
+        <h2 className="text-lg font-bold">
+          {currentConvo?.name} (방 ID: {resolvedParams.roomId})
+        </h2>
       </header>
 
       {/* Message List */}
