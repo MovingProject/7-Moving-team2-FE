@@ -1,42 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DriverProfileData } from "@/types/card";
 import InputArea from "../../basicEdit/[id]/components/InputArea";
 import ImageInputArea from "./ImageInputArea";
 import TagForm from "./TagForm";
 import Button from "@/components/ui/Button";
 import { useDriverProfileForm } from "@/hooks/useDriverProFileForm";
-
-interface DriverFormProps {
-  initialData: DriverProfileData | null;
-  userId: string;
-}
-
-type DriverFormState = Partial<DriverProfileData> & {
-  services?: string[];
-  regions?: string[];
-  oneLiner?: string;
-  description?: string;
-};
-
-const hasField = (obj: unknown, field: string): obj is Record<string, unknown> => {
-  return obj !== null && typeof obj === "object" && field in obj;
-};
-
-const getStringField = (obj: unknown, field: string): string => {
-  if (hasField(obj, field) && typeof obj[field] === "string") {
-    return obj[field] as string;
-  }
-  return "";
-};
-
-const getArrayField = (obj: unknown, field: string): string[] => {
-  if (hasField(obj, field) && Array.isArray(obj[field])) {
-    return obj[field] as string[];
-  }
-  return [];
-};
+import { useProfileQuery } from "@/hooks/useProfileQuery";
+import { UpdateUserProfileDto } from "@/types/profile";
+import { MoveType } from "@/types/moveTypes";
+import { AreaType } from "@/types/areaTypes";
 
 export const REGIONS = [
   "서울",
@@ -59,7 +32,7 @@ export const REGIONS = [
 ];
 export type Region = (typeof REGIONS)[number];
 
-export default function DriverProfileForm({ initialData, userId }: DriverFormProps) {
+export default function DriverProfileForm() {
   const {
     nickname,
     setNickname,
@@ -91,65 +64,62 @@ export default function DriverProfileForm({ initialData, userId }: DriverFormPro
     isFormComplete,
   } = useDriverProfileForm();
 
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [showNickname, setShowNicknma] = useState(false);
+  const { data: userData, updateProfile, isLoading } = useProfileQuery();
+  const driverProfile = userData?.role === "DRIVER" ? userData.profile : null;
+  const isEditMode = !!driverProfile;
 
-  const isEditMode = initialData !== null;
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (initialData) {
+    if (driverProfile) {
       setInitialData({
-        nickname: initialData.nickname || "",
-        careerYears: initialData.careerYears || 0,
-        oneLiner: getStringField(initialData, "oneLiner"),
-        description: getStringField(initialData, "description"),
-        services: getArrayField(initialData, "services"),
-        regions: getArrayField(initialData, "regions"),
+        nickname: driverProfile.nickname,
+        careerYears: driverProfile.careerYears,
+        oneLiner: driverProfile.oneLiner,
+        services: driverProfile.driverServiceTypes || [],
+        regions: driverProfile.driverServiceAreas || [],
       });
     }
-  }, [initialData, setInitialData]);
+  }, [driverProfile, setInitialData]);
 
-  const handleSubmit = () => {
-    // 전체 유효성 검사 실행
+  const handleSubmit = async () => {
     if (!validateAll()) {
       console.log("유효성 검사 실패");
       return;
     }
 
-    const formData = {
-      nickname,
-      careerYears,
-      oneLiner,
-      description,
-      services: selectedServices,
-      regions: selectedRegions,
+    const dto: UpdateUserProfileDto = {
+      driverProfile: {
+        nickname,
+        careerYears,
+        oneLiner,
+        driverServiceTypes: selectedServices as MoveType[],
+        driverServiceAreas: selectedRegions as AreaType[],
+      },
     };
 
-    if (isEditMode) {
-      // 수정 API 호출
-      console.log("수정 데이터:", formData);
-      // TODO: 수정 API 연결
-    } else {
-      // 등록 API 호출
-      console.log("등록 데이터:", formData);
-      // TODO: 등록 API 연결
+    try {
+      setLoading(true);
+      await updateProfile(dto);
+      alert("프로필이 수정되었습니다!");
+    } catch (err) {
+      console.error("프로필 수정 중 오류:", err);
+      alert("프로필 수정 중 문제가 발생했습니다.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleCancel = () => {
-    if (isEditMode && initialData) {
-      // 원래 데이터로 되돌리기
+    if (driverProfile) {
       setInitialData({
-        nickname: initialData.nickname || "",
-        careerYears: initialData.careerYears || 0,
-        oneLiner: getStringField(initialData, "oneLiner"),
-        description: getStringField(initialData, "description"),
-        services: getArrayField(initialData, "services"),
-        regions: getArrayField(initialData, "regions"),
+        nickname: driverProfile.nickname,
+        careerYears: driverProfile.careerYears,
+        oneLiner: driverProfile.oneLiner,
+        services: driverProfile.driverServiceTypes || [],
+        regions: driverProfile.driverServiceAreas || [],
       });
     }
-    // TODO: 페이지 이동 또는 모달 닫기
   };
 
   return (

@@ -5,26 +5,51 @@ import InputArea from "./components/InputArea";
 import Button from "@/components/ui/Button";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { patchUserBasicInfo } from "@/utils/hook/profile/profile";
+import { useUserStore } from "@/store/userStore";
 
 export default function BasicEditPage() {
   const router = useRouter();
+  const { user, setUser } = useUserStore();
 
-  const [name, setName] = useState("김코드");
-  const [email] = useState("kcode@email.com"); // 수정 불가
-  const [phone, setPhone] = useState("01012345678");
+  const [name, setName] = useState(user?.name ?? "");
+  const [email] = useState(user?.email ?? "");
+  const [phone, setPhone] = useState(user?.phoneNumber ?? "");
   const [currentPw, setCurrentPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleCancel = () => {
     router.push("/mypage"); // 변경 무시 → 기본 페이지
   };
 
-  const handleSubmit = () => {
-    console.log("제출 데이터:", { name, email, phone, currentPw, newPw, confirmPw });
-    // TODO: API 연동
-  };
+  const handleSubmit = async () => {
+    if (newPw && newPw !== confirmPw) {
+      alert("새 비밀번호가 일치하지 않습니다.");
+      return;
+    }
 
+    const dto = {
+      name,
+      phoneNumber: phone,
+      currentPassword: currentPw || undefined,
+      newPassword: newPw || undefined,
+    };
+
+    try {
+      setLoading(true);
+      const updatedUser = await patchUserBasicInfo(dto);
+      setUser(updatedUser);
+      alert("기본 정보가 성공적으로 수정되었습니다!");
+      router.push("/mypage/profile");
+    } catch (err) {
+      console.error("[BasicEditPage] 기본 정보 수정 실패:", err);
+      alert("수정 중 오류가 발생했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <main className="px-[24px] py-10 md:px-[200px] lg:px-[100px] xl:px-[260px]">
       <Header />

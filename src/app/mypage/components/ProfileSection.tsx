@@ -1,32 +1,21 @@
 "use client";
 
 import ProfileCard from "@/components/ui/card/ProfileCard";
-import { getRandomProfileImage } from "@/utils/constant/getProfileImage";
-import { UserData } from "@/types/card";
+import { useProfileQuery } from "@/hooks/useProfileQuery";
 
 export default function ProfileSection() {
-  const user: UserData = {
-    userId: "user-driver-001",
-    name: "김코드",
-    role: "DRIVER",
-    profile: {
-      driverId: "drv-001",
-      nickname: "김코드 기사님",
-      oneLiner: "고객님의 물품을 소중하고 안전하게 운송하여 드립니다.",
-      image: getRandomProfileImage(),
-      reviewCount: 178,
-      rating: 5.0,
-      careerYears: 7,
-      confirmedCount: 343,
-      driverServiceTypes: ["SMALL_MOVE", "HOME_MOVE"],
-      driverServiceAreas: ["SEOUL", "GYEONGGI"],
-      likes: { likedCount: 20, isLikedByCurrentUser: false },
-    },
-  };
+  const { data: userData, isLoading, error } = useProfileQuery();
 
-  return (
-    <section>
-      <ProfileCard user={user} />
-    </section>
-  );
+  if (isLoading) return <p>로딩 중...</p>;
+  if (error) return <p>프로필 정보를 불러오는 중 오류가 발생했습니다.</p>;
+  if (!userData) return <p>로그인이 필요합니다.</p>;
+
+  // role이 DRIVER인 경우만 렌더링
+  if (userData.role !== "DRIVER") {
+    return (
+      <section>
+        <ProfileCard user={userData} />
+      </section>
+    );
+  }
 }
