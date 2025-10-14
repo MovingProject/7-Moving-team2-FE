@@ -1,6 +1,6 @@
 "use client";
 
-import InputArea from "../components/InputArea";
+import InputArea from "../../basicEdit/[id]/components/InputArea";
 import ImageInputArea from "../components/ImageInputArea";
 import TagForm from "../components/TagForm";
 import Button from "@/components/ui/Button";
@@ -110,10 +110,10 @@ export default function DriverProfileEdit() {
                   프로필수정
                 </p>
               </div>
-              <InputArea label="별명" />
+              <InputArea label="별명" value={nickname} onChange={setNickname} />
               <ImageInputArea />
-              <InputArea label="경력" />
-              <InputArea label="한 줄 소개" />
+              <InputArea label="경력" value={careerYears} onChange={setCareerYears} />
+              <InputArea label="한 줄 소개" value={oneLiner} onChange={setOneLiner} />
 
               <div className="mt-4 lg:hidden">
                 <TagForm
@@ -134,7 +134,12 @@ export default function DriverProfileEdit() {
             </div>
 
             <div className="mt-4 w-full">
-              <InputArea label="상세 설명" type="textArea" borderOption="not" />
+              <InputArea
+                label="상세 설명"
+                value={description}
+                onChange={setDescription}
+                type="textArea"
+              />
             </div>
           </div>
 
@@ -157,8 +162,13 @@ export default function DriverProfileEdit() {
         </div>
 
         <div className="mt-4 flex w-full flex-col gap-3 lg:w-full lg:flex-row">
-          <Button className="w-full lg:order-2" text="수정하기" />
-          <Button className="w-full lg:order-1" variant="secondary" text="취소" />
+          <Button className="w-full lg:order-2" text="수정하기" onClick={handleSubmit} />
+          <Button
+            className="w-full lg:order-1"
+            variant="secondary"
+            text="취소"
+            onClick={handleCancel}
+          />
         </div>
       </div>
     </div>

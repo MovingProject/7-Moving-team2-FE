@@ -138,7 +138,7 @@ export default function DriverProfileForm() {
         nickname: driverProfile.nickname || "",
         careerYears: careerNum,
         oneLiner: driverProfile.oneLiner ?? "",
-        description: description,
+        description: driverProfile.description ?? "",
         services: koreanServices,
         regions: koreanRegions,
       });
