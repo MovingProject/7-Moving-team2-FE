@@ -5,6 +5,8 @@ const apiClient = axios.create({
   baseURL: process.env.NODE_ENV === "development" ? "/api" : process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
+  // 304 Not Modified 는 캐시 사용 신호이므로 reject 되지 않도록 허용
+  validateStatus: (status) => (status >= 200 && status < 300) || status === 304,
 });
 
 // 요청 인터셉터

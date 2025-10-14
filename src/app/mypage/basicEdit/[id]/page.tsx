@@ -4,24 +4,36 @@ import Header from "./components/Header";
 import InputArea from "./components/InputArea";
 import Button from "@/components/ui/Button";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { patchUserBasicInfo } from "@/utils/hook/profile/profile";
+import { useState, useEffect } from "react";
+import { updateBasicInfo } from "@/utils/hook/profile/profile";
 import { useUserStore } from "@/store/userStore";
+import { UpdateBasicInfoRequest } from "@/types/card";
+import { useProfileQuery } from "@/hooks/useProfileQuery";
 
 export default function BasicEditPage() {
   const router = useRouter();
-  const { user, setUser } = useUserStore();
-
-  const [name, setName] = useState(user?.name ?? "");
-  const [email] = useState(user?.email ?? "");
-  const [phone, setPhone] = useState(user?.phoneNumber ?? "");
+  const { setUser } = useUserStore();
+  const { user, isLoading, error } = useProfileQuery();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [currentPw, setCurrentPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
   const [loading, setLoading] = useState(false);
+  console.log("🚩 user data 확인:", user);
+
+  // user fetch 이후 input 초기값 반영
+  useEffect(() => {
+    if (user) {
+      setName(user.name ?? "");
+      setEmail(user.email ?? "");
+      setPhone(user.phoneNumber ?? "");
+    }
+  }, [user]);
 
   const handleCancel = () => {
-    router.push("/mypage"); // 변경 무시 → 기본 페이지
+    router.push("/mypage");
   };
 
   const handleSubmit = async () => {
@@ -30,16 +42,30 @@ export default function BasicEditPage() {
       return;
     }
 
-    const dto = {
-      name,
-      phoneNumber: phone,
-      currentPassword: currentPw || undefined,
-      newPassword: newPw || undefined,
-    };
+    setLoading(true);
 
     try {
-      setLoading(true);
-      const updatedUser = await patchUserBasicInfo(dto);
+      const dto: UpdateBasicInfoRequest = {};
+
+      if (name !== user?.name) {
+        dto.name = name;
+      }
+      if (phone !== user?.phoneNumber) {
+        dto.phoneNumber = phone;
+      }
+      if (currentPw) {
+        dto.currentPassword = currentPw;
+      }
+      if (newPw) {
+        dto.newPassword = newPw;
+      }
+
+      if (Object.keys(dto).length === 0) {
+        alert("변경된 내용이 없습니다.");
+        return;
+      }
+
+      const updatedUser = await updateBasicInfo(dto);
       setUser(updatedUser);
       alert("기본 정보가 성공적으로 수정되었습니다!");
       router.push("/mypage/profile");
@@ -50,6 +76,10 @@ export default function BasicEditPage() {
       setLoading(false);
     }
   };
+  if (isLoading) return <div className="p-10 text-center">로딩 중...</div>;
+  if (error || !user)
+    return <div className="p-10 text-center">프로필 정보를 불러오지 못했습니다.</div>;
+
   return (
     <main className="px-[24px] py-10 md:px-[200px] lg:px-[100px] xl:px-[260px]">
       <Header />
@@ -129,6 +159,7 @@ export default function BasicEditPage() {
           radius="default"
           className="w-full md:w-auto lg:!max-w-full lg:flex-1"
           onClick={handleSubmit}
+          disabled={loading}
         />
       </section>
     </main>
