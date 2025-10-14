@@ -3,14 +3,14 @@ export interface RequestFormData {
   movingDate: string;
 
   departureAddress: string;
-  departureFloor: Number;
+  departureFloor: number;
   departureElevator: boolean;
-  departurePyeong: Number;
+  departurePyeong: number;
 
   arrivalAddress: string;
-  arrivalFloor: Number;
+  arrivalFloor: number;
   arrivalElevator: boolean;
-  arrivalPyeong: Number;
+  arrivalPyeong: number;
 
   additionalRequirements?: String;
 }
