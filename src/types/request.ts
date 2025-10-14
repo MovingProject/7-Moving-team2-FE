@@ -12,7 +12,7 @@ export interface RequestFormData {
   arrivalElevator: boolean;
   arrivalPyeong: number;
 
-  additionalRequirements?: String;
+  additionalRequirements?: string;
 }
 
 export interface StepProps {
