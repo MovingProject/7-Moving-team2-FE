@@ -158,32 +158,52 @@ export default function ConsumerProfileForm() {
 
     try {
       // 1. 프로필 정보 수정 (서비스, 지역)
-      if (selectedServices.length > 0 || selectedAreas.length > 0) {
-        const profileDto: UpdateConsumerProfileRequest = {
+      const serviceType =
+        selectedServices.length > 0 ? SERVICE_MAP[selectedServices[0]] : undefined;
+      const areas = selectedAreas.length > 0 ? REGION_MAP[selectedAreas[0]] : undefined;
+
+      // undefined 필드 제거한 DTO 구성
+      if (serviceType && areas) {
+        await updateProfile({
           consumerProfile: {
-            serviceType: selectedServices.length > 0 ? SERVICE_MAP[selectedServices[0]] : undefined,
-            areas: selectedAreas.length > 0 ? REGION_MAP[selectedAreas[0]] : undefined,
+            serviceType,
+            areas,
           },
-        };
-        await updateProfile(profileDto);
+        });
+      } else if (serviceType) {
+        await updateProfile({
+          consumerProfile: {
+            serviceType,
+            areas: consumerProfile?.areas,
+          },
+        });
+      } else if (areas) {
+        await updateProfile({
+          consumerProfile: {
+            serviceType: consumerProfile?.serviceType,
+            areas,
+          },
+        });
       }
 
       // 2. 기본정보 및 비밀번호 수정
       const hasBasicInfoChanges = name !== userData?.name || phone !== userData?.phoneNumber;
       if (hasBasicInfoChanges || newPw) {
-        const basicInfoDto: UpdateBasicInfoRequest = {};
-        if (name !== userData?.name) {
-          basicInfoDto.name = name;
-        }
-        if (phone !== userData?.phoneNumber) {
-          basicInfoDto.phoneNumber = phone;
-        }
-        if (currentPw) {
-          basicInfoDto.currentPassword = currentPw;
-        }
-        if (newPw) {
-          basicInfoDto.newPassword = newPw;
-        }
+        // 백엔드 요구사항에 맞게 consumerProfile 래핑
+        const basicInfoDto = {
+          consumerProfile: {
+            serviceType:
+              selectedServices.length > 0
+                ? SERVICE_MAP[selectedServices[0]]
+                : consumerProfile?.serviceType, // 기존 값 유지
+            areas: selectedAreas.length > 0 ? REGION_MAP[selectedAreas[0]] : consumerProfile?.areas, // 기존 값 유지
+            image: consumerProfile?.image ?? undefined,
+          },
+          name: name !== userData?.name ? name : undefined,
+          phoneNumber: phone !== userData?.phoneNumber ? phone : undefined,
+          currentPassword: currentPw || undefined,
+          newPassword: newPw || undefined,
+        };
 
         await updateBasicInfo(basicInfoDto);
       }
