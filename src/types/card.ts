@@ -21,7 +21,7 @@ export interface ConsumerProfileData {
   consumerId: string;
   image?: string;
   serviceType?: ServerMoveType[];
-  areas?: AreaType;
+  areas?: AreaType[];
 }
 
 export interface DriverUser {
