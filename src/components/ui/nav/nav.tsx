@@ -1,12 +1,13 @@
 "use client";
 import Logo from "../../../../public/icon/Logo.svg";
 import Menu from "@/assets/icon/menu.svg";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import XIcon from "@/assets/icon/X.svg";
 import UserIcon from "@/assets/icon/user.svg";
 import AlarmIcon from "@/assets/icon/alarm.svg";
 import LogoMobile from "@/assets/icon/Logo-1.svg";
 import { useAuthStore } from "@/store/authStore";
+import { useUserStore } from "@/store/userStore";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
@@ -19,7 +20,11 @@ export default function Nav({ option }: NavProps) {
   const router = useRouter();
   const user = useAuthStore((s) => s.user); // zustand에서 유저 가져오기
   const clearUser = useAuthStore((s) => s.clearUser);
+  const profileUser = useUserStore((s) => s.user);
+  const clearProfileUser = useUserStore((s) => s.clearUser);
   const isLoggedIn = !!user;
+
+  const displayName = profileUser?.name ?? user?.name ?? "임시유저";
 
   const optionFont =
     "text-[#1F1F1F] font-[Pretendard] text-base font-medium leading-[26px] cursor-pointer";
@@ -38,6 +43,12 @@ export default function Nav({ option }: NavProps) {
       router.push("/login");
     }
   };
+
+  // 프로필 정보가 갱신되면 자동으로 Nav도 반영됨
+  useEffect(() => {
+    // Nav가 zustand의 userStore 구독 중이므로
+    // 별도의 수동 갱신은 필요 없음 (단, mount 시 강제 렌더 트리거용)
+  }, [profileUser, user]);
 
   return (
     <>
@@ -104,7 +115,7 @@ export default function Nav({ option }: NavProps) {
               />
               <div className="flex cursor-pointer">
                 <Image src={UserIcon} alt="유저" className="h-6 w-6" width={100} height={100} />
-                <p>{user?.name || "임시유저"}</p>
+                <p>{displayName}</p>
               </div>
             </div>
           )}

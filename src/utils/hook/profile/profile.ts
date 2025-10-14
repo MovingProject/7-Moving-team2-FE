@@ -1,4 +1,4 @@
-// src/api/profile.ts
+// src/utils/hook/profile/profile.ts
 import apiClient from "@/lib/apiClient";
 import {
   UserData,
@@ -16,34 +16,34 @@ interface RawUserResponse {
   id: string;
   name: string;
   email: string;
-  phoneNumber?: string; // 서버가 phoneNumber 또는 tel 로 줄 수 있음
+  phoneNumber?: string;
   tel?: string;
-  role?: "CONSUMER" | "DRIVER"; // 서버에서 없을 수도 있어 추론 필요
+  role?: "CONSUMER" | "DRIVER";
   service?: string; // consumer용 서비스 타입 (enum string)
   region?: string; // consumer용 지역 (enum string)
-  profileImage?: string | null;
+  profileId?: string;
+  isProfileRegistered?: boolean;
   nickname?: string;
   careerYears?: string;
 
-  // driver만 존재
+  // driver
   driverProfile?: {
-    nickname: string;
+    id: string;
+    nickname?: string;
     oneLiner?: string;
     image?: string | null;
-    reviewCount: number;
-    rating: number;
-    careerYears: string;
-    confirmedCount: number;
-    driverServiceTypes?: Array<{ serviceType: string }>;
-    driverServiceAreas?: Array<{ serviceArea: string }>;
-    likeCount: number;
+    reviewCount?: number;
+    rating?: number;
+    careerYears?: string;
+    confirmedCount?: number;
+    description?: string;
+    driverServiceTypes?: string[];
+    driverServiceAreas?: string[];
+    likeCount?: number;
   };
 }
 
-/**
- * 프로필 조회 (GET /users/me)
- * 서버 응답: { success: boolean, data: RawUserResponse }
- */
+// 프로필 조회 (GET /users/me)
 export const getUserProfile = async (): Promise<UserData> => {
   const res = await apiClient.get<{ success: boolean; data: RawUserResponse }>("/users/me");
   const raw = res.data.data;
@@ -53,10 +53,10 @@ export const getUserProfile = async (): Promise<UserData> => {
 
   // 우선순위: 서버 role > 저장된 role > 추론
   const hasDriverProfile =
-    typeof raw.driverProfile === "object" ||
-    typeof (raw as { driver_profile?: unknown }).driver_profile === "object" ||
-    typeof raw.nickname === "string" ||
-    typeof raw.careerYears === "string";
+    !!raw.driverProfile ||
+    !!raw.nickname ||
+    !!raw.careerYears ||
+    raw.role?.toUpperCase() === "DRIVER";
 
   const role: "DRIVER" | "CONSUMER" =
     raw.role?.toUpperCase?.() === "DRIVER"
@@ -74,55 +74,66 @@ export const getUserProfile = async (): Promise<UserData> => {
   const phoneNumber = raw.phoneNumber ?? raw.tel ?? "";
 
   if (role === "CONSUMER") {
+    const consumerProfile: ConsumerProfileData = {
+      consumerId: raw.id,
+      image: null,
+      serviceType: raw.service ? (raw.service as ServerMoveType) : undefined,
+      areas: raw.region ? (raw.region as AreaType) : undefined,
+    };
+
+    // 백엔드가 consumerProfile 대신 profileId만 준 경우
+    if (!raw.service && !raw.region && raw.profileId) {
+      consumerProfile.serviceType = undefined;
+      consumerProfile.areas = undefined;
+    }
+
     return {
       userId: raw.id,
       name: raw.name,
       role,
       email: raw.email,
       phoneNumber,
-      profile: {
-        consumerId: raw.id,
-        image: raw.profileImage ?? null,
-        // 서버가 string으로 주므로 enum 캐스팅
-        serviceType: raw.service ? (raw.service as ServerMoveType) : undefined,
-        areas: raw.region ? (raw.region as AreaType) : undefined,
-      } as ConsumerProfileData,
+      profile: consumerProfile,
     };
   }
 
   // DRIVER
-  const d = raw.driverProfile;
+  const d = (raw.driverProfile ?? {}) as NonNullable<RawUserResponse["driverProfile"]>;
+  const driverProfile: DriverProfileData = {
+    driverId: raw.id,
+    nickname: d.nickname ?? "",
+    oneLiner: d.oneLiner ?? "",
+    image: d.image ?? null,
+    reviewCount: d.reviewCount ?? 0,
+    rating: d.rating ?? 0,
+    careerYears: d.careerYears ?? "0",
+    confirmedCount: d.confirmedCount ?? 0,
+    description: d.description ?? "",
+    driverServiceTypes: Array.isArray(d.driverServiceTypes)
+      ? (d.driverServiceTypes as ServerMoveType[])
+      : [],
+    driverServiceAreas: Array.isArray(d.driverServiceAreas)
+      ? (d.driverServiceAreas as AreaType[])
+      : [],
+    likes: {
+      likedCount: d.likeCount ?? 0,
+      isLikedByCurrentUser: false,
+    },
+  };
+
   return {
     userId: raw.id,
     name: raw.name,
     role,
     email: raw.email,
     phoneNumber,
-    profile: {
-      driverId: raw.id,
-      nickname: d?.nickname ?? "",
-      oneLiner: d?.oneLiner,
-      image: d?.image ?? null,
-      reviewCount: d?.reviewCount ?? 0,
-      rating: d?.rating ?? 0,
-      careerYears: d?.careerYears ?? "0",
-      confirmedCount: d?.confirmedCount ?? 0,
-      description: undefined,
-      driverServiceTypes: d?.driverServiceTypes?.map((t) => t.serviceType as ServerMoveType) ?? [],
-      driverServiceAreas: d?.driverServiceAreas?.map((a) => a.serviceArea as AreaType) ?? [],
-      likes: {
-        likedCount: d?.likeCount ?? 0,
-        isLikedByCurrentUser: false,
-      },
-    } as DriverProfileData,
+    profile: driverProfile,
   };
 };
 
-/**
- * 프로필 수정 (PATCH /users/me/profile)
- * 서버 응답: { success: boolean, data: ProfileUpdateResponse }
- */
+// 프로필 수정 (PATCH /users/me/profile)
 export const updateUserProfile = async (dto: UpdateUserProfileRequest): Promise<UserData> => {
+  console.log("[DEBUG] PATCH payload:", dto);
   const res = await apiClient.patch<{ success: boolean; data: ProfileUpdateResponse }>(
     "/users/me/profile",
     dto
@@ -130,10 +141,7 @@ export const updateUserProfile = async (dto: UpdateUserProfileRequest): Promise<
   return transformProfileResponse(res.data.data);
 };
 
-/**
- * 기본정보 수정 (PATCH /users/me/profile)
- * 서버 응답: { success: boolean, data: ProfileUpdateResponse }
- */
+// 기본정보 수정 (PATCH /users/me/profile)
 export const updateBasicInfo = async (dto: UpdateBasicInfoRequest): Promise<UserData> => {
   const res = await apiClient.patch<{ success: boolean; data: ProfileUpdateResponse }>(
     "/users/me/profile",
@@ -142,55 +150,61 @@ export const updateBasicInfo = async (dto: UpdateBasicInfoRequest): Promise<User
   return transformProfileResponse(res.data.data);
 };
 
-/**
- * 공통 응답 → UserData 변환
- * (PATCH 응답은 Driver/Consumer 공용 ProfileUpdateResponse)
- */
+// 공통 응답 → UserData 변환
 const transformProfileResponse = (data: ProfileUpdateResponse): UserData => {
   // DRIVER 응답 (닉네임 유무로 식별)
   if (data.nickname !== undefined) {
+    const driverProfile: DriverProfileData = {
+      driverId: data.id,
+      nickname: data.nickname ?? "",
+      oneLiner: data.oneLiner,
+      image: data.image ?? null,
+      reviewCount: 0,
+      rating: data.rating ?? 0,
+      careerYears: data.careerYears ?? "0",
+      confirmedCount: 0,
+      description: data.description ?? "",
+      driverServiceTypes: data.driverServiceTypes?.map((t) => t as ServerMoveType) ?? [],
+      driverServiceAreas: data.driverServiceAreas?.map((a) => a as AreaType) ?? [],
+      likes: { likedCount: 0, isLikedByCurrentUser: false },
+    };
+
     return {
       userId: data.id,
       name: data.name,
       role: "DRIVER",
       email: data.email,
       phoneNumber: data.phoneNumber,
-      profile: {
-        driverId: data.id,
-        nickname: data.nickname ?? "",
-        oneLiner: data.oneLiner,
-        image: data.image ?? null,
-        reviewCount: 0, // 응답 없음 → 기본값
-        rating: data.rating ?? 0,
-        careerYears: data.careerYears ?? "0",
-        confirmedCount: 0, // 응답 없음 → 기본값
-        description: data.description ?? "",
-        driverServiceTypes: data.driverServiceTypes?.map((t) => t as ServerMoveType) ?? [],
-        driverServiceAreas: data.driverServiceAreas?.map((a) => a as AreaType) ?? [],
-        likes: {
-          likedCount: 0,
-          isLikedByCurrentUser: false,
-        },
-      } as DriverProfileData,
+      profile: driverProfile,
     };
   }
 
   // CONSUMER 응답 (serviceType 유무로 식별)
-  if (data.serviceType !== undefined) {
+  const consumerProfileData = (
+    data as unknown as { consumerProfile?: Partial<ConsumerProfileData> }
+  ).consumerProfile;
+
+  const serviceType = data.serviceType ?? consumerProfileData?.serviceType ?? undefined;
+  const areas = data.areas ?? consumerProfileData?.areas ?? undefined;
+  const image = data.image ?? consumerProfileData?.image ?? null;
+
+  if (serviceType !== undefined || areas !== undefined) {
+    const consumerProfile: ConsumerProfileData = {
+      consumerId: data.id,
+      image,
+      serviceType: serviceType as ServerMoveType | undefined,
+      areas: areas as AreaType | undefined,
+    };
+
     return {
       userId: data.id,
       name: data.name,
       role: "CONSUMER",
       email: data.email,
       phoneNumber: data.phoneNumber,
-      profile: {
-        consumerId: data.id,
-        image: data.image ?? null,
-        serviceType: data.serviceType ? (data.serviceType as ServerMoveType) : undefined,
-        areas: data.areas ? (data.areas as AreaType) : undefined,
-      } as ConsumerProfileData,
+      profile: consumerProfile,
     };
   }
 
-  throw new Error("Invalid profile response");
+  throw new Error("Invalid profile response structure");
 };

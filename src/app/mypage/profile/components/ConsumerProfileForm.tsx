@@ -8,11 +8,7 @@ import ImageInputArea from "./ImageInputArea";
 import InputArea from "../../basicEdit/[id]/components/InputArea";
 import clsx from "clsx";
 import { useProfileQuery } from "@/hooks/useProfileQuery";
-import {
-  UpdateConsumerProfileRequest,
-  UpdateBasicInfoRequest,
-  ConsumerProfileData,
-} from "@/types/card";
+import { UpdateConsumerProfileRequest, ConsumerProfileData } from "@/types/card";
 
 const REGIONS = [
   "서울",
@@ -63,75 +59,56 @@ const SERVICE_MAP: Record<string, string> = {
 };
 
 // 역매핑: 백엔드 enum → 한글
-const REVERSE_SERVICE_MAP: Record<string, string> = Object.entries(SERVICE_MAP).reduce(
-  (acc, [ko, en]) => {
-    acc[en] = ko;
-    return acc;
-  },
-  {} as Record<string, string>
+const REVERSE_REGION_MAP = Object.fromEntries(
+  Object.entries(REGION_MAP).map(([ko, en]) => [en, ko])
+);
+const REVERSE_SERVICE_MAP = Object.fromEntries(
+  Object.entries(SERVICE_MAP).map(([ko, en]) => [en, ko])
 );
 
 export default function ConsumerProfileForm() {
   const router = useRouter();
-  const {
-    user: userData,
-    updateProfile,
-    updateBasicInfo,
-    isLoading,
-    error: queryError,
-  } = useProfileQuery();
+  const { user, updateProfile, updateBasicInfo, isLoading, error: queryError } = useProfileQuery();
 
   const consumerProfile =
-    userData?.role === "CONSUMER" ? (userData.profile as ConsumerProfileData | undefined) : null;
-
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
+    user?.role === "CONSUMER" ? (user.profile as ConsumerProfileData | null) : null;
 
   // 기본 회원 정보
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  const [email] = useState(user?.email ?? "");
+  const [phone, setPhone] = useState(user?.phoneNumber ?? "");
 
   // 비밀번호 입력값
   const [currentPw, setCurrentPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
 
+  // 지역, 서비스 선택
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
+
+  const [submitting, setSubmitting] = useState(false);
   const isEditMode = !!consumerProfile;
 
   // 초기 데이터 세팅
   useEffect(() => {
-    if (userData) {
-      setName(userData.name);
-      setEmail(userData.email);
-      setPhone(userData.phoneNumber);
+    if (!consumerProfile) return;
+
+    // 서비스 변환 (백엔드 → 한글)
+    if (consumerProfile.serviceType) {
+      const serviceKo = REVERSE_SERVICE_MAP[consumerProfile.serviceType];
+      if (serviceKo) setSelectedServices([serviceKo]);
     }
 
-    if (consumerProfile) {
-      // 백엔드에서 받은 데이터를 한글로 변환
-      if (consumerProfile.serviceType) {
-        const service = REVERSE_SERVICE_MAP[consumerProfile.serviceType];
-        if (service) {
-          setSelectedServices([service]);
-        }
-      }
-
-      if (consumerProfile.areas) {
-        const area = Object.entries(REGION_MAP).find(
-          ([, value]) => value === consumerProfile.areas
-        )?.[0];
-        if (area) {
-          setSelectedAreas([area]);
-        }
-      }
+    // 지역 변환 (백엔드 → 한글)
+    if (consumerProfile.areas) {
+      const areaKo = REVERSE_REGION_MAP[consumerProfile.areas];
+      if (areaKo) setSelectedAreas([areaKo]);
     }
-  }, [userData, consumerProfile]);
 
-  // 취소하기
-  const handleCancel = () => {
-    router.push("/mypage");
-  };
+    setName(user?.name ?? "");
+    setPhone(user?.phoneNumber ?? "");
+  }, [consumerProfile, user]);
 
   // 비밀번호 검증
   const validatePassword = (): boolean => {
@@ -146,75 +123,47 @@ export default function ConsumerProfileForm() {
     return true;
   };
 
+  // 취소하기
+  const handleCancel = () => router.push("/mypage");
+
   // 폼 제출 (등록 / 수정)
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     if (!validatePassword()) {
       return;
     }
 
-    setLoading(true);
+    setSubmitting(true);
 
     try {
-      // 1. 프로필 정보 수정 (서비스, 지역)
       const serviceType =
-        selectedServices.length > 0 ? SERVICE_MAP[selectedServices[0]] : undefined;
-      const areas = selectedAreas.length > 0 ? REGION_MAP[selectedAreas[0]] : undefined;
+        selectedServices.length > 0
+          ? SERVICE_MAP[selectedServices[0]]
+          : consumerProfile?.serviceType;
+      const areas =
+        selectedAreas.length > 0 ? REGION_MAP[selectedAreas[0]] : consumerProfile?.areas;
 
-      // undefined 필드 제거한 DTO 구성
-      if (serviceType && areas) {
-        await updateProfile({
-          consumerProfile: {
-            serviceType,
-            areas,
-          },
-        });
-      } else if (serviceType) {
-        await updateProfile({
-          consumerProfile: {
-            serviceType,
-            areas: consumerProfile?.areas,
-          },
-        });
-      } else if (areas) {
-        await updateProfile({
-          consumerProfile: {
-            serviceType: consumerProfile?.serviceType,
-            areas,
-          },
-        });
-      }
+      const dto: UpdateConsumerProfileRequest = {
+        name,
+        phoneNumber: phone,
+        currentPassword: currentPw || undefined,
+        newPassword: newPw || undefined,
+        consumerProfile: {
+          ...(serviceType ? { serviceType } : {}),
+          ...(areas ? { areas } : {}),
+          ...(consumerProfile?.image ? { image: consumerProfile.image } : {}),
+        },
+      };
 
-      // 2. 기본정보 및 비밀번호 수정
-      const hasBasicInfoChanges = name !== userData?.name || phone !== userData?.phoneNumber;
-      if (hasBasicInfoChanges || newPw) {
-        // 백엔드 요구사항에 맞게 consumerProfile 래핑
-        const basicInfoDto = {
-          consumerProfile: {
-            serviceType:
-              selectedServices.length > 0
-                ? SERVICE_MAP[selectedServices[0]]
-                : consumerProfile?.serviceType, // 기존 값 유지
-            areas: selectedAreas.length > 0 ? REGION_MAP[selectedAreas[0]] : consumerProfile?.areas, // 기존 값 유지
-            image: consumerProfile?.image ?? undefined,
-          },
-          name: name !== userData?.name ? name : undefined,
-          phoneNumber: phone !== userData?.phoneNumber ? phone : undefined,
-          currentPassword: currentPw || undefined,
-          newPassword: newPw || undefined,
-        };
-
-        await updateBasicInfo(basicInfoDto);
-      }
+      await updateProfile(dto);
 
       alert("프로필이 성공적으로 수정되었습니다!");
       router.push("/mypage");
     } catch (err) {
       console.error("프로필 수정 중 오류:", err);
-      alert("프로필 수정 중 오류가 발생했습니다.");
+      alert("프로필 수정 중 문제가 발생했습니다.");
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
@@ -328,9 +277,9 @@ export default function ConsumerProfileForm() {
             <Button
               type="submit"
               className="w-full px-8 py-2"
-              disabled={loading || isLoading}
+              disabled={submitting || isLoading}
               text={
-                loading || isLoading
+                submitting || isLoading
                   ? `${isEditMode ? "수정" : "등록"} 중...`
                   : `${isEditMode ? "수정하기" : "시작하기"}`
               }
