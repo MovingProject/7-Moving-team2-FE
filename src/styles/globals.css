@@ -56,3 +56,47 @@ body {
 .scroll-thin::-webkit-scrollbar-thumb:hover {
   background-color: #c4c4c4;
 }
+/* react-datepicker의 기본 클래스 */
+.react-datepicker {
+  width: 100%;
+  font-family: inherit;
+}
+
+.react-datepicker__month-container {
+  width: 100%;
+}
+
+.react-datepicker__month {
+  width: 100%;
+}
+
+.react-datepicker__header {
+  padding: 0.5em;
+}
+
+.react-datepicker__day-names,
+.react-datepicker__week {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+}
+
+.react-datepicker__day-name,
+.react-datepicker__day,
+.react-datepicker__time-name {
+  width: 14%;
+  line-height: 2.2em;
+  height: 2.4em;
+  margin: 0.2rem;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected,
+.react-datepicker__day--in-selecting-range,
+.react-datepicker__day--in-range {
+  /* ⭐️ 선택된 날짜의 배경색 (Primary Color) */
+  background-color: #1b92ff !important;
+  /* ⭐️ 선택된 날짜의 글자색 */
+  color: white !important;
+  border-radius: 50%; /* 둥근 모양 유지 */
+}
