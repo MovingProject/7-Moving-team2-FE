@@ -1,36 +1,18 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ConsumerProfileData } from "@/types/card";
+import { AreaType } from "@/types/areaTypes";
 import Button from "@/components/ui/Button";
 import TagForm from "./TagForm";
-import { MoveTypeMap } from "@/types/moveTypes";
-import { AreaMap, AreaType } from "@/types/areaTypes";
 import { useRouter } from "next/navigation";
 import ImageInputArea from "./ImageInputArea";
 import InputArea from "../../basicEdit/[id]/components/InputArea";
 import clsx from "clsx";
+import { useProfileQuery } from "@/hooks/useProfileQuery";
+import { UpdateUserProfileDto } from "@/types/profile";
+import { ServerMoveType } from "@/types/moveTypes";
 
-const getServiceTags = () => {
-  return Object.keys(MoveTypeMap).map((key) => {
-    const serverKey = key as keyof typeof MoveTypeMap;
-    return {
-      value: serverKey,
-      label: MoveTypeMap[serverKey].content,
-    };
-  });
-};
-const SERVICE_TAGS = getServiceTags();
-
-// const getRegionTags = () => {
-//   return Object.keys(AreaMap).map((key) => ({
-//     value: key,
-//     label: AreaMap[key],
-//   }));
-// };
-// const REGION_TAGS = getRegionTags();
-
-const regions = [
+const REGIONS = [
   "서울",
   "경기",
   "인천",
@@ -50,57 +32,64 @@ const regions = [
   "제주",
 ];
 
-interface ConsumerFormProps {
-  initialData: ConsumerProfileData;
-}
-
-export default function ConsumerProfileForm({ initialData }: ConsumerFormProps) {
+export default function ConsumerProfileForm() {
   const router = useRouter();
-  const safeInitialData: ConsumerProfileData = initialData || {};
-
-  const [formData, setFormData] = useState<ConsumerProfileData>(safeInitialData);
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const { data: userData, updateProfile, isLoading } = useProfileQuery();
+  const consumerProfile = userData?.role === "CONSUMER" ? userData.profile : null;
 
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const isEditMode = !!safeInitialData; // true 이면, 등록 모드
+  // 기본 회원 정보
+  const [name, setName] = useState(userData?.name ?? "");
+  const [email] = useState(userData?.email ?? "");
+  const [phone, setPhone] = useState(userData?.phoneNumber ?? "");
 
+  // 비밀번호 입력값
+  const [currentPw, setCurrentPw] = useState("");
+  const [newPw, setNewPw] = useState("");
+  const [confirmPw, setConfirmPw] = useState("");
+
+  const isEditMode = !!consumerProfile;
+
+  // 초기 데이터 세팅
+  useEffect(() => {
+    if (consumerProfile) {
+      setSelectedServices(consumerProfile.serviceType || []);
+      setSelectedAreas(consumerProfile.areas || []);
+    }
+  }, [consumerProfile]);
+
+  // 취소하기
+  const handleCancel = () => {
+    router.push("/mypage");
+  };
+
+  // 폼 제출 (등록 / 수정)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setMessage("");
 
-    const actionText = isEditMode ? "등록" : "수정";
+    const dto: UpdateUserProfileDto = {
+      consumerProfile: {
+        serviceType: selectedServices as ServerMoveType[],
+        areas: selectedAreas as AreaType[],
+      },
+    };
 
     try {
-      console.log(`소비자 프로필 ${actionText} 요청 데이터:`, formData);
-      // TODO: 실제 API 호출 (Firestore updateDoc 또는 addDoc)
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      setMessage(`프로필이 성공적으로 ${actionText}되었습니다.`);
-    } catch (error) {
-      setMessage(`프로필 ${actionText} 중 오류가 발생했습니다.`);
+      await updateProfile(dto);
+      alert("프로필이 성공적으로 수정되었습니다!");
+    } catch (err) {
+      console.error("프로필 수정 중 오류:", err);
+      alert("프로필 수정 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
     }
   };
 
-  const [name, setName] = useState("김코드");
-  const [email] = useState("kcode@email.com");
-  const [phone, setPhone] = useState("01012345678");
-  const [currentPw, setCurrentPw] = useState("");
-  const [newPw, setNewPw] = useState("");
-  const [confirmPw, setConfirmPw] = useState("");
-
-  const handleCancel = () => {
-    router.push("/mypage"); // 변경 무시 → 기본 페이지
-  };
-
-  // const handleSubmit = () => {
-  //   console.log("제출 데이터:", { name, email, phone, currentPw, newPw, confirmPw });
-  // };
+  // layout class 계산
   const layoutClasses = !isEditMode ? "lg:max-w-[686px]" : "";
 
   return (
@@ -183,7 +172,7 @@ export default function ConsumerProfileForm({ initialData }: ConsumerFormProps) 
               <TagForm
                 selectedTags={selectedServices}
                 setSelectedTags={setSelectedServices}
-                Tags={regions}
+                Tags={REGIONS}
                 label="내가 사는 지역"
                 subText="*내가 사는 지역은 언제든 수정 가능해요!"
                 colType="grid"
