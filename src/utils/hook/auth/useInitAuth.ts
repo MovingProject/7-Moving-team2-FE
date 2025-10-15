@@ -39,51 +39,13 @@ export function useInitAuth() {
 
     async function initAuth() {
       try {
-        // --- ① hydration 이후 user가 남아있어도 무조건 최신 프로필로 덮어쓰기 ---
-        if (user) {
-          console.log("[useInitAuth] 기존 user 감지됨 → refresh + /users/me 재동기화");
-
-          try {
-            const refreshRes = await apiClient.post<RefreshResponse>("/auth/refresh");
-
-            if (refreshRes.data?.success || refreshRes.data?.message === "토큰 재발급 성공") {
-              const profile: UserData = await getUserProfile();
-              // 기존 user 정보와 병합하지 않고 새 데이터로 완전히 덮어씀
-              const mapped = mapUserDataToAuthUser(profile, null);
-              setUser(mapped);
-              console.log("[useInitAuth] refresh + /users/me 완전 덮어쓰기 완료");
-            } else {
-              console.warn("[useInitAuth] refresh 실패 → 사용자 초기화");
-              clearUser();
-            }
-          } catch (err) {
-            console.warn("[useInitAuth] refresh 요청 중 오류 → 사용자 초기화");
-            clearUser();
-          }
-
-          setIsInitialized(true);
-          return;
-        }
-
-        // --- ② user 없음 → refresh 기반으로 세션 연장 ---
-        console.log("[useInitAuth] user 없음 → refresh 시도");
-        const res = await apiClient.post<RefreshResponse>("/auth/refresh");
-
-        if (res.data?.success || res.data?.message === "토큰 재발급 성공") {
-          try {
-            const profile: UserData = await getUserProfile();
-            const mapped = mapUserDataToAuthUser(profile, null);
-            setUser(mapped);
-            console.log("[useInitAuth] refresh 성공 → /users/me 세팅 완료");
-          } catch {
-            console.error("[useInitAuth] refresh 성공했지만 /users/me 실패");
-            clearUser();
-          }
-        } else {
-          clearUser();
-        }
-      } catch (err) {
-        console.error("[useInitAuth] 인증 초기화 실패:", err);
+        console.log("[useInitAuth] /users/me로 세션 상태 확인");
+        const profile: UserData = await getUserProfile();
+        const mapped = mapUserDataToAuthUser(profile, null);
+        setUser(mapped);
+        console.log("[useInitAuth] 세션 유효 → 사용자 세팅 완료");
+      } catch (err: any) {
+        console.warn("[useInitAuth] /users/me 실패 → 로그인 필요");
         clearUser();
       } finally {
         setIsInitialized(true);
