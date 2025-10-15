@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useAuthStore, useHasHydrated, User } from "@/store/authStore";
 import apiClient from "@/lib/apiClient";
+import { getUserProfile } from "../profile/profile";
+import { mapUserDataToAuthUser } from "@/utils/mappers/useMappers";
+import { UserData } from "@/types/card";
 
 interface RefreshResponse {
   success?: boolean;
@@ -21,8 +24,8 @@ export function useInitAuth() {
     }
 
     // 공개 페이지에서는 인증 초기화 건너뛰기
-    const publicPages = ['/signUp', '/login', '/landing', '/'];
-    if (typeof window !== 'undefined') {
+    const publicPages = ["/signUp", "/login", "/landing", "/"];
+    if (typeof window !== "undefined") {
       const currentPath = window.location.pathname;
       if (publicPages.includes(currentPath)) {
         console.log("[useInitAuth] 공개 페이지 - 인증 초기화 건너뛰기:", currentPath);
@@ -36,41 +39,59 @@ export function useInitAuth() {
 
     async function initAuth() {
       try {
-        // localStorage에서 복원된 user가 있으면 그대로 사용
+        // --- ① hydration 이후 user가 남아있어도 무조건 최신 프로필로 덮어쓰기 ---
         if (user) {
-          console.log("[useInitAuth] localStorage에서 user 복원됨:", user.email);
-          setIsInitialized(true);
+          console.log("[useInitAuth] 기존 user 감지됨 → refresh + /users/me 재동기화");
 
-          // 백그라운드에서 토큰 유효성 검증
           try {
-            await apiClient.post<RefreshResponse>("/auth/refresh");
-            console.log("[useInitAuth] 토큰 유효성 검증 완료");
+            const refreshRes = await apiClient.post<RefreshResponse>("/auth/refresh");
+
+            if (refreshRes.data?.success || refreshRes.data?.message === "토큰 재발급 성공") {
+              const profile: UserData = await getUserProfile();
+              // 기존 user 정보와 병합하지 않고 새 데이터로 완전히 덮어씀
+              const mapped = mapUserDataToAuthUser(profile, null);
+              setUser(mapped);
+              console.log("[useInitAuth] refresh + /users/me 완전 덮어쓰기 완료");
+            } else {
+              console.warn("[useInitAuth] refresh 실패 → 사용자 초기화");
+              clearUser();
+            }
           } catch (err) {
-            console.warn("[useInitAuth] 토큰 만료, 로그아웃");
+            console.warn("[useInitAuth] refresh 요청 중 오류 → 사용자 초기화");
             clearUser();
           }
+
+          setIsInitialized(true);
           return;
         }
 
-        // user가 없으면 refresh 시도 (최초 방문/로그아웃 상태)
-        console.log("[useInitAuth] localStorage에 user 없음 → refresh 시도");
+        // --- ② user 없음 → refresh 기반으로 세션 연장 ---
+        console.log("[useInitAuth] user 없음 → refresh 시도");
         const res = await apiClient.post<RefreshResponse>("/auth/refresh");
 
-        if (res.data?.success && res.data?.data) {
-          console.log("[useInitAuth] refresh로 user 획득:", res.data.data.email);
-          setUser(res.data.data);
-        } else if (res.data?.message === "토큰 재발급 성공") {
-          console.log("[useInitAuth] refresh 성공했지만 user 데이터 없음");
+        if (res.data?.success || res.data?.message === "토큰 재발급 성공") {
+          try {
+            const profile: UserData = await getUserProfile();
+            const mapped = mapUserDataToAuthUser(profile, null);
+            setUser(mapped);
+            console.log("[useInitAuth] refresh 성공 → /users/me 세팅 완료");
+          } catch {
+            console.error("[useInitAuth] refresh 성공했지만 /users/me 실패");
+            clearUser();
+          }
+        } else {
+          clearUser();
         }
       } catch (err) {
-        console.log("[useInitAuth] refresh 실패 (로그인 안 된 상태)");
+        console.error("[useInitAuth] 인증 초기화 실패:", err);
+        clearUser();
       } finally {
         setIsInitialized(true);
       }
     }
 
     initAuth();
-  }, [hasHydrated, isInitialized]); // hasHydrated를 의존성에 추가
+  }, [hasHydrated, isInitialized]);
 
   return { isInitialized: hasHydrated && isInitialized };
 }
