@@ -1,5 +1,5 @@
-import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
+import axios from "axios";
 
 const apiClient = axios.create({
   baseURL: "/api",
@@ -36,11 +36,7 @@ apiClient.interceptors.response.use(
         console.log("[인터셉터] 401 발생 → refresh 시도");
 
         // refresh는 토큰 갱신만 (user 데이터 건드리지 않음)
-        await axios.post(
-          (process.env.NEXT_PUBLIC_API_URL ?? "/api") + "/auth/refresh",
-          {},
-          { withCredentials: true }
-        );
+        await axios.post("/api" + "/auth/refresh", {}, { withCredentials: true });
 
         console.log("[인터셉터] refresh 성공 → 원래 요청 재시도");
 
