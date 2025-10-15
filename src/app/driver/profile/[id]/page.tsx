@@ -32,6 +32,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
       userId: "user-driver-001",
       name: "홍길동",
       role: "DRIVER",
+      email: "hong@test.com",
+      phoneNumber: "010-1234-5678",
       profile: {
         driverId: "drv-001",
         nickname: "홍길동 기사님2",
@@ -40,7 +42,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
 
         reviewCount: 45,
         rating: 4.8,
-        careerYears: 7,
+        careerYears: "7",
         confirmedCount: 187,
         driverServiceTypes: ["SMALL_MOVE", "HOME_MOVE"],
         driverServiceAreas: ["SEOUL", "GYEONGGI"],
@@ -102,6 +104,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
       userId: "user-consumer-001",
       name: "김철수",
       role: "CONSUMER",
+      email: "kim@test.com",
+      phoneNumber: "010-9876-5432",
     },
     request: {
       requestId: "req-789",
