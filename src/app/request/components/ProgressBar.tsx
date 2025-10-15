@@ -9,7 +9,9 @@ const ProgressBar: React.FC<ProgressProps> = ({ currentStep }) => {
   const totalSteps = STEP_KEYS.length;
   const currentIndex = STEP_KEYS.findIndex((key) => key === currentStep);
 
-  const completedSteps = currentIndex > 0 ? currentIndex : 0;
+  const isAllStepsCompleted = currentIndex === totalSteps - 1;
+
+  const completedSteps = isAllStepsCompleted ? totalSteps : currentIndex;
   const progressPercentage = Math.round((completedSteps / totalSteps) * 100);
 
   return (

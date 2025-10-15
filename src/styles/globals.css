@@ -94,9 +94,12 @@ body {
 .react-datepicker__day--keyboard-selected,
 .react-datepicker__day--in-selecting-range,
 .react-datepicker__day--in-range {
-  /* ⭐️ 선택된 날짜의 배경색 (Primary Color) */
   background-color: #1b92ff !important;
-  /* ⭐️ 선택된 날짜의 글자색 */
   color: white !important;
-  border-radius: 50%; /* 둥근 모양 유지 */
+  border-radius: 50%;
+}
+.react-datepicker__day--today {
+  background-color: #ebebeb !important;
+  color: #181818 !important;
+  border-radius: 4px;
 }
