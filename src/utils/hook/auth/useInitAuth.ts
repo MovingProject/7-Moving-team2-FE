@@ -44,7 +44,7 @@ export function useInitAuth() {
         const mapped = mapUserDataToAuthUser(profile, null);
         setUser(mapped);
         console.log("[useInitAuth] 세션 유효 → 사용자 세팅 완료");
-      } catch (err: any) {
+      } catch (err) {
         console.warn("[useInitAuth] /users/me 실패 → 로그인 필요");
         clearUser();
       } finally {
