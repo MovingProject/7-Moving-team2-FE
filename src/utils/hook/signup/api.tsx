@@ -1,12 +1,5 @@
-import axios from "axios";
+import apiClient from "@/lib/apiClient";
 import { useMutation } from "@tanstack/react-query";
-
-const host = "/api";
-const api = axios.create({
-  baseURL: host,
-  headers: { "Content-Type": "application/json" },
-  withCredentials: true,
-});
 
 export type RoleType = "CONSUMER" | "DRIVER";
 
@@ -30,7 +23,7 @@ export interface UserData {
 export function useSignup() {
   return useMutation<UserData, Error, SignUpDTO>({
     mutationFn: async (data: SignUpDTO) => {
-      const res = await api.post<UserData>("/auth/signup", data);
+      const res = await apiClient.post<UserData>("/auth/signup", data);
       return res.data;
     },
     onError: (err) => {
