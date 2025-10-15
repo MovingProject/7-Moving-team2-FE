@@ -11,6 +11,7 @@ export interface User {
   createdAt: string;
   isProfileRegistered?: boolean;
   profileId?: string;
+  nickname?: string;
 }
 
 interface AuthState {
@@ -27,7 +28,13 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       _hasHydrated: false,
       setUser: (user) => set({ user }),
-      clearUser: () => set({ user: null }),
+      clearUser: () => {
+        set({ user: null });
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("auth-store");
+        }
+      },
+
       setHasHydrated: (state) => set({ _hasHydrated: state }),
     }),
     {

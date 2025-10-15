@@ -10,36 +10,75 @@ import { useProfileQuery } from "@/hooks/useProfileQuery";
 import { updateUserProfile } from "@/utils/hook/profile/profile";
 import { useUserStore } from "@/store/userStore";
 import { UpdateUserProfileRequest } from "@/types/card";
+import { useQueryClient } from "@tanstack/react-query";
+
+const regions = [
+  "서울",
+  "경기",
+  "인천",
+  "강원",
+  "충북",
+  "충남",
+  "세종",
+  "대전",
+  "전북",
+  "전남",
+  "광주",
+  "경북",
+  "경남",
+  "대구",
+  "울산",
+  "부산",
+  "제주",
+];
+
+// 한글 <-> 백엔드 enum 매핑
+const SERVICE_MAP: Record<string, string> = {
+  소형이사: "SMALL_MOVE",
+  가정이사: "HOME_MOVE",
+  사무실이사: "OFFICE_MOVE",
+};
+
+const REGION_MAP: Record<string, string> = {
+  서울: "SEOUL",
+  경기: "GYEONGGI",
+  인천: "INCHEON",
+  강원: "GANGWON",
+  충북: "CHUNGBUK",
+  충남: "CHUNGNAM",
+  세종: "SEJONG",
+  대전: "DAEJEON",
+  전북: "JEONBUK",
+  전남: "JEONNAM",
+  광주: "GWANGJU",
+  경북: "GYEONGBUK",
+  경남: "GYEONGNAM",
+  대구: "DAEGU",
+  울산: "ULSAN",
+  부산: "BUSAN",
+  제주: "JEJU",
+};
+
+// 역매핑 (enum -> 한글)
+const REVERSE_SERVICE_MAP = Object.fromEntries(
+  Object.entries(SERVICE_MAP).map(([ko, en]) => [en, ko])
+);
+const REVERSE_REGION_MAP = Object.fromEntries(
+  Object.entries(REGION_MAP).map(([ko, en]) => [en, ko])
+);
 
 export default function DriverProfileEdit() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { setUser } = useUserStore();
   const { user, isLoading, error } = useProfileQuery();
   console.log("🚩 user data 확인:", user);
 
-  // Tag 목록
-  const regions = [
-    "서울",
-    "경기",
-    "인천",
-    "강원",
-    "충북",
-    "충남",
-    "세종",
-    "대전",
-    "전북",
-    "전남",
-    "광주",
-    "경북",
-    "경남",
-    "대구",
-    "울산",
-    "부산",
-    "제주",
-  ];
-  const moveTypes = ["소형이사", "가정이사", "사무실이사"];
+  // tag 목록
+  const regions = Object.keys(REGION_MAP);
+  const moveTypes = Object.keys(SERVICE_MAP);
 
-  // 입력값 상태
+  // 입력 상태
   const [nickname, setNickname] = useState("");
   const [careerYears, setCareerYears] = useState("");
   const [oneLiner, setOneLiner] = useState("");
@@ -48,19 +87,43 @@ export default function DriverProfileEdit() {
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // user 데이터 불러오면 input 초기화
+  // 드라이버 프로필 수정 페이지 진입 시 캐시 무효화
   useEffect(() => {
-    if (user?.role === "DRIVER" && user.profile) {
-      setNickname(user.profile.nickname ?? "");
-      setCareerYears(user.profile.careerYears ?? "");
-      setOneLiner(user.profile.oneLiner ?? "");
-      setDescription(user.profile.description ?? "");
-      setSelectedServices(user.profile.driverServiceTypes ?? []);
-      setSelectedRegions(user.profile.driverServiceAreas ?? []);
-    }
-  }, [user]);
+    queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+  }, [queryClient]);
 
-  const handleCancel = () => router.push("/mypage/profile");
+  /** 최초 로드 시 user 데이터 zustand에 반영 (1회만) */
+  useEffect(() => {
+    if (user) setUser(user);
+  }, [user?.userId]);
+
+  // 초기값 세팅
+  useEffect(() => {
+    if (!user || user.role !== "DRIVER" || !user.profile) return;
+    const profile = user.profile;
+
+    // 이미 초기화된 상태라면 다시 세팅하지 않음
+    if (nickname || oneLiner || description) return;
+
+    setNickname(profile.nickname ?? "");
+    setCareerYears(profile.careerYears ?? "");
+    setOneLiner(profile.oneLiner ?? "");
+    setDescription(profile.description ?? "");
+
+    if (profile.driverServiceTypes) {
+      const serviceKo = profile.driverServiceTypes
+        .map((t) => REVERSE_SERVICE_MAP[t])
+        .filter(Boolean);
+      setSelectedServices(serviceKo);
+    }
+
+    if (profile.driverServiceAreas) {
+      const areaKo = profile.driverServiceAreas.map((a) => REVERSE_REGION_MAP[a]).filter(Boolean);
+      setSelectedRegions(areaKo);
+    }
+  }, [user]); // user가 바뀌었을 때만 실행
+
+  const handleCancel = () => router.push("/mypage");
 
   const handleSubmit = async () => {
     if (user?.role !== "DRIVER") {
@@ -69,6 +132,7 @@ export default function DriverProfileEdit() {
     }
 
     setLoading(true);
+
     try {
       const dto: UpdateUserProfileRequest = {
         driverProfile: {
@@ -76,15 +140,17 @@ export default function DriverProfileEdit() {
           careerYears,
           oneLiner,
           description,
-          driverServiceTypes: selectedServices,
-          driverServiceAreas: selectedRegions,
+          // 한글 → enum 매핑 변환
+          driverServiceTypes: selectedServices.map((s) => SERVICE_MAP[s]),
+          driverServiceAreas: selectedRegions.map((r) => REGION_MAP[r]),
         },
       };
 
-      const updated = await updateUserProfile(dto);
-      setUser(updated);
+      const updatedUser = await updateUserProfile(dto);
+      setUser(updatedUser); // zustand 즉시 반영
       alert("프로필이 성공적으로 수정되었습니다!");
-      router.push("/mypage/profile");
+      if (user?.role === "DRIVER") router.push("/mypage");
+      else router.back();
     } catch (err) {
       console.error("[DriverProfileEdit] 프로필 수정 실패:", err);
       alert("수정 중 오류가 발생했습니다.");
@@ -117,15 +183,15 @@ export default function DriverProfileEdit() {
 
               <div className="mt-4 lg:hidden">
                 <TagForm
-                  Tags={["소형이사", "가정이사", "사무실이사"]}
+                  Tags={moveTypes}
                   label="상세설명"
                   colType="flex"
                   selectedTags={selectedServices}
                   setSelectedTags={setSelectedServices}
                 />
                 <TagForm
-                  selectedTags={selectedServices}
-                  setSelectedTags={setSelectedServices}
+                  selectedTags={selectedRegions}
+                  setSelectedTags={setSelectedRegions}
                   Tags={regions}
                   label="가능구역"
                   colType="grid"
@@ -147,13 +213,13 @@ export default function DriverProfileEdit() {
             <TagForm
               selectedTags={selectedServices}
               setSelectedTags={setSelectedServices}
-              Tags={["소형이사", "가정이사", "사무실이사"]}
+              Tags={moveTypes}
               label="상세설명"
               colType="flex"
             />
             <TagForm
-              selectedTags={selectedServices}
-              setSelectedTags={setSelectedServices}
+              selectedTags={selectedRegions}
+              setSelectedTags={setSelectedRegions}
               Tags={regions}
               label="가능구역"
               colType="grid"
@@ -162,7 +228,12 @@ export default function DriverProfileEdit() {
         </div>
 
         <div className="mt-4 flex w-full flex-col gap-3 lg:w-full lg:flex-row">
-          <Button className="w-full lg:order-2" text="수정하기" onClick={handleSubmit} />
+          <Button
+            className="w-full lg:order-2"
+            text={loading ? "수정 중..." : "수정하기"}
+            onClick={handleSubmit}
+            disabled={loading}
+          />
           <Button
             className="w-full lg:order-1"
             variant="secondary"

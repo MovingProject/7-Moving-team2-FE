@@ -124,7 +124,7 @@ export default function ConsumerProfileForm() {
   };
 
   // 취소하기
-  const handleCancel = () => router.push("/mypage");
+  const handleCancel = () => router.back();
 
   // 폼 제출 (등록 / 수정)
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -158,7 +158,8 @@ export default function ConsumerProfileForm() {
       await updateProfile(dto);
 
       alert("프로필이 성공적으로 수정되었습니다!");
-      router.push("/mypage");
+      if (user?.role === "DRIVER") router.push("/mypage");
+      else router.back();
     } catch (err) {
       console.error("프로필 수정 중 오류:", err);
       alert("프로필 수정 중 문제가 발생했습니다.");
