@@ -4,7 +4,7 @@ import ProfileCard from "@/components/ui/card/ProfileCard";
 import { useProfileQuery } from "@/hooks/useProfileQuery";
 
 export default function ProfileSection() {
-  const { data: userData, isLoading, error } = useProfileQuery();
+  const { user: userData, isLoading, error } = useProfileQuery();
 
   if (isLoading) return <p>로딩 중...</p>;
   if (error) return <p>프로필 정보를 불러오는 중 오류가 발생했습니다.</p>;

@@ -42,36 +42,32 @@ export default function BasicEditPage() {
       return;
     }
 
+    const nameChanged = name !== user?.name;
+    const phoneChanged = phone !== user?.phoneNumber;
+
+    if (!nameChanged && !phoneChanged && !currentPw && !newPw) {
+      alert("변경된 내용이 없습니다.");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const dto: UpdateBasicInfoRequest = {};
-
-      if (name !== user?.name) {
-        dto.name = name;
-      }
-      if (phone !== user?.phoneNumber) {
-        dto.phoneNumber = phone;
-      }
-      if (currentPw) {
-        dto.currentPassword = currentPw;
-      }
-      if (newPw) {
-        dto.newPassword = newPw;
-      }
-
-      if (Object.keys(dto).length === 0) {
-        alert("변경된 내용이 없습니다.");
-        return;
-      }
+      if (nameChanged) dto.name = name;
+      if (phoneChanged) dto.phoneNumber = phone;
+      if (currentPw) dto.currentPassword = currentPw;
+      if (newPw) dto.newPassword = newPw;
 
       const updatedUser = await updateBasicInfo(dto);
       setUser(updatedUser);
       alert("기본 정보가 성공적으로 수정되었습니다!");
-      router.push("/mypage/profile");
-    } catch (err) {
+      if (user?.role === "DRIVER") router.push("/mypage");
+      else router.back();
+    } catch (err: any) {
       console.error("[BasicEditPage] 기본 정보 수정 실패:", err);
-      alert("수정 중 오류가 발생했습니다.");
+      const message = err?.response?.data?.message || "수정 중 오류가 발생했습니다.";
+      alert(message);
     } finally {
       setLoading(false);
     }

@@ -24,7 +24,7 @@ export default function Nav({ option }: NavProps) {
   const clearProfileUser = useUserStore((s) => s.clearUser);
   const isLoggedIn = !!user;
 
-  const displayName = profileUser?.name ?? user?.name ?? "임시유저";
+  const displayName = user?.name ?? profileUser?.name ?? "임시유저";
 
   const optionFont =
     "text-[#1F1F1F] font-[Pretendard] text-base font-medium leading-[26px] cursor-pointer";
@@ -40,6 +40,7 @@ export default function Nav({ option }: NavProps) {
       console.error("로그아웃 실패:", e);
     } finally {
       clearUser(); // zustand 상태 초기화
+      clearProfileUser();
       router.push("/login");
     }
   };

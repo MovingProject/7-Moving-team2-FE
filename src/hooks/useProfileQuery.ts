@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateUserProfile, updateBasicInfo, getUserProfile } from "@/utils/hook/profile/profile";
 import { useUserStore } from "@/store/userStore";
+import { useAuthStore } from "@/store/authStore";
+import { mapUserDataToAuthUser } from "@/utils/mappers/useMappers";
 import { UserData, UpdateUserProfileRequest, UpdateBasicInfoRequest } from "@/types/card";
 
 interface UseProfileQueryOptions {
@@ -9,7 +11,9 @@ interface UseProfileQueryOptions {
 
 export const useProfileQuery = (options?: UseProfileQueryOptions) => {
   const queryClient = useQueryClient();
-  const { setUser, clearUser } = useUserStore();
+  const { setUser: setUiUser, clearUser: clearUiUser } = useUserStore();
+  const authUser = useAuthStore((s) => s.user);
+  const setAuthUser = useAuthStore((s) => s.setUser);
 
   // 프로필 조회 쿼리
   const profileQuery = useQuery<UserData, Error>({
@@ -17,46 +21,47 @@ export const useProfileQuery = (options?: UseProfileQueryOptions) => {
     queryFn: async () => {
       try {
         const data = await getUserProfile();
-        setUser(data);
+        setUiUser(data);
+        const mapped = mapUserDataToAuthUser(data, authUser);
+        setAuthUser(mapped);
+
         return data;
       } catch (error) {
-        clearUser();
+        clearUiUser();
         throw error;
       }
     },
-    staleTime: 5 * 60 * 1000, // 5분
-    gcTime: 10 * 60 * 1000, // 10분
-    retry: 1,
-    enabled: options?.enabled !== false,
+    staleTime: 0, // 캐시된 데이터 바로 무효화
+    refetchOnMount: true, // 마운트 시 무조건 새로 요청
   });
 
   // 프로필 수정
   const updateProfileMutation = useMutation<UserData, Error, UpdateUserProfileRequest>({
-    mutationFn: async (payload) => {
-      const updated = await updateUserProfile(payload);
-      return updated;
-    },
+    mutationFn: (payload) => updateUserProfile(payload),
     onSuccess: (updated) => {
       queryClient.setQueryData(["userProfile"], updated);
-      setUser(updated);
+      setUiUser(updated);
+
+      const mapped = mapUserDataToAuthUser(updated, authUser);
+      setAuthUser(mapped);
     },
-    onError: (error) => {
-      console.error("[useProfileQuery] updateProfile 실패:", error);
+    onError: (err) => {
+      console.error("[useProfileQuery] updateProfile 실패:", err);
     },
   });
 
   // 기본정보 수정
   const updateBasicInfoMutation = useMutation<UserData, Error, UpdateBasicInfoRequest>({
-    mutationFn: async (payload) => {
-      const updated = await updateBasicInfo(payload);
-      return updated;
-    },
+    mutationFn: (payload) => updateBasicInfo(payload),
     onSuccess: (updated) => {
       queryClient.setQueryData(["userProfile"], updated);
-      setUser(updated);
+      setUiUser(updated);
+
+      const mapped = mapUserDataToAuthUser(updated, authUser);
+      setAuthUser(mapped);
     },
-    onError: (error) => {
-      console.error("[useProfileQuery] updateBasicInfo 실패:", error);
+    onError: (err) => {
+      console.error("[useProfileQuery] updateBasicInfo 실패:", err);
     },
   });
 

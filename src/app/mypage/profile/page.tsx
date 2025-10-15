@@ -7,7 +7,7 @@ import DriverProfileForm from "./components/DriverProfileForm";
 export default function ProfilePage() {
   const { user: userData, isLoading, error } = useProfileQuery();
 
-  if (isLoading) {
+  if (isLoading || !userData?.role) {
     return <div className="container mx-auto p-4">로딩 중...</div>;
   }
 

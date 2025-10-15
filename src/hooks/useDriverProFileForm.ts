@@ -1,4 +1,6 @@
-import { useState } from "react";
+// useDriverProfileForm.ts 수정 (현재 버전 기준)
+
+import { useState, useCallback } from "react";
 import {
   isValidNickName,
   isValidHistory,
@@ -7,158 +9,148 @@ import {
 } from "@/utils/validation";
 import { error } from "@/utils/constant/error";
 
+interface DriverFormData {
+  nickname: string;
+  careerYears: number;
+  oneLiner: string;
+  description: string;
+  selectedServices: string[];
+  selectedRegions: string[];
+}
+
 export function useDriverProfileForm() {
-  // 폼 데이터 상태
-  const [nickname, setNickname] = useState<string>("");
-  const [careerYears, setCareerYears] = useState<number>(0);
-  const [oneLiner, setOneLiner] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
+  const [form, setForm] = useState<DriverFormData>({
+    nickname: "",
+    careerYears: 0,
+    oneLiner: "",
+    description: "",
+    selectedServices: [],
+    selectedRegions: [],
+  });
 
-  // 에러 상태들
-  const [nicknameError, setNicknameError] = useState<string>("");
-  const [careerError, setCareerError] = useState<string>("");
-  const [oneLinerError, setOneLinerError] = useState<string>("");
-  const [descriptionError, setDescriptionError] = useState<string>("");
-  const [servicesError, setServicesError] = useState<string>("");
-  const [regionsError, setRegionsError] = useState<string>("");
+  const [errors, setErrors] = useState({
+    nicknameError: "",
+    careerError: "",
+    oneLinerError: "",
+    descriptionError: "",
+    servicesError: "",
+    regionsError: "",
+  });
 
-  // 유효성 검사 함수들
-  const validateNickname = (value: string) => {
-    if (!value.trim()) {
-      setNicknameError(error.nickNameEmpty);
-    } else if (!isValidNickName(value)) {
-      setNicknameError("별명을 2자 이상 입력해주세요.");
-    } else {
-      setNicknameError("");
-    }
-  };
+  // ✅ 개별 필드 setter
+  const setNickname = (value: string) => setForm((p) => ({ ...p, nickname: value }));
+  const setCareerYears = (value: number) => setForm((p) => ({ ...p, careerYears: value }));
+  const setOneLiner = (value: string) => setForm((p) => ({ ...p, oneLiner: value }));
+  const setDescription = (value: string) => setForm((p) => ({ ...p, description: value }));
+  const setSelectedServices = (value: string[]) =>
+    setForm((p) => ({ ...p, selectedServices: value }));
+  const setSelectedRegions = (value: string[]) =>
+    setForm((p) => ({ ...p, selectedRegions: value }));
 
-  const validateCareer = (value: string) => {
-    if (!value.trim()) {
-      setCareerError("경력을 입력해주세요.");
-    } else if (!isValidHistory(value)) {
-      setCareerError(error.histotyInvalid);
-    } else {
-      setCareerError("");
-    }
-  };
+  // ✅ 유효성 검사
+  const validateNickname = useCallback((value: string) => {
+    if (!value.trim()) return error.nickNameEmpty;
+    if (!isValidNickName(value)) return "별명을 2자 이상 입력해주세요.";
+    return "";
+  }, []);
 
-  const validateOneLiner = (value: string) => {
-    if (!value.trim()) {
-      setOneLinerError("한 줄 소개를 입력해주세요.");
-    } else if (!isValidOverView(value)) {
-      setOneLinerError(error.overViewInvalid);
-    } else {
-      setOneLinerError("");
-    }
-  };
+  const validateCareer = useCallback((value: string) => {
+    if (!value.trim()) return "경력을 입력해주세요.";
+    if (!isValidHistory(value)) return error.histotyInvalid;
+    return "";
+  }, []);
 
-  const validateDescription = (value: string) => {
-    if (!value.trim()) {
-      setDescriptionError("상세 설명을 입력해주세요.");
-    } else if (!isValidDetails(value)) {
-      setDescriptionError(error.details);
-    } else {
-      setDescriptionError("");
-    }
-  };
+  const validateOneLiner = useCallback((value: string) => {
+    if (!value.trim()) return "한 줄 소개를 입력해주세요.";
+    if (!isValidOverView(value)) return error.overViewInvalid;
+    return "";
+  }, []);
 
-  const validateServices = (services: string[]) => {
-    if (services.length === 0) {
-      setServicesError(error.service);
-    } else {
-      setServicesError("");
-    }
-  };
+  const validateDescription = useCallback((value: string) => {
+    if (!value.trim()) return "상세 설명을 입력해주세요.";
+    if (!isValidDetails(value)) return error.details;
+    return "";
+  }, []);
 
-  const validateRegions = (regions: string[]) => {
-    if (regions.length === 0) {
-      setRegionsError(error.serviceArea);
-    } else {
-      setRegionsError("");
-    }
-  };
+  const validateServices = useCallback(
+    (services: string[]) => (services.length === 0 ? error.service : ""),
+    []
+  );
 
-  // 전체 유효성 검사
-  const validateAll = () => {
-    validateNickname(nickname);
-    validateCareer(String(careerYears));
-    validateOneLiner(oneLiner);
-    validateDescription(description);
-    validateServices(selectedServices);
-    validateRegions(selectedRegions);
+  const validateRegions = useCallback(
+    (regions: string[]) => (regions.length === 0 ? error.serviceArea : ""),
+    []
+  );
 
-    return !(
-      nicknameError ||
-      careerError ||
-      oneLinerError ||
-      descriptionError ||
-      servicesError ||
-      regionsError
-    );
-  };
+  // ✅ 전체 유효성 검사
+  const validateAll = useCallback(() => {
+    const newErrors = {
+      nicknameError: validateNickname(form.nickname),
+      careerError: validateCareer(String(form.careerYears)),
+      oneLinerError: validateOneLiner(form.oneLiner),
+      descriptionError: validateDescription(form.description),
+      servicesError: validateServices(form.selectedServices),
+      regionsError: validateRegions(form.selectedRegions),
+    };
+    setErrors(newErrors);
+    return Object.values(newErrors).every((v) => !v);
+  }, [form]);
 
-  // 폼 데이터 초기화
-  const resetForm = () => {
-    setNickname("");
-    setCareerYears(0);
-    setOneLiner("");
-    setDescription("");
-    setSelectedServices([]);
-    setSelectedRegions([]);
+  // ✅ 초기화
+  const resetForm = useCallback(() => {
+    setForm({
+      nickname: "",
+      careerYears: 0,
+      oneLiner: "",
+      description: "",
+      selectedServices: [],
+      selectedRegions: [],
+    });
+    setErrors({
+      nicknameError: "",
+      careerError: "",
+      oneLinerError: "",
+      descriptionError: "",
+      servicesError: "",
+      regionsError: "",
+    });
+  }, []);
 
-    // 에러 상태 초기화
-    setNicknameError("");
-    setCareerError("");
-    setOneLinerError("");
-    setDescriptionError("");
-    setServicesError("");
-    setRegionsError("");
-  };
+  // ✅ 초기 데이터 세팅
+  const setInitialData = useCallback((data: Partial<DriverFormData>) => {
+    setForm((prev) => ({
+      ...prev,
+      nickname: data.nickname ?? "",
+      careerYears: data.careerYears ?? 0,
+      oneLiner: data.oneLiner ?? "",
+      description: data.description ?? "",
+      selectedServices: data.selectedServices ?? [],
+      selectedRegions: data.selectedRegions ?? [],
+    }));
+  }, []);
 
-  // 초기 데이터로 폼 설정
-  const setInitialData = (data: {
-    nickname?: string;
-    careerYears?: number;
-    oneLiner?: string;
-    description?: string;
-    services?: string[];
-    regions?: string[];
-  }) => {
-    setNickname(data.nickname || "");
-    setCareerYears(data.careerYears || 0);
-    setOneLiner(data.oneLiner || "");
-    setDescription(data.description || "");
-    setSelectedServices(data.services || []);
-    setSelectedRegions(data.regions || []);
-  };
+  const hasErrors = Object.values(errors).some((v) => !!v);
+  const isFormComplete =
+    !!form.nickname.trim() &&
+    form.careerYears > 0 &&
+    !!form.oneLiner.trim() &&
+    !!form.description.trim() &&
+    form.selectedServices.length > 0 &&
+    form.selectedRegions.length > 0 &&
+    !hasErrors;
 
   return {
-    // 상태들
-    nickname,
+    ...form,
     setNickname,
-    careerYears,
     setCareerYears,
-    oneLiner,
     setOneLiner,
-    description,
     setDescription,
-    selectedServices,
     setSelectedServices,
-    selectedRegions,
     setSelectedRegions,
 
-    // 에러 상태들
-    nicknameError,
-    careerError,
-    oneLinerError,
-    descriptionError,
-    servicesError,
-    regionsError,
+    // 기존 명명 규칙 복원
+    ...errors,
 
-    // 유효성 검사 함수들
     validateNickname,
     validateCareer,
     validateOneLiner,
@@ -167,34 +159,10 @@ export function useDriverProfileForm() {
     validateRegions,
     validateAll,
 
-    // 유틸리티 함수들
     resetForm,
     setInitialData,
 
-    // 전체 에러 여부
-    hasErrors: !!(
-      nicknameError ||
-      careerError ||
-      oneLinerError ||
-      descriptionError ||
-      servicesError ||
-      regionsError
-    ),
-
-    // 모든 필수 필드가 완성되었는지 확인
-    isFormComplete: !!(
-      nickname.trim() &&
-      careerYears > 0 &&
-      oneLiner.trim() &&
-      description.trim() &&
-      selectedServices.length > 0 &&
-      selectedRegions.length > 0 &&
-      !nicknameError &&
-      !careerError &&
-      !oneLinerError &&
-      !descriptionError &&
-      !servicesError &&
-      !regionsError
-    ),
+    hasErrors,
+    isFormComplete,
   };
 }
