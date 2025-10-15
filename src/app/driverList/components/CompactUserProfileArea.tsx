@@ -5,6 +5,7 @@ import CompactProfileImage from "./CompactProfileImage";
 import LikeButton from "@/components/ui/LikeButton";
 import CompactMovingInfoViewer from "./CompactMovingInfoViewer";
 import { DriverUser } from "@/types/card";
+import UserIcon from "@/assets/icon/user.svg";
 
 /**
  * CompactUserProfileArea
@@ -22,7 +23,7 @@ export default function CompactUserProfileArea({ user }: { user: DriverUser }) {
       <div className="flex items-center gap-3 overflow-hidden">
         {/* 프로필 이미지 */}
         <div className="relative flex-shrink-0">
-          <CompactProfileImage src={profile.image} />
+          <CompactProfileImage src={profile.image ?? UserIcon} />
         </div>
         {/* 이름 + 정보 */}
         <div className="flex flex-col justify-center gap-2">
