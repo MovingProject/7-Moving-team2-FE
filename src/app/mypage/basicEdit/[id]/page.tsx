@@ -64,9 +64,11 @@ export default function BasicEditPage() {
       alert("기본 정보가 성공적으로 수정되었습니다!");
       if (user?.role === "DRIVER") router.push("/mypage");
       else router.back();
-    } catch (err: any) {
+    } catch (err) {
       console.error("[BasicEditPage] 기본 정보 수정 실패:", err);
-      const message = err?.response?.data?.message || "수정 중 오류가 발생했습니다.";
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+        "수정 중 오류가 발생했습니다.";
       alert(message);
     } finally {
       setLoading(false);
