@@ -8,6 +8,8 @@ import DepartureDetails from "../components/DepartureDetails";
 import ArrivalDetails from "../components/ArrivalDetails";
 import { STEP_KEYS, StepKey, StepStatus, RequestFormData } from "@/types/request";
 import Requirements from "../components/Requirements";
+import { submitRequest } from "@/services/requestService";
+import RequestCompleteModal from "../components/RequestCompleteModal";
 
 const initialStepStatus: StepStatus = STEP_KEYS.reduce((acc, key) => {
   acc[key] = false;
@@ -17,6 +19,7 @@ const initialStepStatus: StepStatus = STEP_KEYS.reduce((acc, key) => {
 export default function RequestPage() {
   const [formData, setFormData] = useState<Partial<RequestFormData>>({});
   const [stepsCompleted, setStepsCompleted] = useState<StepStatus>(initialStepStatus);
+  const [isSubmissionSuccess, setIsSubmissionSuccess] = useState(false);
 
   // 현재 활성화된 스텝을 추적 (ProgressIndicator용)
   const getCurrentActiveStep = (): StepKey => {
@@ -44,17 +47,26 @@ export default function RequestPage() {
   };
 
   // 최종 제출 처리
-  const handleSubmit = (data: Partial<RequestFormData>) => {
+  const handleSubmit = async (data: Partial<RequestFormData>) => {
     const finalData = { ...formData, ...data } as RequestFormData; // TODO: 서버 API로 데이터 전송 로직 구현
+    try {
+      await submitRequest(finalData);
+      console.log("최종 제출 데이터:", finalData); // 최종 완료 메시지를 표시
 
-    console.log("최종 제출 데이터:", finalData); // 최종 완료 메시지를 표시
-
-    setStepsCompleted(
-      STEP_KEYS.reduce((acc, key) => {
-        acc[key] = true;
-        return acc;
-      }, {} as StepStatus)
-    );
+      setStepsCompleted(
+        STEP_KEYS.reduce((acc, key) => {
+          acc[key] = true;
+          return acc;
+        }, {} as StepStatus)
+      );
+      setIsSubmissionSuccess(true);
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error("제출 실패:", error.message);
+        alert(error.message);
+      }
+      throw error;
+    }
   };
 
   const handlePrev = (targetStepKey: StepKey) => {
@@ -71,14 +83,14 @@ export default function RequestPage() {
   const isFinalComplete = stepsCompleted.requirements;
 
   return (
-    <div className="estimate-container">
-      <div className="">
-        <div className="mx-auto flex flex-col gap-2 px-4 pt-6 pb-4 lg:max-w-[1400px] lg:gap-8 lg:px-0">
+    <div className="estimate-container flex min-h-[calc(100vh-80px)] flex-col">
+      <div className="flex flex-grow flex-col">
+        <div className="mx-auto flex w-full flex-col gap-2 px-4 pt-6 pb-4 lg:max-w-[1400px] lg:gap-8 lg:px-0">
           <h1 className="text-lg font-bold lg:text-3xl">견적요청</h1>
           <ProgressBar currentStep={getCurrentActiveStep()} />
         </div>
 
-        <div className="bg-gray-200 py-6 lg:py-12">
+        <div className="flex-grow bg-gray-200 py-6 lg:py-12">
           <div className="mx-auto flex flex-col gap-4 px-4 lg:max-w-[1400px] lg:px-0">
             {/* 1. 이사 종류 (MovingType) */}
             <div id="step-type" className="flex flex-col gap-4 transition-opacity duration-500">
@@ -147,17 +159,7 @@ export default function RequestPage() {
               </div>
             )}
 
-            {/* 최종 완료 메시지 : 넣을지 말지 고민 */}
-            {isFinalComplete && (
-              <div className="bg-primary-light border-primary rounded-2xl border p-12 text-center">
-                <h2 className="text-primary mb-4 text-2xl font-bold">견적 요청 완료!</h2>
-                <p className="text-lg text-gray-600">
-                  입력하신 정보로 견적 요청이 전달되었습니다.
-                  <br />
-                  기사님께서 확인 후 답변드릴 예정입니다.
-                </p>
-              </div>
-            )}
+            {isSubmissionSuccess && <RequestCompleteModal formData={formData} />}
           </div>
         </div>
       </div>

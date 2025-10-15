@@ -3,15 +3,31 @@ import { StepProps, RequestFormData } from "@/types/request";
 import ChatBubble from "@/components/ui/ChatBubble";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import { cleanNumericInput } from "@/utils/constant/numericInput";
 
 const DepartureDetails: React.FC<StepProps> = ({ onNext, initialData, isCompleted, onEdit }) => {
   const [address, setAddress] = useState(initialData.departureAddress || "");
-  const [floor, setFloor] = useState<number>(Number(initialData.departureFloor || 0));
-  const [pyeong, setPyeong] = useState<number>(Number(initialData.departurePyeong || 0));
+  const [floorString, setFloorString] = useState(String(initialData.departureFloor || ""));
+  const [pyeongString, setPyeongString] = useState(String(initialData.departurePyeong || ""));
   const [isElevator, setIsElevator] = useState(initialData.departureElevator ?? false);
 
+  const floor = Number(floorString);
+  const pyeong = Number(pyeongString);
+
   // 주소, 층수, 면적 : 필수 사항
-  const isFormValid = address && floor > 0 && pyeong > 0;
+  const isFormValid = useMemo(() => {
+    return address.trim() !== "" && !isNaN(floor) && floor > 0 && !isNaN(pyeong) && pyeong > 0;
+  }, [address, floor, pyeong]);
+
+  const handleFloorChange = (value: string) => {
+    const cleanedValue = cleanNumericInput(value);
+    setFloorString(cleanedValue);
+  };
+
+  const handlePyeongChange = (value: string) => {
+    const cleanedValue = cleanNumericInput(value);
+    setPyeongString(cleanedValue);
+  };
 
   const handleSubmit = () => {
     if (!isFormValid) {
@@ -20,8 +36,8 @@ const DepartureDetails: React.FC<StepProps> = ({ onNext, initialData, isComplete
     }
     const data: Partial<RequestFormData> = {
       departureAddress: address,
-      departureFloor: floor,
-      departurePyeong: pyeong,
+      departureFloor: floor, // Number 타입
+      departurePyeong: pyeong, // Number 타입
       departureElevator: isElevator,
     };
     onNext(data);
@@ -58,8 +74,8 @@ const DepartureDetails: React.FC<StepProps> = ({ onNext, initialData, isComplete
             <div className="">
               <label className="mb-1 block text-sm font-medium text-gray-700">층수</label>
               <Input
-                value={floor}
-                onChange={(value) => setFloor(Number(value))}
+                value={floorString}
+                onChange={handleFloorChange}
                 className="w-full rounded-lg border p-2"
                 placeholder="예: 5(5층)"
               />
@@ -69,8 +85,8 @@ const DepartureDetails: React.FC<StepProps> = ({ onNext, initialData, isComplete
             <div className="">
               <label className="mb-1 block text-sm font-medium text-gray-700">면적(평수)</label>
               <Input
-                value={pyeong}
-                onChange={(value) => setPyeong(Number(value))}
+                value={pyeongString}
+                onChange={handlePyeongChange}
                 className="w-full rounded-lg border p-2"
                 placeholder="예: 8(8평)"
               />

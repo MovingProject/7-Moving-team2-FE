@@ -2,10 +2,10 @@ import React, { useMemo, useState } from "react";
 import { StepProps } from "@/types/request";
 import ChatBubble from "@/components/ui/ChatBubble";
 import Button from "@/components/ui/Button";
-import { MoveTypeMap, ClientMoveItem, MoveType } from "@/types/moveTypes";
+import { MoveTypeMap, ClientMoveItem } from "@/types/moveTypes";
 
 const MovingType: React.FC<StepProps> = ({ onNext, initialData, isCompleted, onEdit }) => {
-  const [selectedType, setSelectedType] = useState(initialData.movingType || "");
+  const [selectedType, setSelectedType] = useState(initialData.serviceType);
 
   // MoveTypeMap을 배열 형태로 변환하여 렌더링에 사용
   const moveTypesArray: ClientMoveItem[] = useMemo(() => {
@@ -18,9 +18,9 @@ const MovingType: React.FC<StepProps> = ({ onNext, initialData, isCompleted, onE
     });
   }, []);
   const summaryValue = useMemo(() => {
-    const selectedItem = moveTypesArray.find((item) => item.type === initialData.movingType);
+    const selectedItem = moveTypesArray.find((item) => item.type === initialData.serviceType);
     return selectedItem ? selectedItem.content : "선택되지 않음";
-  }, [initialData.movingType, moveTypesArray]);
+  }, [initialData.serviceType, moveTypesArray]);
 
   // 선택된 이사 종류의 표시 이름 (content) 찾기
   const selectedTypeDisplayName = useMemo(() => {
@@ -29,7 +29,7 @@ const MovingType: React.FC<StepProps> = ({ onNext, initialData, isCompleted, onE
 
   const handleSubmit = () => {
     if (selectedType) {
-      onNext({ movingType: selectedType });
+      onNext({ serviceType: selectedType });
     } else {
       alert("이사 종류를 선택해주세요.");
     }
@@ -51,7 +51,7 @@ const MovingType: React.FC<StepProps> = ({ onNext, initialData, isCompleted, onE
               {moveTypesArray.map((item) => (
                 <button
                   key={item.type}
-                  className={`rounded-lg border p-4 text-lg font-medium transition-colors ${selectedType === item.type ? "border-primary text-primary font-bold shadow-md" : "border-gray-300 bg-white text-gray-500 hover:bg-gray-100"}`}
+                  className={`text-md rounded-lg border p-2 font-medium transition-colors lg:p-4 lg:text-lg ${selectedType === item.type ? "border-primary text-primary font-bold shadow-md" : "border-gray-300 bg-white text-gray-500 hover:bg-gray-100"}`}
                   onClick={() => setSelectedType(item.type)}
                 >
                   {item.content}
@@ -69,9 +69,10 @@ const MovingType: React.FC<StepProps> = ({ onNext, initialData, isCompleted, onE
           <div className="flex flex-col items-end">
             <ChatBubble message={summaryValue} theme="primary" isMe={true} />
             <Button
-              className="border-0 bg-transparent px-0 text-xs text-gray-600 underline hover:bg-transparent"
+              className="border-0 bg-transparent px-0 text-xs underline hover:bg-transparent"
               text="수정하기"
               onClick={onEdit}
+              textColor="text-gray-600"
             />
           </div>
         )}
