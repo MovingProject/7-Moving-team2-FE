@@ -35,6 +35,8 @@ export default function DriverListPage() {
       userId: `user-driver-${i + 1}`,
       name: "홍길동",
       role: "DRIVER",
+      email: "hong@test.com",
+      phoneNumber: "010-1234-5678",
       profile: {
         driverId: `drv-00${i + 1}`,
         nickname: "홍길동 기사님",
@@ -42,7 +44,7 @@ export default function DriverListPage() {
         image: getRandomProfileImage(),
         reviewCount: 45,
         rating: 4.8,
-        careerYears: 7,
+        careerYears: "7",
         confirmedCount: 187,
         driverServiceTypes: ["SMALL_MOVE", "HOME_MOVE"],
         driverServiceAreas: ["SEOUL", "GYEONGGI"],
