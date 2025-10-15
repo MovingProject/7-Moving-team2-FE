@@ -2,7 +2,7 @@ import axios from "axios";
 import { useAuthStore } from "@/store/authStore";
 
 const apiClient = axios.create({
-  baseURL: process.env.NODE_ENV === "development" ? "/api" : process.env.NEXT_PUBLIC_API_URL,
+  baseURL: "/api",
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
   // 304 Not Modified 는 캐시 사용 신호이므로 reject 되지 않도록 허용
