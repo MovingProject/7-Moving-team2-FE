@@ -11,7 +11,7 @@ export default function ProfileSection() {
   if (!userData) return <p>로그인이 필요합니다.</p>;
 
   // role이 DRIVER인 경우만 렌더링
-  if (userData.role !== "DRIVER") {
+  if (userData.role === "DRIVER") {
     return (
       <section>
         <ProfileCard user={userData} />

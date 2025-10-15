@@ -4,6 +4,7 @@ import apiClient from "@/lib/apiClient";
 import { getUserProfile } from "../profile/profile";
 import { mapUserDataToAuthUser } from "@/utils/mappers/useMappers";
 import { UserData } from "@/types/card";
+import { AxiosError } from "axios";
 
 interface RefreshResponse {
   success?: boolean;
@@ -45,8 +46,22 @@ export function useInitAuth() {
         setUser(mapped);
         console.log("[useInitAuth] 세션 유효 → 사용자 세팅 완료");
       } catch (err) {
-        console.warn("[useInitAuth] /users/me 실패 → 로그인 필요");
-        clearUser();
+        const axiosError = err as AxiosError<{ message?: string }>;
+        const status = axiosError.response?.status;
+        const message = axiosError.response?.data?.message || "";
+
+        // 500 에러 + "프로필이 없습니다" 메시지는 정상 처리 (로그아웃 안 함)
+        if (status === 500 && message.includes("프로필이 없습니다")) {
+          console.log("[useInitAuth] 프로필 미등록 상태 - 로그인 유지");
+          // user는 localStorage에서 이미 복원되었으므로 그대로 유지
+        } else if (status === 401 || status === 403) {
+          // 인증/권한 에러만 로그아웃 처리
+          console.warn("[useInitAuth] 인증 실패 → 로그아웃");
+          clearUser();
+        } else {
+          // 기타 에러는 로그만 출력 (로그아웃 안 함)
+          console.warn("[useInitAuth] 프로필 조회 실패:", err);
+        }
       } finally {
         setIsInitialized(true);
       }
