@@ -17,7 +17,7 @@ const parseStringToDate = (dateString: string): Date | null => {
 };
 
 const MovingDate: React.FC<StepProps> = ({ onNext, initialData, isCompleted, onEdit }) => {
-  const [selectedDate, setSelectedDate] = useState<string>(initialData.movingDate || "");
+  const [selectedDate, setSelectedDate] = useState<string>(initialData.moveAt || "");
 
   // 날짜 상태를 Date 객체 형태로 변환 (날짜 선택 라이브러리 사용을 위해)
   const selectedDateObject = useMemo(() => parseStringToDate(selectedDate), [selectedDate]);
@@ -38,24 +38,24 @@ const MovingDate: React.FC<StepProps> = ({ onNext, initialData, isCompleted, onE
     }
 
     const data: Partial<RequestFormData> = {
-      movingDate: selectedDate,
+      moveAt: selectedDate,
     };
     onNext(data);
   };
   const summaryValue = useMemo(() => {
-    if (!initialData.movingDate) return "날짜 미정";
+    if (!initialData.moveAt) return "날짜 미정";
 
     try {
       // initialData.movingDate가 YYYY-MM-DD 형식이라고 가정하고 파싱합니다.
-      return new Date(initialData.movingDate).toLocaleDateString("ko-KR", {
+      return new Date(initialData.moveAt).toLocaleDateString("ko-KR", {
         year: "numeric",
         month: "long",
         day: "numeric",
       });
     } catch (e) {
-      return initialData.movingDate; // 파싱 실패 시 원본 값 반환
+      return initialData.moveAt; // 파싱 실패 시 원본 값 반환
     }
-  }, [initialData.movingDate]);
+  }, [initialData.moveAt]);
 
   return (
     <>

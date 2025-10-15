@@ -1,6 +1,8 @@
+import { MoveType } from "./moveTypes";
+
 export interface RequestFormData {
-  movingType: string;
-  movingDate: string;
+  serviceType: MoveType;
+  moveAt: string;
 
   departureAddress: string;
   departureFloor: number;
