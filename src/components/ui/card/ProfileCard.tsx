@@ -1,5 +1,6 @@
 "use client";
 import React, { useMemo } from "react";
+import { useRouter } from "next/navigation";
 import BaseCard, { CommonCardProps } from "./BaseCard";
 import CardText from "./CardText";
 import MovingInfoViewer, { MovingInfo } from "../profile/MovingInfoViewer";
@@ -8,25 +9,49 @@ import UserProfileArea from "../profile/UserProfileArea";
 import { DriverUser } from "@/types/card";
 import { isDriverUser } from "@/utils/type-guards";
 import { AreaMap, AreaType } from "@/types/areaTypes";
-import { MoveTypeMap } from "@/types/moveTypes";
+import { MoveTypeMap, ServerMoveType } from "@/types/moveTypes";
 
 export default function ProfileCard({ user }: CommonCardProps) {
+  const router = useRouter();
   const isDriver = isDriverUser(user);
 
   const driverUser = user as DriverUser;
   const profileData = driverUser.profile;
-  const movingInfo: MovingInfo = useMemo(() => {
-    const info: MovingInfo = {
-      serviceTypes: profileData?.driverServiceTypes?.map((service) => MoveTypeMap[service].content),
-      serviceAreas: profileData?.driverServiceAreas?.map((areaKey) => AreaMap[areaKey as AreaType]),
-      reviewCount: profileData?.reviewCount,
-      rating: profileData?.rating,
-      careerYears: profileData?.careerYears,
-      confirmedCount: profileData?.confirmedCount,
-    };
 
-    return info;
+  const handleBasicEdit = () => {
+    // /mypage/basicEdit/[id]
+    router.push(`/mypage/basicEdit/${user.userId}`);
+  };
+
+  const handleProfileEdit = () => {
+    // /mypage/profile/edit
+    router.push("/mypage/profile/edit");
+  };
+
+  const movingInfo: MovingInfo = useMemo(() => {
+    const serviceTypes =
+      profileData?.driverServiceTypes
+        ?.map((type) => {
+          const key = type as ServerMoveType;
+          return MoveTypeMap[key]?.content ?? "알 수 없음";
+        })
+        .filter(Boolean) ?? [];
+
+    const serviceAreas =
+      profileData?.driverServiceAreas
+        ?.map((area) => AreaMap[area as AreaType] ?? "알 수 없음")
+        .filter(Boolean) ?? [];
+
+    return {
+      serviceTypes,
+      serviceAreas,
+      reviewCount: profileData?.reviewCount ?? 0,
+      rating: profileData?.rating ?? 0,
+      careerYears: profileData?.careerYears ?? "0",
+      confirmedCount: profileData?.confirmedCount ?? 0,
+    };
   }, [profileData]);
+
   if (!isDriver) {
     return null;
   }
@@ -62,8 +87,15 @@ export default function ProfileCard({ user }: CommonCardProps) {
             variant="secondary"
             text="기본 정보 수정"
             className="lg:w-[160px]"
+            onClick={handleBasicEdit}
           />
-          <Button size="sm" textSize="mobile" text="내 프로필 수정" className="lg:w-[160px]" />
+          <Button
+            size="sm"
+            textSize="mobile"
+            text="내 프로필 수정"
+            className="lg:w-[160px]"
+            onClick={handleProfileEdit}
+          />
         </div>
       </div>
     </BaseCard>
