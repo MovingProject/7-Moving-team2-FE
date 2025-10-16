@@ -3,20 +3,18 @@
 import React, { useState } from "react";
 import Input from "@/components/ui/Input";
 
-export default function SearchBar() {
-  const [keyword, setKeyword] = useState("");
+interface SearchBarProps {
+  value: string;
+  onChange: (value: string) => void;
+}
 
-  const handleSearchChange = (value: string) => {
-    setKeyword(value);
-  };
-
+export default function SearchBar({ value, onChange }: SearchBarProps) {
   return (
-    // ...
     <Input
       type="search"
-      value={keyword}
+      value={value}
       placeholder="어떤 고객님을 찾고 계세요?"
-      onChange={handleSearchChange}
+      onChange={onChange}
       className="w-full max-w-full"
       icon="left"
     />
