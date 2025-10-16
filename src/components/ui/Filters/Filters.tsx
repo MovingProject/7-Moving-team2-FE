@@ -60,23 +60,42 @@ export function ResponsiveMoveAndFilter(props: {
   onToggleMove: (v: string) => void;
   filterSelected: string[];
   onToggleFilter: (v: string) => void;
+  filterCounts?: {
+    moveType: Record<string, number>;
+    invited: number;
+    region: number;
+  };
 }) {
+  const { moveTypeSelected, onToggleMove, filterSelected, onToggleFilter, filterCounts } = props;
+
+  const moveOptions = MOVE_TYPE_OPTIONS.map((opt) => ({
+    ...opt,
+    label: `${opt.label.split(" ")[0]} (${filterCounts?.moveType?.[opt.value] ?? 0})`,
+  }));
+
+  const filterOptions = CHECK_FILTER_OPTIONS.map((opt) => {
+    const count =
+      opt.value === "invited" ? (filterCounts?.invited ?? 0) : (filterCounts?.region ?? 0);
+
+    const baseLabel = opt.label.replace(/\s*\(\d+\)/, "");
+    return { ...opt, label: `${baseLabel} (${count})` };
+  });
   return (
     <ResponsiveCheckFilter
       filters={[
         {
           key: "moveType",
           title: "이사 유형",
-          options: MOVE_TYPE_OPTIONS,
-          selected: props.moveTypeSelected,
-          onToggle: props.onToggleMove,
+          options: moveOptions,
+          selected: moveTypeSelected,
+          onToggle: onToggleMove,
         },
         {
           key: "filter",
           title: "필터",
-          options: CHECK_FILTER_OPTIONS,
-          selected: props.filterSelected,
-          onToggle: props.onToggleFilter,
+          options: filterOptions,
+          selected: filterSelected,
+          onToggle: onToggleFilter,
         },
       ]}
     />
