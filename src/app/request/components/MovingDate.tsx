@@ -21,11 +21,28 @@ const MovingDate: React.FC<StepProps> = ({ onNext, initialData, isCompleted, onE
 
   // 날짜 상태를 Date 객체 형태로 변환 (날짜 선택 라이브러리 사용을 위해)
   const selectedDateObject = useMemo(() => parseStringToDate(selectedDate), [selectedDate]);
+  const minSelectableDate = useMemo(() => {
+    const today = new Date();
+    // 오늘 날짜를 기준으로 다음 날(내일)을 계산합니다.
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+    // 시간 정보를 자정(00:00:00)으로 설정하여 타임존 문제를 방지합니다.
+    tomorrow.setHours(0, 0, 0, 0);
+
+    return tomorrow;
+  }, []);
 
   // 라이브러리에서 Date 객체를 받았을 때 호출되는 핸들러
   const handleDateChange = (date: Date | null) => {
-    const dateString = formatDateToString(date);
-    setSelectedDate(dateString);
+    if (date) {
+      const offsetMinutes = date.getTimezoneOffset();
+      const correctedDate = new Date(date.getTime() - offsetMinutes * 60 * 1000);
+
+      // 상태 업데이트
+      setSelectedDate(formatDateToString(correctedDate));
+    } else {
+      setSelectedDate("");
+    }
   };
 
   // 폼 유효성 검사 (날짜 문자열이 비어있지 않은지 확인)
@@ -70,6 +87,7 @@ const MovingDate: React.FC<StepProps> = ({ onNext, initialData, isCompleted, onE
               onChange={handleDateChange}
               dateFormat="yyyy년 MM월 dd일"
               inline
+              minDate={minSelectableDate}
               customInput={<div style={{ display: "none" }} />}
             />
             {/* <input
