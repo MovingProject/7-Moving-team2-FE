@@ -91,15 +91,19 @@ body {
 }
 
 .react-datepicker__day--selected,
-.react-datepicker__day--keyboard-selected,
 .react-datepicker__day--in-selecting-range,
 .react-datepicker__day--in-range {
   background-color: #1b92ff !important;
-  color: white !important;
+  color: #fff !important;
   border-radius: 50%;
+}
+.react-datepicker__day--keyboard-selected,
+.react-datepicker__day--min-date {
+  background-color: #fff !important;
+  color: #000 !important;
 }
 .react-datepicker__day--today {
   background-color: #ebebeb !important;
-  color: #181818 !important;
+  color: #444 !important;
   border-radius: 4px;
 }
