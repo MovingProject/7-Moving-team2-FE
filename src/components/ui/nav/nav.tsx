@@ -10,6 +10,7 @@ import { useAuthStore } from "@/store/authStore";
 import { useUserStore } from "@/store/userStore";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 
 interface NavProps {
   option?: string;
@@ -17,6 +18,7 @@ interface NavProps {
 
 export default function Nav({ option }: NavProps) {
   const [open, setOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const router = useRouter();
   const user = useAuthStore((s) => s.user); // zustand에서 유저 가져오기
   const clearUser = useAuthStore((s) => s.clearUser);
@@ -44,11 +46,15 @@ export default function Nav({ option }: NavProps) {
       router.push("/login");
     }
   };
+  const toggleProfileMenu = () => {
+    setIsProfileMenuOpen((prev) => !prev);
+  };
 
   // 프로필 정보가 갱신되면 자동으로 Nav도 반영됨
   useEffect(() => {
     // Nav가 zustand의 userStore 구독 중이므로
     // 별도의 수동 갱신은 필요 없음 (단, mount 시 강제 렌더 트리거용)
+    console.log(user);
   }, [profileUser, user]);
 
   return (
@@ -84,24 +90,21 @@ export default function Nav({ option }: NavProps) {
           )}
           <div className="ml-8 hidden items-center gap-8 space-x-4 md:flex">
             {isLoggedIn && (
-              <p className={optionFont} onClick={() => router.push("/request/write")}>
+              <Link href={"/request/write"} className="optionFont">
                 견적 요청
-              </p>
+              </Link>
             )}
-            <p className={optionFont}>기사님 찾기</p>
-            {isLoggedIn && <p className={optionFont}>내 견적 관리</p>}
-            <p
-              className={optionFont}
-              onClick={() => {
-                if (isLoggedIn) handleLogout();
-                else router.push("/login");
-              }}
-            >
-              {isLoggedIn ? "로그아웃" : "로그인"}
-            </p>
+            <Link href={"/driverList"} className="optionFont">
+              기사님 찾기
+            </Link>
+            {isLoggedIn && (
+              <Link href={"/"} className="optionFont">
+                내 견적 관리
+              </Link>
+            )}
           </div>
         </div>
-        <div className="flex gap-8 pt-5 pr-5">
+        <div className="flex gap-4 pt-5 pr-5">
           {!isLoggedIn ? (
             <button
               className="hidden cursor-pointer rounded-[16px] bg-blue-500 px-5.5 py-2 text-white md:block"
@@ -110,7 +113,7 @@ export default function Nav({ option }: NavProps) {
               로그인
             </button>
           ) : (
-            <div className="flex items-center gap-8 space-x-2">
+            <div className="flex items-center gap-3 space-x-2 lg:gap-8">
               <Image
                 src={AlarmIcon}
                 alt="알람"
@@ -118,9 +121,45 @@ export default function Nav({ option }: NavProps) {
                 width={100}
                 height={100}
               />
-              <div className="flex cursor-pointer">
-                <Image src={UserIcon} alt="유저" className="h-6 w-6" width={100} height={100} />
-                <p>{displayName}</p>
+              <div className="relative flex">
+                <div className="flex cursor-pointer gap-1" onClick={toggleProfileMenu}>
+                  <Image src={UserIcon} alt="유저" className="h-6 w-6" width={100} height={100} />
+                  <p className="hidden lg:flex">{displayName}</p>
+                </div>
+                {isProfileMenuOpen && (
+                  <div className="absolute top-8 right-0 z-50 flex w-[152px] flex-col gap-2 overflow-hidden rounded-xl border border-gray-100 bg-white px-1.5 py-4 shadow-md lg:w-[248px]">
+                    <p className="truncate px-2 font-semibold lg:text-lg">
+                      {user.role === "DRIVER" ? (
+                        <Link href={"/mypage"}>{displayName}님</Link>
+                      ) : (
+                        <span>{displayName}님</span>
+                      )}
+                    </p>
+                    <div className="flex flex-col gap-0.5 text-gray-700">
+                      <Link href={"/mypage/profile/edit"} className="px-2 py-2 lg:px-4">
+                        프로필 수정
+                      </Link>
+                      {user.role === "CONSUMER" && (
+                        <>
+                          <Link href={"/"} className="px-2 py-2 lg:px-4">
+                            찜한 기사님
+                          </Link>
+                          <Link href={"/"} className="px-2 py-2 lg:px-4">
+                            이사 리뷰
+                          </Link>
+                        </>
+                      )}
+                    </div>
+                    <div
+                      className="cursor-pointer border-t border-gray-200 pt-2 text-center text-gray-500"
+                      onClick={() => {
+                        handleLogout();
+                      }}
+                    >
+                      로그아웃
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -149,22 +188,30 @@ export default function Nav({ option }: NavProps) {
             />
           </div>
           <div className="flex flex-col gap-6 p-4">
-            <p className={optionFont}>기사님 찾기</p>
-            <p
-              className={optionFont}
-              onClick={() => {
-                if (isLoggedIn) handleLogout();
-                else router.push("/login");
-              }}
-            >
-              {isLoggedIn ? "로그아웃" : "로그인"}
-            </p>
+            <Link href={"/driverList"} className="optionFont">
+              기사님 찾기
+            </Link>
             {isLoggedIn && (
-              <p className={optionFont} onClick={() => router.push("/request/write")}>
+              <Link href={"/request/write"} className="optionFont">
                 견적 요청
-              </p>
+              </Link>
             )}
-            {isLoggedIn && <p className={optionFont}>내 견적 관리</p>}
+            {isLoggedIn && (
+              <Link href={"/"} className="optionFont">
+                내 견적 관리
+              </Link>
+            )}
+            <div className="rounded-xl border border-gray-300 p-2 text-center">
+              <p
+                className={optionFont}
+                onClick={() => {
+                  if (isLoggedIn) handleLogout();
+                  else router.push("/login");
+                }}
+              >
+                {isLoggedIn ? "로그아웃" : "로그인"}
+              </p>
+            </div>
           </div>
         </div>
       )}
