@@ -62,7 +62,7 @@ export default function UserProfileArea({
 
   return (
     <div className={`relative flex items-center gap-3 ${className ?? ""}`}>
-      {driverProfile?.image && <ProfileViewer initialImageUrl={driverProfile.image} />}
+      {isDriver && <ProfileViewer initialImageUrl={driverProfile?.image || ""} />}
 
       <div className="flex flex-col gap-1 lg:gap-2">
         {isVisible("name") && (
