@@ -14,7 +14,6 @@ import { MoveTypeMap, ServerMoveType } from "@/types/moveTypes";
 export default function ProfileCard({ user }: CommonCardProps) {
   const router = useRouter();
   const isDriver = isDriverUser(user);
-  if (!isDriver) return null;
 
   const driverUser = user as DriverUser;
   const profileData = driverUser.profile;
