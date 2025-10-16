@@ -4,16 +4,18 @@ import Header from "./components/Header";
 import InputArea from "./components/InputArea";
 import Button from "@/components/ui/Button";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { updateBasicInfo } from "@/utils/hook/profile/profile";
 import { useUserStore } from "@/store/userStore";
 import { UpdateBasicInfoRequest } from "@/types/card";
 import { useProfileQuery } from "@/hooks/useProfileQuery";
+import { useAuthStore } from "@/store/authStore";
 
 export default function BasicEditPage() {
   const router = useRouter();
   const { setUser } = useUserStore();
   const { user, isLoading, error } = useProfileQuery();
+  const authUser = useAuthStore((s) => s.user);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -21,7 +23,17 @@ export default function BasicEditPage() {
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
   const [loading, setLoading] = useState(false);
+  const hasCheckedAccess = useRef(false);
   console.log("🚩 user data 확인:", user);
+
+  // DRIVER 계정만 접근 가능
+  useEffect(() => {
+    if (!hasCheckedAccess.current && authUser && authUser.role !== "DRIVER") {
+      hasCheckedAccess.current = true;
+      alert("기사 회원만 접근할 수 있습니다.");
+      router.push("/mypage/profile");
+    }
+  }, [authUser, router]);
 
   // user fetch 이후 input 초기값 반영
   useEffect(() => {
@@ -74,6 +86,17 @@ export default function BasicEditPage() {
       setLoading(false);
     }
   };
+
+  // 권한 체크 중
+  if (!authUser) {
+    return <div className="p-10 text-center">로딩 중...</div>;
+  }
+
+  // CONSUMER는 접근 불가 (리다이렉트 중)
+  if (authUser.role !== "DRIVER") {
+    return null;
+  }
+
   if (isLoading) return <div className="p-10 text-center">로딩 중...</div>;
   if (error || !user)
     return <div className="p-10 text-center">프로필 정보를 불러오지 못했습니다.</div>;
