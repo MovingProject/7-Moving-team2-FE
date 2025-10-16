@@ -9,6 +9,8 @@ import InputArea from "../../basicEdit/[id]/components/InputArea";
 import clsx from "clsx";
 import { useProfileQuery } from "@/hooks/useProfileQuery";
 import { UpdateConsumerProfileRequest, ConsumerProfileData } from "@/types/card";
+import type { AreaType } from "@/types/areaTypes";
+import type { ServerMoveType } from "@/types/moveTypes";
 
 const REGIONS = [
   "서울",
@@ -68,7 +70,16 @@ const REVERSE_SERVICE_MAP = Object.fromEntries(
 
 export default function ConsumerProfileForm() {
   const router = useRouter();
-  const { user, updateProfile, updateBasicInfo, isLoading, error: queryError } = useProfileQuery();
+  const {
+    user,
+    updateProfile,
+    updateBasicInfo,
+    createConsumerProfile,
+    isCreatingConsumerProfile,
+    createConsumerProfileError,
+    isLoading,
+    error: queryError,
+  } = useProfileQuery();
 
   const consumerProfile =
     user?.role === "CONSUMER" ? (user.profile as ConsumerProfileData | null) : null;
@@ -129,40 +140,58 @@ export default function ConsumerProfileForm() {
   // 폼 제출 (등록 / 수정)
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!validatePassword()) {
+    
+    // 등록 모드에서는 비밀번호 검증 불필요
+    if (isEditMode && !validatePassword()) {
+      return;
+    }
+
+    // 필수 필드 검증
+    if (selectedServices.length === 0) {
+      alert("희망 서비스를 선택해주세요.");
+      return;
+    }
+    if (selectedAreas.length === 0) {
+      alert("희망 지역을 선택해주세요.");
       return;
     }
 
     setSubmitting(true);
 
     try {
-      const serviceType =
-        selectedServices.length > 0
-          ? SERVICE_MAP[selectedServices[0]]
-          : consumerProfile?.serviceType;
-      const areas =
-        selectedAreas.length > 0 ? REGION_MAP[selectedAreas[0]] : consumerProfile?.areas;
+      const serviceType = SERVICE_MAP[selectedServices[0]] as ServerMoveType;
+      const areas = REGION_MAP[selectedAreas[0]] as AreaType;
 
-      const dto: UpdateConsumerProfileRequest = {
-        name,
-        phoneNumber: phone,
-        currentPassword: currentPw || undefined,
-        newPassword: newPw || undefined,
-        consumerProfile: {
-          ...(serviceType ? { serviceType } : {}),
-          ...(areas ? { areas } : {}),
-          ...(consumerProfile?.image ? { image: consumerProfile.image } : {}),
-        },
-      };
+      if (isEditMode) {
+        // 수정 모드
+        const dto: UpdateConsumerProfileRequest = {
+          name,
+          phoneNumber: phone,
+          currentPassword: currentPw || undefined,
+          newPassword: newPw || undefined,
+          consumerProfile: {
+            serviceType,
+            areas,
+            ...(consumerProfile?.image ? { image: consumerProfile.image } : {}),
+          },
+        };
 
-      await updateProfile(dto);
+        await updateProfile(dto);
+        alert("프로필이 성공적으로 수정되었습니다!");
+        router.push("/landing");
+      } else {
+        // 등록 모드
+        await createConsumerProfile({
+          serviceType,
+          areas,
+        });
 
-      alert("프로필이 성공적으로 수정되었습니다!");
-      if (user?.role === "DRIVER") router.push("/mypage");
-      else router.back();
+        alert("프로필이 성공적으로 등록되었습니다!");
+        router.push("/landing");
+      }
     } catch (err) {
-      console.error("프로필 수정 중 오류:", err);
-      alert("프로필 수정 중 문제가 발생했습니다.");
+      console.error(`프로필 ${isEditMode ? "수정" : "등록"} 중 오류:`, err);
+      alert(`프로필 ${isEditMode ? "수정" : "등록"} 중 문제가 발생했습니다.`);
     } finally {
       setSubmitting(false);
     }

@@ -9,6 +9,7 @@ import LogoMobile from "@/assets/icon/Logo-1.svg";
 import { useAuthStore } from "@/store/authStore";
 import { useUserStore } from "@/store/userStore";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -25,6 +26,7 @@ export default function Nav({ option }: NavProps) {
   const clearUser = useAuthStore((s) => s.clearUser);
   const profileUser = useUserStore((s) => s.user);
   const clearProfileUser = useUserStore((s) => s.clearUser);
+  const queryClient = useQueryClient();
   const isLoggedIn = !!user;
 
   const displayName = user?.name ?? profileUser?.name ?? "임시유저";
@@ -44,6 +46,7 @@ export default function Nav({ option }: NavProps) {
     } finally {
       clearUser(); // zustand 상태 초기화
       clearProfileUser();
+      queryClient.clear(); // React Query 캐시 완전히 초기화
       router.push("/login");
     }
   };
@@ -92,6 +95,7 @@ export default function Nav({ option }: NavProps) {
                 width={32}
                 height={32}
                 alt="logo"
+                onClick={() => router.push("/landing")}
               />
               <Image
                 className="hidden cursor-pointer md:block"
@@ -99,6 +103,7 @@ export default function Nav({ option }: NavProps) {
                 width={100}
                 height={100}
                 alt="logo"
+                onClick={() => router.push("/landing")}
               />
             </>
           )}
