@@ -10,6 +10,8 @@ import { STEP_KEYS, StepKey, StepStatus, RequestFormData } from "@/types/request
 import Requirements from "../components/Requirements";
 import { submitRequest } from "@/services/requestService";
 import RequestCompleteModal from "../components/RequestCompleteModal";
+import { isAxiosError } from "axios";
+import { ServerErrorResponse } from "@/types/serverError";
 
 const initialStepStatus: StepStatus = STEP_KEYS.reduce((acc, key) => {
   acc[key] = false;
@@ -61,10 +63,26 @@ export default function RequestPage() {
       );
       setIsSubmissionSuccess(true);
     } catch (error) {
-      if (error instanceof Error) {
-        console.error("제출 실패:", error.message);
-        alert(error.message);
+      let userMessage = "요청 처리 중 알 수 없는 오류가 발생했습니다.";
+
+      if (isAxiosError(error) && error.response) {
+        const status = error.response.status;
+
+        if (status >= 400 && error.response.data) {
+          const serverData = error.response.data as ServerErrorResponse;
+
+          if (serverData.message) {
+            userMessage = serverData.message;
+          } else {
+            userMessage = `요청 실패 (코드: ${status})`;
+          }
+          console.error(`API 오류 [${status}]:`, error.response.data);
+        }
+      } else {
+        userMessage = "네트워크 연결 상태를 확인해 주세요.";
       }
+
+      alert(userMessage);
       throw error;
     }
   };
