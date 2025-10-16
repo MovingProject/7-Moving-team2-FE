@@ -48,26 +48,24 @@ export default function LoginForm({ role }: LoginFormProps) {
         onSuccess: async () => {
           console.log("로그인성공");
 
-          // 기사 계정인 경우 프로필 여부 확인
-          if (role === "DRIVER") {
-            try {
-              const profile = await getUserProfile();
+          // 프로필 여부 확인 (기사/고객 모두)
+          try {
+            const profile = await getUserProfile();
 
-              // 프로필이 없으면 프로필 등록 페이지로
-              if (!profile || !profile.profile) {
-                console.log("[LoginForm] 프로필 미등록 - 프로필 등록 페이지로 이동");
-                router.push("/mypage/profile");
-                return;
-              }
-            } catch (error) {
-              // 프로필 조회 실패 시 (500 에러 등) 프로필 등록 페이지로
-              console.log("[LoginForm] 프로필 조회 실패 - 프로필 등록 페이지로 이동");
+            // 프로필이 없으면 프로필 등록 페이지로
+            if (!profile || !profile.profile) {
+              console.log("[LoginForm] 프로필 미등록 - 프로필 등록 페이지로 이동");
               router.push("/mypage/profile");
               return;
             }
+          } catch (error) {
+            // 프로필 조회 실패 시 (500 에러 등) 프로필 등록 페이지로
+            console.log("[LoginForm] 프로필 조회 실패 - 프로필 등록 페이지로 이동");
+            router.push("/mypage/profile");
+            return;
           }
 
-          // 일반 고객이거나 프로필이 있는 기사는 랜딩 페이지로
+          // 프로필이 있으면 랜딩 페이지로
           router.push("/landing");
         },
         onError: () => {
