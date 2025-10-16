@@ -43,13 +43,13 @@ export const NOTIFICATION_OPTIONS = [
 
 // 체크 필터 - 이사 유형 옵션 (괄호 안 숫자 추후 API 작업 시 동적 처리 필요)
 export const MOVE_TYPE_OPTIONS = [
-  { label: "소형이사 (4)", value: "small" },
-  { label: "가정이사 (2)", value: "home" },
-  { label: "사무실이사 (10)", value: "office" },
+  { label: "소형이사", value: "SMALL_MOVE" },
+  { label: "가정이사", value: "HOME_MOVE" },
+  { label: "사무실이사", value: "OFFICE_MOVE" },
 ];
 
 //체크 필터 - 필터 옵션 (괄호 안 숫자 추후 API 작업 시 동적 처리 필요)
 export const CHECK_FILTER_OPTIONS = [
   { label: "서비스 가능 지역 (10)", value: "region" },
-  { label: "지정 견적 요청 (10)", value: "request" },
+  { label: "지정 견적 요청 (10)", value: "invited" },
 ];
