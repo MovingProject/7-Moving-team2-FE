@@ -5,6 +5,7 @@ import { useAuthStore } from "@/store/authStore";
 import { mapUserDataToAuthUser } from "@/utils/mappers/useMappers";
 import { UserData, UpdateUserProfileRequest, UpdateBasicInfoRequest } from "@/types/card";
 import { createDriverProfile, CreateDriverProfileRequest } from "@/lib/apis/driverProfileApi";
+import { createConsumerProfile, CreateConsumerProfileRequest } from "@/lib/apis/consumerProfileApi";
 import { AxiosError } from "axios";
 
 interface UseProfileQueryOptions {
@@ -123,6 +124,18 @@ export const useProfileQuery = (options?: UseProfileQueryOptions) => {
     },
   });
 
+  // 고객 프로필 등록
+  const createConsumerProfileMutation = useMutation({
+    mutationFn: (payload: CreateConsumerProfileRequest) => createConsumerProfile(payload),
+    onSuccess: (response) => {
+      queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+      console.log("[useProfileQuery] 고객 프로필 등록 성공:", response.data);
+    },
+    onError: (err) => {
+      console.error("[useProfileQuery] 고객 프로필 등록 실패:", err);
+    },
+  });
+
   return {
     // 조회 상태
     user: profileQuery.data,
@@ -144,6 +157,11 @@ export const useProfileQuery = (options?: UseProfileQueryOptions) => {
     createDriverProfile: createDriverProfileMutation.mutateAsync,
     isCreatingDriverProfile: createDriverProfileMutation.isPending,
     createDriverProfileError: createDriverProfileMutation.error,
+
+    // 고객 프로필 등록
+    createConsumerProfile: createConsumerProfileMutation.mutateAsync,
+    isCreatingConsumerProfile: createConsumerProfileMutation.isPending,
+    createConsumerProfileError: createConsumerProfileMutation.error,
 
     // 유틸리티
     refetch: profileQuery.refetch,
