@@ -5,6 +5,7 @@ import LikeButton from "../LikeButton";
 import MovingInfoViewer, { MovingInfo } from "./MovingInfoViewer";
 import ProfileViewer from "./ProfileViewer";
 import { AreaMap, AreaType } from "@/types/areaTypes";
+import { MoveTypeMap, ServerMoveType } from "@/types/moveTypes";
 import { DriverProfileData, QuotationData, RequestData, UserData } from "@/types/card";
 import CardText from "../card/CardText";
 import { isDriverUser } from "@/utils/type-guards";
@@ -28,23 +29,29 @@ export default function UserProfileArea({
     show.includes(key);
 
   const isDriver = isDriverUser(user);
-
   const profile = user.profile; // DriverProfileData | ConsumerProfileData
   const driverProfile = isDriver ? (profile as DriverProfileData) : null;
+
   const movingInfo: MovingInfo = useMemo(() => {
+    if (!driverProfile) return {} as MovingInfo;
     const price = quotation?.price;
     const moveAt = request?.moveAt;
 
     const info: MovingInfo = {
-      reviewCount: driverProfile?.reviewCount,
-      rating: driverProfile?.rating,
-      careerYears: driverProfile?.careerYears,
-      confirmedCount: driverProfile?.confirmedCount,
-      serviceAreas: driverProfile?.driverServiceAreas?.map(
-        (areaKey) => AreaMap[areaKey as AreaType]
-      ),
-      price: price,
-      moveAt: moveAt,
+      reviewCount: driverProfile.reviewCount,
+      rating: driverProfile.rating,
+      careerYears: driverProfile.careerYears,
+      confirmedCount: driverProfile.confirmedCount,
+      serviceAreas:
+        driverProfile.driverServiceAreas?.map(
+          (areaKey) => AreaMap[areaKey as AreaType] ?? "알 수 없음"
+        ) ?? [],
+      serviceTypes:
+        driverProfile.driverServiceTypes
+          ?.map((type) => MoveTypeMap[type as ServerMoveType]?.content ?? "알 수 없음")
+          .filter(Boolean) ?? [],
+      price,
+      moveAt,
     };
 
     return info;
