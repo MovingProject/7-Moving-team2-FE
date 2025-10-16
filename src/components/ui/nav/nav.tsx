@@ -1,7 +1,7 @@
 "use client";
 import Logo from "../../../../public/icon/Logo.svg";
 import Menu from "@/assets/icon/menu.svg";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import XIcon from "@/assets/icon/X.svg";
 import UserIcon from "@/assets/icon/user.svg";
 import AlarmIcon from "@/assets/icon/alarm.svg";
@@ -19,6 +19,7 @@ interface NavProps {
 export default function Nav({ option }: NavProps) {
   const [open, setOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const user = useAuthStore((s) => s.user); // zustand에서 유저 가져오기
   const clearUser = useAuthStore((s) => s.clearUser);
@@ -49,6 +50,19 @@ export default function Nav({ option }: NavProps) {
   const toggleProfileMenu = () => {
     setIsProfileMenuOpen((prev) => !prev);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [menuRef]);
 
   // 프로필 정보가 갱신되면 자동으로 Nav도 반영됨
   useEffect(() => {
@@ -121,7 +135,7 @@ export default function Nav({ option }: NavProps) {
                 width={100}
                 height={100}
               />
-              <div className="relative flex">
+              <div className="relative flex" ref={menuRef}>
                 <div className="flex cursor-pointer gap-1" onClick={toggleProfileMenu}>
                   <Image src={UserIcon} alt="유저" className="h-6 w-6" width={100} height={100} />
                   <p className="hidden lg:flex">{displayName}</p>
@@ -136,15 +150,27 @@ export default function Nav({ option }: NavProps) {
                       )}
                     </p>
                     <div className="flex flex-col gap-0.5 text-gray-700">
-                      <Link href={"/mypage/profile/edit"} className="px-2 py-2 lg:px-4">
+                      <Link
+                        href={"/mypage/profile/edit"}
+                        className="px-2 py-2 lg:px-4"
+                        onClick={() => setIsProfileMenuOpen(false)}
+                      >
                         프로필 수정
                       </Link>
                       {user.role === "CONSUMER" && (
                         <>
-                          <Link href={"/"} className="px-2 py-2 lg:px-4">
+                          <Link
+                            href={"/"}
+                            className="px-2 py-2 lg:px-4"
+                            onClick={() => setIsProfileMenuOpen(false)}
+                          >
                             찜한 기사님
                           </Link>
-                          <Link href={"/"} className="px-2 py-2 lg:px-4">
+                          <Link
+                            href={"/"}
+                            className="px-2 py-2 lg:px-4"
+                            onClick={() => setIsProfileMenuOpen(false)}
+                          >
                             이사 리뷰
                           </Link>
                         </>
@@ -154,6 +180,7 @@ export default function Nav({ option }: NavProps) {
                       className="cursor-pointer border-t border-gray-200 pt-2 text-center text-gray-500"
                       onClick={() => {
                         handleLogout();
+                        setIsProfileMenuOpen(false);
                       }}
                     >
                       로그아웃
