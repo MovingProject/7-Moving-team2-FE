@@ -27,9 +27,31 @@ apiClient.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
+    const status = error.response?.status;
+    const responseData = error.response?.data;
+    const message = responseData?.message || "";
+
+    console.log("[인터셉터] 에러 발생:", {
+      status,
+      url: originalRequest?.url,
+      message,
+      responseData,
+      "responseData 타입": typeof responseData,
+      "responseData 전체": JSON.stringify(responseData, null, 2),
+    });
+
+    // 500 에러 + "/users/me" 엔드포인트
+    // → 프로필 미등록 상태로 간주하고 에러 플래그 설정
+    // (백엔드에서 NotFoundException('프로필이 없습니다.')를 던지지만
+    //  전역 필터에서 일반 500 메시지로 변환됨)
+    if (status === 500 && originalRequest?.url?.includes("/users/me")) {
+      console.log("[인터셉터] /users/me 500 에러 → 프로필 미등록 상태로 처리");
+      error._isProfileNotFound = true;
+      return Promise.reject(error);
+    }
 
     // access token 만료 (401) + 아직 재시도 안 한 경우
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {

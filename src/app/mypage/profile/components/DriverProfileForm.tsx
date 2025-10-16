@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import InputArea from "../../basicEdit/[id]/components/InputArea";
 import ImageInputArea from "./ImageInputArea";
 import TagForm from "./TagForm";
 import Button from "@/components/ui/Button";
 import { useDriverProfileForm } from "@/hooks/useDriverProFileForm";
 import { useProfileQuery } from "@/hooks/useProfileQuery";
-import { UpdateDriverProfileRequest, DriverProfileData } from "@/types/card";
+import type { AreaType } from "@/types/areaTypes";
+import type { ServerMoveType } from "@/types/moveTypes";
 
 // 지역 및 서비스 매핑
 export const REGIONS = [
@@ -95,97 +97,48 @@ export default function DriverProfileForm() {
     isFormComplete,
   } = useDriverProfileForm();
 
+  const router = useRouter();
+
   const {
     user: userData,
-    updateProfile,
-    isUpdatingProfile,
-    updateProfileError,
+    createDriverProfile,
+    isCreatingDriverProfile,
+    createDriverProfileError,
     error: profileError,
   } = useProfileQuery();
 
-  const driverProfile: DriverProfileData | null =
-    userData?.role === "DRIVER" ? (userData.profile as DriverProfileData) : null;
-
   const [loading, setLoading] = useState(false);
-  const [initialized, setInitialized] = useState(false);
 
-  // 초기 데이터 세팅 (최초 1회만)
-  useEffect(() => {
-    if (initialized || !driverProfile) return;
-
-    const koreanServices = (driverProfile.driverServiceTypes ?? []).map(
-      (s) => REVERSE_SERVICE_MAP[s] ?? s
-    );
-    const koreanRegions = (driverProfile.driverServiceAreas ?? []).map(
-      (r) => REVERSE_REGION_MAP[r] ?? r
-    );
-    const careerNum = Number(driverProfile.careerYears) || 0;
-
-    setInitialData({
-      nickname: driverProfile.nickname ?? "",
-      careerYears: careerNum,
-      oneLiner: driverProfile.oneLiner ?? "",
-      description: driverProfile.description ?? "",
-      selectedServices: koreanServices,
-      selectedRegions: koreanRegions,
-    });
-
-    setInitialized(true);
-  }, [driverProfile, initialized, setInitialData]);
-
-  // 폼 제출
+  // 폼 제출 (등록)
   const handleSubmit = async () => {
     if (!validateAll()) return;
 
     setLoading(true);
     try {
-      const backendServices = selectedServices.map((s) => SERVICE_MAP[s] ?? s);
-      const backendRegions = selectedRegions.map((r) => REGION_MAP[r] ?? r);
+      const backendServices = selectedServices.map((s) => SERVICE_MAP[s] ?? s) as ServerMoveType[];
+      const backendRegions = selectedRegions.map((r) => REGION_MAP[r] ?? r) as AreaType[];
 
-      const dto: UpdateDriverProfileRequest = {
-        driverProfile: {
-          nickname,
-          careerYears: String(careerYears),
-          oneLiner,
-          description,
-          driverServiceTypes: backendServices,
-          driverServiceAreas: backendRegions,
-        },
-      };
+      await createDriverProfile({
+        nickname,
+        careerYears,
+        oneLiner,
+        description,
+        serviceTypes: backendServices,
+        serviceAreas: backendRegions,
+      });
 
-      await updateProfile(dto);
-      alert("프로필이 성공적으로 수정되었습니다!");
+      alert("프로필이 성공적으로 등록되었습니다!");
+      router.push("/mypage");
     } catch (err) {
-      console.error("[DriverProfileForm] 프로필 수정 오류:", err);
-      alert("수정 중 오류가 발생했습니다.");
+      console.error("[DriverProfileForm] 프로필 등록 오류:", err);
+      alert("등록 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
     }
   };
 
-  // 취소 시 초기 상태 복원
-  const handleCancel = () => {
-    if (!driverProfile) return;
-    const koreanServices = (driverProfile.driverServiceTypes ?? []).map(
-      (s) => REVERSE_SERVICE_MAP[s] ?? s
-    );
-    const koreanRegions = (driverProfile.driverServiceAreas ?? []).map(
-      (r) => REVERSE_REGION_MAP[r] ?? r
-    );
-    const careerNum = Number(driverProfile.careerYears) || 0;
-
-    setInitialData({
-      nickname: driverProfile.nickname ?? "",
-      careerYears: careerNum,
-      oneLiner: driverProfile.oneLiner ?? "",
-      description: driverProfile.description ?? "",
-      selectedServices: koreanServices,
-      selectedRegions: koreanRegions,
-    });
-  };
-
-  const isLoading = loading || isUpdatingProfile;
-  const errorMessage = updateProfileError?.message ?? profileError ?? null;
+  const isLoading = loading || isCreatingDriverProfile;
+  const errorMessage = createDriverProfileError?.message ?? profileError ?? null;
 
   return (
     <div className="flex items-center justify-center">
@@ -195,7 +148,7 @@ export default function DriverProfileForm() {
             <div className="w-full">
               <div className="mb-6 flex w-full flex-col">
                 <p className="w-full pb-4 text-[18px] leading-[26px] font-bold text-[#1F1F1F]">
-                  기사님 프로필 수정
+                  기사님 프로필 등록
                 </p>
                 {errorMessage && (
                   <p className="text-sm text-red-500">
@@ -302,17 +255,10 @@ export default function DriverProfileForm() {
 
         <div className="mt-4 flex w-full flex-col gap-3 lg:w-full lg:flex-row">
           <Button
-            className="w-full lg:order-2"
-            text={isLoading ? "수정 중..." : "수정하기"}
+            className="w-full"
+            text={isLoading ? "등록 중..." : "등록하기"}
             onClick={handleSubmit}
             disabled={isLoading || !isFormComplete}
-          />
-          <Button
-            className="w-full lg:order-1"
-            variant="secondary"
-            text="취소"
-            disabled={isLoading}
-            onClick={handleCancel}
           />
         </div>
       </div>
