@@ -83,7 +83,11 @@ export default function Nav({ option }: NavProps) {
             </>
           )}
           <div className="ml-8 hidden items-center gap-8 space-x-4 md:flex">
-            {isLoggedIn && <p className={optionFont}>견적 요청</p>}
+            {isLoggedIn && (
+              <p className={optionFont} onClick={() => router.push("/request/write")}>
+                견적 요청
+              </p>
+            )}
             <p className={optionFont}>기사님 찾기</p>
             {isLoggedIn && <p className={optionFont}>내 견적 관리</p>}
             <p
@@ -155,7 +159,11 @@ export default function Nav({ option }: NavProps) {
             >
               {isLoggedIn ? "로그아웃" : "로그인"}
             </p>
-            {isLoggedIn && <p className={optionFont}>견적 요청</p>}
+            {isLoggedIn && (
+              <p className={optionFont} onClick={() => router.push("/request/write")}>
+                견적 요청
+              </p>
+            )}
             {isLoggedIn && <p className={optionFont}>내 견적 관리</p>}
           </div>
         </div>
