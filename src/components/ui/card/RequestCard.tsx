@@ -5,25 +5,26 @@ import Tag from "../Tag";
 import MovingInfoViewer, { MovingInfo } from "../profile/MovingInfoViewer";
 import Button from "../Button";
 import UserProfileArea from "../profile/UserProfileArea";
-import { MoveTypeMap } from "@/types/moveTypes";
+import { MoveTypeMap, ServerMoveType } from "@/types/moveTypes";
+import { formatDate, simplifyAreaName } from "@/utils/formatRequestData";
 
 export default function RequestCard({ user, request, quotation }: CommonCardProps) {
   const tags = request?.serviceType;
-  const requestedAt = request?.createdAt;
+  const requestedAt = request?.createdAt ? formatDate(request.createdAt) : "";
+  const moveDate = request?.moveAt ? formatDate(request.moveAt) : "";
   const movingInfo: MovingInfo = useMemo(() => {
-    const info: MovingInfo = {
-      departureAddress: request?.departureAddress,
-      arrivalAddress: request?.arrivalAddress,
-      moveAt: request?.moveAt,
+    return {
+      departureAddress: simplifyAreaName(request?.departureAddress ?? ""),
+      arrivalAddress: simplifyAreaName(request?.arrivalAddress ?? ""),
+      moveAt: moveDate,
     };
-
-    return info;
-  }, [request?.moveAt, request?.moveAt, request?.moveAt]);
+  }, [request?.departureAddress, request?.arrivalAddress, moveDate]);
 
   const NON_ACTIVE_STATUSES = ["CANCELLED", "REJECTED", "EXPIRED", "COMPLETED"];
   const isDimmed =
     NON_ACTIVE_STATUSES.includes(request?.requestStatement ?? "") ||
     NON_ACTIVE_STATUSES.includes(quotation?.quotationStatement ?? "");
+
   let stateMessage = "";
   if (request?.requestStatement === "CANCELLED" || quotation?.quotationStatement === "REJECTED") {
     stateMessage = "반려된 요청입니다";
