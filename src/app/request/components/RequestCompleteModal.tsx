@@ -22,7 +22,7 @@ const RequestCompleteModal: React.FC<ModalProps> = ({ formData }) => {
   };
 
   const handleGoToDrivers = () => {
-    router.push("/driver/driverList");
+    router.push("/driverList");
   };
 
   return (
