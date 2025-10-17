@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LikedDriver, useLikedDriversQuery } from "@/utils/hook/liked/useLikedQuery";
+import { LikedDriver, useLikedDriversQuery } from "@/utils/hook/likes/useLikedQuery";
 import LikedDriverCard from "./components/LikedDriverCard";
 import NodataArea from "@/components/ui/nodata/NodataArea";
 import { LikedDriverCardSkeleton } from "./components/LikedDriverCardSkeleton";
