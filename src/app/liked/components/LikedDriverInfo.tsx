@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { LikedDriver } from "@/utils/hook/liked/useLikedQuery";
+import { LikedDriver } from "@/utils/hook/likes/useLikedQuery";
 
 export default function LikedDriverInfo({ driver }: { driver: LikedDriver }) {
   return (
