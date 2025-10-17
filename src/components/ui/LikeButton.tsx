@@ -1,24 +1,32 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 
 export interface LikeButtonProps {
   isLiked?: boolean;
   count?: number;
   className?: string;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
 export default function LikeButton({
   isLiked = false,
   count: initialCount = 0,
   className,
+  onClick,
 }: LikeButtonProps) {
   const [isDesktop, setIsDesktop] = useState(false);
   const [liked, setLiked] = useState(isLiked);
   const [count, setCount] = useState(initialCount);
 
-  const toggleLike = () => {
+  const toggleLike = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (onClick) {
+      onClick(e);
+      return;
+    }
+
+    // 내부 토글용 (기본 동작)
     if (liked) {
       setLiked(false);
       setCount((prev) => prev - 1);
@@ -26,8 +34,6 @@ export default function LikeButton({
       setLiked(true);
       setCount((prev) => prev + 1);
     }
-
-    // 이후에는 서버 연결 후 API 호출 필요
   };
 
   useEffect(() => {
