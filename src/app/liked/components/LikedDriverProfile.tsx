@@ -3,7 +3,7 @@
 import Image from "next/image";
 import CardText from "@/components/ui/card/CardText";
 import LikeButton from "@/components/ui/LikeButton";
-import { LikedDriver } from "@/utils/hook/liked/useLikedQuery";
+import { LikedDriver } from "@/utils/hook/likes/useLikedQuery";
 import UserIcon from "@/assets/icon/user.svg";
 
 export default function LikedDriverProfile({ driver }: { driver: LikedDriver }) {
