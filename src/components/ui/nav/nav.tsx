@@ -156,7 +156,7 @@ export default function Nav({ option }: NavProps) {
                     </p>
                     <div className="flex flex-col gap-0.5 text-gray-700">
                       <Link
-                        href={"/mypage/profile/edit"}
+                        href={"/mypage/profile"}
                         className="px-2 py-2 lg:px-4"
                         onClick={() => setIsProfileMenuOpen(false)}
                       >
