@@ -33,7 +33,7 @@ export const getLikedDrivers = async (
   params.append("limit", String(limit));
 
   const res = await apiClient.get<GetLikedDriversResponse>(
-    `/consumers/me/likes?${params.toString()}`
+    `/consumers/liked-drivers?${params.toString()}`
   );
   return res.data;
 };
