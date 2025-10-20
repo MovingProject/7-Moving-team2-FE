@@ -44,7 +44,7 @@ export default function DriverListPage() {
         image: getRandomProfileImage(),
         reviewCount: 45,
         rating: 4.8,
-        careerYears: "7",
+        careerYears: 7,
         confirmedCount: 187,
         driverServiceTypes: ["SMALL_MOVE", "HOME_MOVE"],
         driverServiceAreas: ["SEOUL", "GYEONGGI"],

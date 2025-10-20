@@ -6,7 +6,7 @@ export interface MovingInfo {
   serviceAreas?: string[];
   reviewCount?: number;
   rating?: number;
-  careerYears?: string;
+  careerYears?: number;
   confirmedCount?: number;
   moveAt?: string;
   price?: number;

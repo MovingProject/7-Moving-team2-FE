@@ -80,7 +80,7 @@ export default function DriverProfileEdit() {
 
   // 입력 상태
   const [nickname, setNickname] = useState("");
-  const [careerYears, setCareerYears] = useState("");
+  const [careerYears, setCareerYears] = useState<number>(0);
   const [oneLiner, setOneLiner] = useState("");
   const [description, setDescription] = useState("");
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
@@ -106,7 +106,7 @@ export default function DriverProfileEdit() {
     if (nickname || oneLiner || description) return;
 
     setNickname(profile.nickname ?? "");
-    setCareerYears(profile.careerYears ?? "");
+    setCareerYears(profile.careerYears ?? 0);
     setOneLiner(profile.oneLiner ?? "");
     setDescription(profile.description ?? "");
 
@@ -178,7 +178,11 @@ export default function DriverProfileEdit() {
               </div>
               <InputArea label="별명" value={nickname} onChange={setNickname} />
               <ImageInputArea />
-              <InputArea label="경력" value={careerYears} onChange={setCareerYears} />
+              <InputArea
+                label="경력"
+                value={careerYears ? String(careerYears) : ""}
+                onChange={(value) => setCareerYears(Number(value) || 0)}
+              />
               <InputArea label="한 줄 소개" value={oneLiner} onChange={setOneLiner} />
 
               <div className="mt-4 lg:hidden">

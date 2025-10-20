@@ -19,7 +19,7 @@ export interface DriverProfile {
   userId: string;
   image: string | null;
   nickname: string;
-  careerYears: string;
+  careerYears: number;
   oneLiner: string;
   description: string;
   likeCount: number;
