@@ -10,10 +10,13 @@ import ReviewContainer from "@/app/mypage/components/ReviewContainer";
 import ShareSection from "../components/ShareSection";
 import Popup from "@/components/ui/Popup";
 import DefaultModal from "@/components/ui/Modal/DefaultModal";
+import { useLikeDriver } from "@/utils/hook/likes/useLikeQuery";
 
 export default function DriverDetailPage() {
   const [driver, setDriver] = useState<{ user: DriverUser; request: RequestData } | null>(null);
   const [popup, setPopup] = useState<{ type: "info" | "warning"; message: string } | null>(null);
+  const { mutate: likeMutate, isPending } = useLikeDriver();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   useEffect(() => {
     const stored = sessionStorage.getItem("selectedDriver");
@@ -21,6 +24,23 @@ export default function DriverDetailPage() {
       setDriver(JSON.parse(stored));
     }
   }, []);
+
+  const handleLikeClick = () => {
+    if (!driver?.user?.userId) return;
+
+    likeMutate(driver.user.userId, {
+      onSuccess: (res) => {
+        if (res.liked) {
+          setPopup({ type: "info", message: "찜한 기사님 목록에 추가되었습니다." });
+        } else {
+          setPopup({ type: "warning", message: "이미 찜한 기사님입니다." });
+        }
+      },
+      onError: () => {
+        setPopup({ type: "warning", message: "찜하기 중 오류가 발생했습니다." });
+      },
+    });
+  };
 
   if (!driver || !driver.user.profile) {
     return <p className="py-20 text-center text-gray-400">기사님 정보를 불러오는 중...</p>;
@@ -95,6 +115,8 @@ export default function DriverDetailPage() {
               variant="secondary"
               text="❤"
               className="border border-gray-300 p-3 hover:bg-gray-50"
+              onClick={handleLikeClick}
+              disabled={isPending}
             />
             {/* 지정 견적 요청하기 */}
             <Button
@@ -110,7 +132,12 @@ export default function DriverDetailPage() {
             <h3 className="text-lg font-semibold text-gray-800">
               {user.name} 기사님에게 지정 견적을 요청해보세요!
             </h3>
-            <Button variant="secondary" text="❤ 기사님 찜하기" />
+            <Button
+              variant="secondary"
+              text="❤ 기사님 찜하기"
+              onClick={handleLikeClick}
+              disabled={isPending}
+            />
             <Button
               variant="primary"
               text="지정 견적 요청하기"
