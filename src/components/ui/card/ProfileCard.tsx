@@ -47,7 +47,7 @@ export default function ProfileCard({ user }: CommonCardProps) {
       serviceAreas,
       reviewCount: profileData?.reviewCount ?? 0,
       rating: profileData?.rating ?? 0,
-      careerYears: profileData?.careerYears ?? "0",
+      careerYears: profileData?.careerYears ?? 0,
       confirmedCount: profileData?.confirmedCount ?? 0,
     };
   }, [profileData]);

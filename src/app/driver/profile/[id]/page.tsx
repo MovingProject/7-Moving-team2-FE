@@ -42,7 +42,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
 
         reviewCount: 45,
         rating: 4.8,
-        careerYears: "7",
+        careerYears: 7,
         confirmedCount: 187,
         driverServiceTypes: ["SMALL_MOVE", "HOME_MOVE"],
         driverServiceAreas: ["SEOUL", "GYEONGGI"],
