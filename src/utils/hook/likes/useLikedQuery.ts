@@ -17,6 +17,10 @@ export interface LikedDriver {
   oneLiner?: string;
 }
 
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+}
 export interface GetLikedDriversResponse {
   likedDriverList: LikedDriver[];
   nextCursor: string | null;
@@ -32,10 +36,10 @@ export const getLikedDrivers = async (
   if (cursor) params.append("cursor", cursor);
   params.append("limit", String(limit));
 
-  const res = await apiClient.get<GetLikedDriversResponse>(
+  const res = await apiClient.get<ApiResponse<GetLikedDriversResponse>>(
     `/consumers/liked-drivers?${params.toString()}`
   );
-  return res.data;
+  return res.data.data;
 };
 
 export const useLikedDriversQuery = (limit: number = 10) => {
