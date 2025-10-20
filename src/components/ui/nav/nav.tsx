@@ -165,7 +165,7 @@ export default function Nav({ option }: NavProps) {
                       {user.role === "CONSUMER" && (
                         <>
                           <Link
-                            href={"/"}
+                            href={"/liked"}
                             className="px-2 py-2 lg:px-4"
                             onClick={() => setIsProfileMenuOpen(false)}
                           >
