@@ -13,7 +13,7 @@ export interface DriverProfileData {
   image: string | null;
   reviewCount: number;
   rating: number;
-  careerYears: string;
+  careerYears: number;
   confirmedCount: number;
   description?: string;
   driverServiceTypes?: ServerMoveType[];
@@ -63,7 +63,7 @@ export interface UpdateDriverProfileRequest {
 
   driverProfile: {
     nickname?: string;
-    careerYears?: string;
+    careerYears?: number;
     oneLiner?: string;
     description?: string;
     rating?: number;
@@ -112,7 +112,7 @@ export interface ProfileUpdateResponse {
 
   // Driver 프로필 필드
   nickname?: string;
-  careerYears?: string;
+  careerYears?: number;
   oneLiner?: string;
   description?: string;
   rating?: number;

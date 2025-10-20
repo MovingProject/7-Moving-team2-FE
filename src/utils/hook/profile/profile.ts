@@ -24,9 +24,9 @@ interface RawUserResponse {
   profileId?: string;
   isProfileRegistered?: boolean;
   nickname?: string;
-  careerYears?: string;
+  careerYears?: number;
   bio?: string;
-  experience?: string;
+  experience?: number;
   description?: string;
 
   driverProfile?: {
@@ -36,7 +36,7 @@ interface RawUserResponse {
     image?: string | null;
     reviewCount?: number;
     rating?: number;
-    careerYears?: string;
+    careerYears?: number;
     confirmedCount?: number;
     description?: string;
     driverServiceTypes?: string[];
@@ -98,7 +98,7 @@ export const getUserProfile = async (): Promise<UserData> => {
       image: d.image ?? null,
       reviewCount: d.reviewCount ?? 0,
       rating: d.rating ?? 0,
-      careerYears: d.careerYears ?? raw.experience ?? "0",
+      careerYears: d.careerYears ?? raw.experience ?? 0,
       confirmedCount: d.confirmedCount ?? 0,
       description: d.description ?? raw.description ?? "",
       driverServiceTypes: Array.isArray(d.driverServiceTypes)
@@ -206,7 +206,7 @@ const transformProfileResponse = (data: ProfileUpdateResponse): UserData => {
       image: driverData.image ?? null,
       reviewCount: 0,
       rating: driverData.rating ?? 0,
-      careerYears: driverData.careerYears ?? "0",
+      careerYears: driverData.careerYears ?? 0,
       confirmedCount: 0,
       description: driverData.description ?? "",
       driverServiceTypes: driverData.driverServiceTypes?.map((t) => t as ServerMoveType) ?? [],

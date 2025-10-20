@@ -7,7 +7,7 @@ export interface LikedDriver {
   nickname: string;
   rating: number;
   reviewCount: number;
-  careerYears: string;
+  careerYears: number;
   confirmedCount: number;
   likeCount: number;
   avatarUrl: string | null;
