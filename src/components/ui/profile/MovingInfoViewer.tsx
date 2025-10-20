@@ -64,7 +64,7 @@ export default function MovingInfoViewer({ info, infoType = "review" }: MovingIn
           <dl className="flex items-center gap-2">
             <dt className="text-gray-500">경력</dt>
             <dd className="flex gap-2 text-gray-800">
-              <span>{info.careerYears ?? 0}</span>
+              <span>{info.careerYears ?? 0}년</span>
             </dd>
           </dl>
           <dl className="flex items-center gap-2">
