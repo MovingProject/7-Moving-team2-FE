@@ -4,12 +4,14 @@ import { useState, useMemo } from "react";
 import { RegionFilter, ServiceFilter, SortFilter } from "@/components/ui/Filters/Filters";
 import DefaultCard from "@/components/ui/card/DefaultCard";
 import { getRandomProfileImage } from "@/utils/constant/getProfileImage";
-import LikedDriverCard from "./components/LikedDriverCard";
+import LikedDriverCard from "../liked/components/LikedDriverCard";
 import Input from "@/components/ui/Input";
 import { RequestData, DriverUser } from "@/types/card";
 import { useRouter } from "next/navigation";
 import { AreaType } from "@/types/areaTypes";
 import { MoveType } from "@/types/moveTypes";
+import { LikedDriver, useLikedDriversQuery } from "@/utils/hook/likes/useLikedQuery";
+import { isDriverUser } from "@/utils/type-guards";
 
 export default function DriverListPage() {
   const router = useRouter();
@@ -18,6 +20,8 @@ export default function DriverListPage() {
   const [service, setService] = useState("서비스");
   const [sort, setSort] = useState("리뷰 많은 순");
   const [query, setQuery] = useState("");
+  const { data, isLoading } = useLikedDriversQuery();
+  const likedDrivers = data?.pages.flatMap((p) => p.likedDriverList) ?? [];
 
   const handleResetFilter = () => {
     setRegion("지역");
@@ -70,6 +74,11 @@ export default function DriverListPage() {
       sessionStorage.setItem("selectedDriver", JSON.stringify(driver));
     }
     router.push(`/driverList/${driver.user.userId}`);
+  };
+
+  const handleLikedDriverClick = (driver: LikedDriver) => {
+    sessionStorage.setItem("selectedLikedDriver", JSON.stringify(driver));
+    router.push(`/driverList/${driver.id}`);
   };
 
   // 필터 + 검색 + 정렬
@@ -137,11 +146,19 @@ export default function DriverListPage() {
           <div className="mt-5 flex flex-1 flex-col max-lg:hidden">
             <h3 className="mb-8 text-lg font-semibold text-gray-800">찜한 기사님</h3>
             <div className="flex flex-col gap-3 pr-1" style={{ maxHeight: "400px" }}>
-              {defaultCardDataList.map((data, idx) => (
-                <div key={idx} onClick={() => handleCardClick(data)} className="cursor-pointer">
-                  <LikedDriverCard user={data.user} request={data.request} />
-                </div>
-              ))}
+              {likedDrivers && likedDrivers.length > 0 ? (
+                likedDrivers.map((driver) =>
+                  driver ? (
+                    <LikedDriverCard
+                      key={driver.id}
+                      driver={driver}
+                      onClickAction={() => handleLikedDriverClick(driver)}
+                    />
+                  ) : null
+                )
+              ) : (
+                <p className="text-sm text-gray-400">찜한 기사님이 없습니다.</p>
+              )}
             </div>
           </div>
         </div>
