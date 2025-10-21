@@ -67,7 +67,7 @@ export default function UserProfileArea({
       <div className="flex flex-col gap-1 lg:gap-2">
         {isVisible("name") && (
           <CardText className="text-base font-semibold text-gray-800 lg:text-lg">
-            {user.name ?? "-"}
+            {isDriver ? (driverProfile?.nickname ?? user.name ?? "-") : (user.name ?? "-")}
           </CardText>
         )}
         {isVisible("oneLiner") && driverProfile?.oneLiner && (
