@@ -9,7 +9,7 @@ import { useDriverListInfiniteQuery } from "@/utils/hook/driver/driver";
 import { useInView } from "react-intersection-observer";
 import Input from "@/components/ui/Input";
 import LikedDriverCard from "../liked/components/LikedDriverCard";
-import { AreaType } from "@/types/areaTypes";
+import { AreaType, AreaMap } from "@/types/areaTypes";
 import { MoveType } from "@/types/moveTypes";
 import { mapDriverToCardData } from "@/utils/mappers/driverToCardMapper";
 import { SortOption } from "@/types/driver";
@@ -26,8 +26,8 @@ export default function DriverListPage() {
 
   const sortMap: Record<string, SortOption> = {
     "리뷰 많은 순": "REVIEW_DESC",
-    "별점 높은 순": "RATING_DESC",
-    "경력 많은 순": "CAREER_DESC",
+    "평점 높은 순": "RATING_DESC",
+    "경력 높은 순": "CAREER_DESC",
     "확정 많은 순": "CONFIRMED_DESC",
   };
 
@@ -38,14 +38,28 @@ export default function DriverListPage() {
     setQuery("");
   };
 
+  const REGION_REVERSE_MAP = Object.entries(AreaMap).reduce<Record<string, AreaType>>(
+    (acc, [en, ko]) => {
+      acc[ko] = en as AreaType;
+      return acc;
+    },
+    {}
+  );
+
+  const SERVICE_REVERSE_MAP: Record<string, MoveType> = {
+    소형이사: "SMALL_MOVE",
+    가정이사: "HOME_MOVE",
+    사무실이사: "OFFICE_MOVE",
+  };
+
   const filters = useMemo(() => {
-    const regionKey = region !== "지역" ? (region.toUpperCase() as AreaType) : undefined;
-    const serviceKey = service !== "서비스" ? (service.toUpperCase() as MoveType) : undefined;
+    const areaKey = region !== "지역" ? (REGION_REVERSE_MAP[region] as AreaType) : undefined;
+    const typeKey = service !== "서비스" ? (SERVICE_REVERSE_MAP[service] as MoveType) : undefined;
     return {
       limit: 10,
       sort: sortMap[sort] ?? "REVIEW_DESC",
-      region: regionKey,
-      serviceType: serviceKey,
+      area: areaKey,
+      type: typeKey,
       keyword: query.trim() || undefined,
     };
   }, [region, service, sort, query]);
@@ -75,9 +89,6 @@ export default function DriverListPage() {
     sessionStorage.setItem("selectedLikedDriver", JSON.stringify(driver));
     router.push(`/driverList/${driver.id}`);
   };
-
-  console.log("🚚 drivers", drivers);
-  console.log("🚚 data", data);
 
   return (
     <main className="min-h-screen w-full bg-white px-8 py-10 md:px-20 lg:px-30 xl:px-60">
