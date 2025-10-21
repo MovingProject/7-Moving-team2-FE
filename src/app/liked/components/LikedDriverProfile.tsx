@@ -43,10 +43,10 @@ export default function LikedDriverProfile({ driver }: { driver: LikedDriver }) 
         {/* 프로필 이미지 */}
         <div className="relative h-12 w-12 overflow-hidden rounded-full border border-gray-200">
           <Image
-            src={driver.avatarUrl || "/assets/icon/user.svg"}
+            src={"/assets/icon/user.svg"} // todo: avatarUrl 도메인 처리 필요
             alt={driver.nickname}
-            width={12}
-            height={12}
+            width={24}
+            height={24}
             className="object-cover"
           />
         </div>
