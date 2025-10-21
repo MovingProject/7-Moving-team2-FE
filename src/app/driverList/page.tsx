@@ -1,17 +1,18 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { RegionFilter, ServiceFilter, SortFilter } from "@/components/ui/Filters/Filters";
 import DefaultCard from "@/components/ui/card/DefaultCard";
-import { getRandomProfileImage } from "@/utils/constant/getProfileImage";
-import LikedDriverCard from "../liked/components/LikedDriverCard";
-import Input from "@/components/ui/Input";
-import { RequestData, DriverUser } from "@/types/card";
 import { useRouter } from "next/navigation";
+import { LikedDriver, useLikedDriversQuery } from "@/utils/hook/likes/useLikedQuery";
+import { useDriverListInfiniteQuery } from "@/utils/hook/driver/driver";
+import { useInView } from "react-intersection-observer";
+import Input from "@/components/ui/Input";
+import LikedDriverCard from "../liked/components/LikedDriverCard";
 import { AreaType } from "@/types/areaTypes";
 import { MoveType } from "@/types/moveTypes";
-import { LikedDriver, useLikedDriversQuery } from "@/utils/hook/likes/useLikedQuery";
-import { isDriverUser } from "@/utils/type-guards";
+import { mapDriverToCardData } from "@/utils/mappers/driverToCardMapper";
+import { SortOption } from "@/types/driver";
 
 export default function DriverListPage() {
   const router = useRouter();
@@ -20,8 +21,15 @@ export default function DriverListPage() {
   const [service, setService] = useState("서비스");
   const [sort, setSort] = useState("리뷰 많은 순");
   const [query, setQuery] = useState("");
-  const { data, isLoading } = useLikedDriversQuery();
-  const likedDrivers = data?.pages.flatMap((p) => p.likedDriverList) ?? [];
+  const { data: likedData } = useLikedDriversQuery();
+  const likedDrivers = likedData?.pages.flatMap((p) => p.likedDriverList) ?? [];
+
+  const sortMap: Record<string, SortOption> = {
+    "리뷰 많은 순": "REVIEW_DESC",
+    "별점 높은 순": "RATING_DESC",
+    "경력 많은 순": "CAREER_DESC",
+    "확정 많은 순": "CONFIRMED_DESC",
+  };
 
   const handleResetFilter = () => {
     setRegion("지역");
@@ -30,90 +38,46 @@ export default function DriverListPage() {
     setQuery("");
   };
 
-  const defaultCardDataList: {
-    user: DriverUser;
-    request: RequestData;
-  }[] = Array.from({ length: 13 }, (_, i) => ({
-    id: i + 1,
-    user: {
-      userId: `user-driver-${i + 1}`,
-      name: "홍길동",
-      role: "DRIVER",
-      email: "hong@test.com",
-      phoneNumber: "010-1234-5678",
-      profile: {
-        driverId: `drv-00${i + 1}`,
-        nickname: "홍길동 기사님",
-        oneLiner: "고객님의 물품을 소중하고 안전하게 운송하여 드립니다.",
-        image: getRandomProfileImage(),
-        reviewCount: 45,
-        rating: 4.8,
-        careerYears: 7,
-        confirmedCount: 187,
-        driverServiceTypes: ["SMALL_MOVE", "HOME_MOVE"],
-        driverServiceAreas: ["SEOUL", "GYEONGGI"],
-        likes: {
-          likedCount: 36,
-          isLikedByCurrentUser: true,
-        },
-      },
-    },
-    request: {
-      requestId: `req-${i + 1}`,
-      serviceType: ["SMALL_MOVE"],
-      departureAddress: "서울시 강남구",
-      arrivalAddress: "경기도 성남시",
-      requestStatement: "PENDING",
-      moveAt: "2025-10-15",
-      createdAt: "2025-09-25",
-    },
-  }));
+  const filters = useMemo(() => {
+    const regionKey = region !== "지역" ? (region.toUpperCase() as AreaType) : undefined;
+    const serviceKey = service !== "서비스" ? (service.toUpperCase() as MoveType) : undefined;
+    return {
+      limit: 10,
+      sort: sortMap[sort] ?? "REVIEW_DESC",
+      region: regionKey,
+      serviceType: serviceKey,
+      keyword: query.trim() || undefined,
+    };
+  }, [region, service, sort, query]);
 
-  const handleCardClick = (driver: { user: DriverUser; request: RequestData }) => {
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("selectedDriver", JSON.stringify(driver));
+  const { ref, inView } = useInView();
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useDriverListInfiniteQuery(filters);
+
+  // inView 감지 시 다음 페이지 불러오기
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      fetchNextPage();
     }
-    router.push(`/driverList/${driver.user.userId}`);
+  }, [inView, hasNextPage, fetchNextPage]);
+
+  // 데이터 평탄화
+  const drivers = data?.pages.flatMap((page) => page.items) ?? [];
+
+  // 카드 클릭
+  const handleCardClick = (driverId: string) => {
+    router.push(`/driverList/${driverId}`);
   };
 
+  // 찜한 기사님 클릭
   const handleLikedDriverClick = (driver: LikedDriver) => {
     sessionStorage.setItem("selectedLikedDriver", JSON.stringify(driver));
     router.push(`/driverList/${driver.id}`);
   };
 
-  // 필터 + 검색 + 정렬
-  const filteredData = useMemo(() => {
-    let result = [...defaultCardDataList];
-
-    const regionKey = region === "지역" ? null : (region.toUpperCase() as AreaType);
-    const serviceKey = service === "서비스" ? null : (service.toUpperCase() as MoveType);
-    const q = query.trim().toLowerCase();
-
-    result = result.filter((item) => {
-      const profile = item.user.profile;
-      if (!profile) return false; // profile null 방어
-
-      const passRegion = !regionKey || profile.driverServiceAreas?.includes(regionKey);
-      const passService =
-        !serviceKey || (profile.driverServiceTypes as MoveType[]).includes(serviceKey);
-      const passQuery =
-        !q ||
-        item.user.name.toLowerCase().includes(q) ||
-        profile.oneLiner?.toLowerCase().includes(q);
-
-      return passRegion && passService && passQuery;
-    });
-
-    if (sort === "리뷰 많은 순") {
-      result.sort(
-        (a, b) => (b.user.profile?.reviewCount ?? 0) - (a.user.profile?.reviewCount ?? 0)
-      );
-    } else if (sort === "이름순") {
-      result.sort((a, b) => a.user.name.localeCompare(b.user.name));
-    }
-
-    return result;
-  }, [defaultCardDataList, region, service, query, sort]);
+  console.log("🚚 drivers", drivers);
+  console.log("🚚 data", data);
 
   return (
     <main className="min-h-screen w-full bg-white px-8 py-10 md:px-20 lg:px-30 xl:px-60">
@@ -182,14 +146,30 @@ export default function DriverListPage() {
 
           {/* Card List */}
           <div className="flex flex-1 flex-col gap-4 overflow-y-auto pr-2">
-            {filteredData.length > 0 ? (
-              filteredData.map((data, idx) => (
-                <div key={idx} onClick={() => handleCardClick(data)} className="cursor-pointer">
-                  <DefaultCard user={data.user} request={data.request} />
-                </div>
-              ))
+            {isLoading ? (
+              <p className="py-10 text-center text-gray-400">불러오는 중...</p>
+            ) : drivers.length > 0 ? (
+              drivers.map((driver) => {
+                if (!driver || !driver.user?.id) return null;
+                const cardData = mapDriverToCardData(driver);
+                return (
+                  <div
+                    key={driver.user?.id}
+                    onClick={() => handleCardClick(driver.user?.id)}
+                    className="cursor-pointer"
+                  >
+                    <DefaultCard {...cardData} />
+                  </div>
+                );
+              })
             ) : (
-              <p className="py-10 text-center text-gray-400">조건에 맞는 기사님이 없습니다</p>
+              <p className="py-10 text-center text-gray-400">조건에 맞는 기사님이 없습니다.</p>
+            )}
+            {/* 무한스크롤 트리거 */}
+            {hasNextPage && (
+              <div ref={ref} className="mt-6 text-center text-gray-400">
+                {isFetchingNextPage ? "불러오는 중..." : "스크롤 시 더 불러옵니다."}
+              </div>
             )}
           </div>
         </div>
