@@ -1,10 +1,10 @@
-import { DriverListItem } from "@/types/driver";
+import { DriverItem } from "@/types/driver";
 import { DriverUser, RequestData } from "@/types/card";
 import { MoveType } from "@/types/moveTypes";
 import { AreaType } from "@/types/areaTypes";
 
 export const mapDriverToCardData = (
-  driver: DriverListItem
+  driver: DriverItem
 ): { user: DriverUser; request: RequestData } => ({
   user: {
     userId: driver.user.id,
