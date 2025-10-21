@@ -34,6 +34,7 @@ export interface ConsumerProfileData {
 export interface DriverUser {
   userId: string;
   name: string;
+  nickname?: string;
   email: string;
   phoneNumber: string;
   role: "DRIVER";
