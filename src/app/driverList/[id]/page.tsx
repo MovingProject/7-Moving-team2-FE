@@ -1,54 +1,46 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import DefaultCard from "@/components/ui/card/DefaultCard";
+import { useParams } from "next/navigation";
+import { useState } from "react";
 import Button from "@/components/ui/Button";
 import { DriverUser, RequestData, DriverProfileData } from "@/types/card";
 import { AreaType } from "@/types/areaTypes";
 import { MoveType } from "@/types/moveTypes";
+import DefaultCard from "@/components/ui/card/DefaultCard";
 import ReviewContainer from "@/app/mypage/components/ReviewContainer";
 import ShareSection from "../components/ShareSection";
 import Popup from "@/components/ui/Popup";
 import DefaultModal from "@/components/ui/Modal/DefaultModal";
 import { useLikeDriver } from "@/utils/hook/likes/useLikeQuery";
+import { useDriverDetailQuery } from "@/utils/hook/driver/useDriverDetailQuery";
+import { mapDriverToCardData } from "@/utils/mappers/driverToCardMapper";
 
 export default function DriverDetailPage() {
-  const [driver, setDriver] = useState<{ user: DriverUser; request: RequestData } | null>(null);
+  const params = useParams();
+  const driverId = params?.id as string;
+  const { data, isLoading } = useDriverDetailQuery(driverId);
   const [popup, setPopup] = useState<{ type: "info" | "warning"; message: string } | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { mutate: likeMutate, isPending } = useLikeDriver();
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  useEffect(() => {
-    const stored = sessionStorage.getItem("selectedDriver");
-    if (stored) {
-      setDriver(JSON.parse(stored));
-    }
-  }, []);
-
   const handleLikeClick = () => {
-    if (!driver?.user?.userId) return;
-
-    likeMutate(driver.user.userId, {
-      onSuccess: (res) => {
-        if (res.liked) {
-          setPopup({ type: "info", message: "찜한 기사님 목록에 추가되었습니다." });
-        } else {
-          setPopup({ type: "warning", message: "이미 찜한 기사님입니다." });
-        }
-      },
-      onError: () => {
-        setPopup({ type: "warning", message: "찜하기 중 오류가 발생했습니다." });
-      },
+    if (!driverId) return;
+    likeMutate(driverId, {
+      onSuccess: (res) =>
+        setPopup({
+          type: res.liked ? "info" : "warning",
+          message: res.liked ? "찜한 기사님 목록에 추가되었습니다." : "이미 찜한 기사님입니다.",
+        }),
+      onError: () => setPopup({ type: "warning", message: "찜하기 중 오류가 발생했습니다." }),
     });
   };
 
-  if (!driver || !driver.user.profile) {
+  if (isLoading || !data) {
     return <p className="py-20 text-center text-gray-400">기사님 정보를 불러오는 중...</p>;
   }
 
-  const user = driver.user;
-  const profile = driver.user.profile as DriverProfileData;
-  const request = driver.request;
+  const { user, request } = mapDriverToCardData(data);
+  const profile = user.profile!;
 
   return (
     <main className="min-h-screen w-full bg-white px-8 py-10 md:px-20 lg:px-5 xl:px-60">

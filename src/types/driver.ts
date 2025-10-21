@@ -15,7 +15,7 @@ export interface GetDriverListQuery {
 }
 
 /** 기사 목록의 단일 항목 */
-export interface DriverListItem {
+export interface DriverItem {
   user: {
     id: string;
     name: string;
@@ -34,13 +34,14 @@ export interface DriverListItem {
     likeCount: number;
     serviceAreas: string[];
     serviceTypes: string[];
+    description?: string | null;
   };
   isInvitedByMe: boolean;
 }
 
 /** 기사 목록 조회 응답 구조 */
 export interface DriverListResponse {
-  items: DriverListItem[];
+  items: DriverItem[];
   nextCursor?: string | null;
   hasNextPage: boolean;
 }
