@@ -13,6 +13,7 @@ import DefaultModal from "@/components/ui/Modal/DefaultModal";
 import { useLikeDriver } from "@/utils/hook/likes/useLikeQuery";
 import { useDriverDetailQuery } from "@/utils/hook/driver/useDriverDetailQuery";
 import { mapDriverToCardData } from "@/utils/mappers/driverToCardMapper";
+import { useInviteDriver } from "@/utils/hook/request/useInviteQuery";
 
 export default function DriverDetailPage() {
   const params = useParams();
@@ -21,6 +22,7 @@ export default function DriverDetailPage() {
   const [popup, setPopup] = useState<{ type: "info" | "warning"; message: string } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { mutate: likeMutate, isPending } = useLikeDriver();
+  const { mutate: inviteDriver, isPending: isInviting } = useInviteDriver();
 
   const handleLikeClick = () => {
     if (!driverId) return;
@@ -31,6 +33,43 @@ export default function DriverDetailPage() {
           message: res.liked ? "찜한 기사님 목록에 추가되었습니다." : "이미 찜한 기사님입니다.",
         }),
       onError: () => setPopup({ type: "warning", message: "찜하기 중 오류가 발생했습니다." }),
+    });
+  };
+
+  const handleInviteClick = () => {
+    if (!driverId) return;
+
+    inviteDriver(driverId, {
+      onSuccess: (res) => {
+        if (res.alreadyExisted) {
+          setPopup({
+            type: "warning",
+            message: "이미 지정 견적을 요청한 기사님입니다.",
+          });
+        } else {
+          setPopup({
+            type: "info",
+            message: "지정 견적 요청이 완료되었습니다.",
+          });
+        }
+      },
+      onError: (error: any) => {
+        const msg = error.response?.data?.message || "";
+
+        if (msg.includes("진행중인 요청이 없습니다")) {
+          setIsModalOpen(true);
+        } else if (msg.includes("일치하지 않습니다")) {
+          setPopup({
+            type: "warning",
+            message: "해당 기사님의 서비스 조건과 일치하지 않습니다.",
+          });
+        } else {
+          setPopup({
+            type: "warning",
+            message: "요청 중 오류가 발생했습니다.",
+          });
+        }
+      },
     });
   };
 
@@ -145,7 +184,8 @@ export default function DriverDetailPage() {
               variant="primary"
               text="지정 견적 요청하기"
               className="ml-3 flex-1"
-              onClick={() => setIsModalOpen(true)}
+              onClick={handleInviteClick}
+              disabled={isInviting}
             />
           </div>
         </div>
@@ -163,7 +203,8 @@ export default function DriverDetailPage() {
             <Button
               variant="primary"
               text="지정 견적 요청하기"
-              onClick={() => setIsModalOpen(true)}
+              onClick={handleInviteClick}
+              disabled={isInviting}
             />
           </div>
           <div>
