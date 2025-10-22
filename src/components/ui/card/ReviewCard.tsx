@@ -9,13 +9,22 @@ import UserProfileArea from "../profile/UserProfileArea";
 
 interface ReviewCardProps extends CommonCardProps {
   review?: ReviewData;
+  onReviewClick?: () => void;
+  hideButton?: boolean;
 }
 
-export default function ReviewCard({ user, request, quotation, review }: ReviewCardProps) {
+export default function ReviewCard({
+  user,
+  request,
+  quotation,
+  review,
+  onReviewClick,
+  hideButton = false,
+}: ReviewCardProps) {
   const tags = request?.serviceType;
   const reviewDate = review?.createdAt;
   return (
-    <BaseCard className="gap-4 border border-gray-300 bg-white px-[14px] py-4 lg:gap-4 lg:px-6 lg:py-5">
+    <BaseCard className="gap-4 border border-gray-300 bg-white px-[14px] py-4 lg:max-w-[640px] lg:gap-4 lg:px-6 lg:py-5">
       <div className="flex justify-between">
         {tags && (
           <div className="flex gap-2">
@@ -39,9 +48,11 @@ export default function ReviewCard({ user, request, quotation, review }: ReviewC
       {review?.content ? (
         <p className="text-sm text-gray-600 lg:text-base">{review.content}</p>
       ) : (
-        <div>
-          <Button size="sm" textSize="mobile" text="리뷰 작성" />
-        </div>
+        !hideButton && (
+          <div>
+            <Button size="sm" textSize="mobile" text="리뷰 작성하기" onClick={onReviewClick} />
+          </div>
+        )
       )}
     </BaseCard>
   );
