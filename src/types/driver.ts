@@ -45,3 +45,23 @@ export interface DriverListResponse {
   nextCursor?: string | null;
   hasNextPage: boolean;
 }
+
+/** 기사 상세 페이지 조회 */
+export interface DriverDetailItem {
+  id: string;
+  nickname: string;
+  name: string;
+  image: string | null;
+  oneLiner: string | null;
+  description: string | null;
+  rating: number;
+  careerYears: number;
+  confirmedCount: number;
+  reviewCount: number;
+  serviceAreas: AreaType[];
+  serviceTypes: MoveType[];
+  likes: {
+    likedCount: number;
+    isLikedByCurrentUser: boolean;
+  };
+}
