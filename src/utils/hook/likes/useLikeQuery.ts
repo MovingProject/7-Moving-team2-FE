@@ -9,8 +9,10 @@ interface LikeDriverResponse {
 }
 
 export const likeDriver = async (driverId: string): Promise<LikeDriverResponse> => {
-  const res = await apiClient.post<LikeDriverResponse>(`/drivers/${driverId}/likes`);
-  return res.data;
+  const res = await apiClient.post<{ success: boolean; data: LikeDriverResponse }>(
+    `/drivers/${driverId}/likes`
+  );
+  return res.data.data;
 };
 
 export const useLikeDriver = () => {
