@@ -3,9 +3,8 @@
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import Button from "@/components/ui/Button";
-import { DriverUser, RequestData, DriverProfileData } from "@/types/card";
-import { AreaType } from "@/types/areaTypes";
-import { MoveType } from "@/types/moveTypes";
+import { AreaType, AreaMap } from "@/types/areaTypes";
+import { MoveType, MoveTypeMap } from "@/types/moveTypes";
 import DefaultCard from "@/components/ui/card/DefaultCard";
 import ReviewContainer from "@/app/mypage/components/ReviewContainer";
 import ShareSection from "../components/ShareSection";
@@ -39,8 +38,29 @@ export default function DriverDetailPage() {
     return <p className="py-20 text-center text-gray-400">기사님 정보를 불러오는 중...</p>;
   }
 
-  const { user, request } = mapDriverToCardData(data);
-  const profile = user.profile!;
+  const cardData = mapDriverToCardData({
+    user: {
+      id: data.id,
+      name: data.name,
+      role: "DRIVER",
+      createdAt: "",
+    },
+    profile: {
+      userId: data.id,
+      image: data.image,
+      nickname: data.nickname,
+      oneLiner: data.oneLiner,
+      description: data.description,
+      careerYears: data.careerYears,
+      rating: data.rating,
+      reviewCount: data.reviewCount,
+      confirmedCount: data.confirmedCount,
+      likeCount: data.likes?.likedCount ?? 0,
+      serviceAreas: data.serviceAreas,
+      serviceTypes: data.serviceTypes,
+    },
+    isInvitedByMe: false,
+  });
 
   return (
     <main className="min-h-screen w-full bg-white px-8 py-10 md:px-20 lg:px-5 xl:px-60">
@@ -61,7 +81,7 @@ export default function DriverDetailPage() {
 
       <section className="flex flex-col gap-10 lg:flex-row">
         <div className="flex flex-[0.65] flex-col gap-10">
-          <DefaultCard user={user} request={request} />
+          <DefaultCard {...cardData} />
           {/* 공유 영역 (lg 미만에서는 이쪽으로 내려옴) */}
           <div className="block lg:hidden">
             <ShareSection setPopup={setPopup} />
@@ -69,31 +89,41 @@ export default function DriverDetailPage() {
           <div className="flex flex-col gap-4">
             <h2 className="text-xl font-semibold text-gray-900">상세 설명</h2>
             <p className="text-gray-600">
-              {profile.oneLiner ?? "이 기사님은 아직 상세 설명을 등록하지 않았습니다."}
+              {data.description ?? "이 기사님은 아직 상세 설명을 등록하지 않았습니다."}
             </p>
           </div>
           <div className="flex flex-col gap-4">
             <h2 className="text-xl font-semibold text-gray-900">제공 서비스</h2>
             <div className="flex flex-wrap gap-3">
-              {(profile.driverServiceTypes ?? []).map((type: MoveType) => (
-                <span key={type} className="rounded-full border border-gray-300 px-4 py-1 text-sm">
-                  {type === "SMALL_MOVE"
-                    ? "소형이사"
-                    : type === "HOME_MOVE"
-                      ? "가정이사"
-                      : "사무실이사"}
-                </span>
-              ))}
+              {data.serviceTypes?.length ? (
+                data.serviceTypes.map((type: MoveType) => (
+                  <span
+                    key={type}
+                    className="rounded-full border border-gray-300 px-4 py-1 text-sm"
+                  >
+                    {MoveTypeMap[type]?.content ?? type}
+                  </span>
+                ))
+              ) : (
+                <p className="text-sm text-gray-400">등록된 서비스가 없습니다.</p>
+              )}
             </div>
           </div>
           <div className="flex flex-col gap-4">
             <h2 className="text-xl font-semibold text-gray-900">서비스 가능 지역</h2>
             <div className="flex flex-wrap gap-3">
-              {(profile.driverServiceAreas ?? []).map((area: AreaType) => (
-                <span key={area} className="rounded-full border border-gray-300 px-4 py-1 text-sm">
-                  {area === "SEOUL" ? "서울" : area === "GYEONGGI" ? "경기" : area}
-                </span>
-              ))}
+              {data.serviceAreas?.length ? (
+                data.serviceAreas.map((area: AreaType) => (
+                  <span
+                    key={area}
+                    className="rounded-full border border-gray-300 px-4 py-1 text-sm"
+                  >
+                    {AreaMap[area] ?? area}
+                  </span>
+                ))
+              ) : (
+                <p className="text-sm text-gray-400">등록된 지역이 없습니다.</p>
+              )}
             </div>
           </div>
           {/* 리뷰 영역 */}
@@ -122,7 +152,7 @@ export default function DriverDetailPage() {
         <div className="hidden flex-[0.35] flex-shrink-0 flex-col gap-6 lg:block">
           <div className="flex flex-col gap-4 border-b border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-800">
-              {user.name} 기사님에게 지정 견적을 요청해보세요!
+              {data.nickname} 기사님에게 지정 견적을 요청해보세요!
             </h3>
             <Button
               variant="secondary"
