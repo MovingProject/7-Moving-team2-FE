@@ -1,10 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import apiClient from "@/lib/apiClient";
-import { DriverItem } from "@/types/driver";
+import { DriverDetailItem } from "@/types/driver";
 
 /** 단일 기사 상세 조회 API */
-export const getDriverDetail = async (driverId: string): Promise<DriverItem> => {
-  const res = await apiClient.get<{ success: boolean; data: DriverItem }>(`/drivers/${driverId}`);
+export const getDriverDetail = async (driverId: string): Promise<DriverDetailItem> => {
+  const res = await apiClient.get<{ success: boolean; data: DriverDetailItem }>(
+    `/drivers/${driverId}`
+  );
   return res.data.data;
 };
 
