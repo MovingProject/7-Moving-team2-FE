@@ -18,67 +18,95 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-[#F4F7FB] outline-none">
       <div className="flex min-h-screen flex-col items-center justify-between caret-transparent outline-none focus:ring-0">
-        <p className="pt-32 pb-8 text-center font-[Pretendard] text-[24px] leading-[50px] font-semibold text-black outline-none lg:text-[36px]">
+        <p className="pt-16 pb-6 text-center font-[Pretendard] text-[24px] leading-[32px] font-semibold text-black outline-none md:pb-8 lg:pt-20 lg:text-[36px] lg:leading-[50px]">
           원하는 이사 서비스를 요청하고 <br />
           견적을 받아보세요.
         </p>
 
-        <div className="flex flex-col outline-none lg:h-[600px] lg:flex-row lg:items-stretch lg:gap-0">
+        {/* 모바일 레이아웃 */}
+        <div className="flex w-full flex-col items-center gap-4 px-4 md:hidden">
           <Image
             src={MovingSmall.src}
-            className="cursor-pointer outline-none lg:hidden"
-            alt=""
-            width={100}
-            height={100}
+            className="w-full max-w-[360px] cursor-pointer"
+            alt="소형이사"
+            width={360}
+            height={200}
           />
           <Image
-            src={MovingSmallMd.src}
-            className="hidden cursor-pointer outline-none lg:block lg:h-[508px] lg:w-[432px] lg:object-contain"
-            alt=""
-            width={100}
-            height={100}
+            src={MovingHome.src}
+            className="w-full max-w-[360px] cursor-pointer"
+            alt="가정이사"
+            width={360}
+            height={200}
           />
+          <Image
+            src={MovingBusiness.src}
+            className="w-full max-w-[360px] cursor-pointer"
+            alt="기업, 사무실 이사"
+            width={360}
+            height={200}
+          />
+        </div>
 
-          <div className="flex flex-col outline-none lg:h-[508px] lg:w-[604px] lg:gap-0">
-            <Image
-              src={MovingHome.src}
-              className="cursor-pointer outline-none lg:hidden"
-              alt=""
-              width={100}
-              height={100}
-            />
+        {/* 태블릿 레이아웃 */}
+        <div className="hidden w-full flex-col items-center gap-4 px-6 md:flex lg:hidden">
+          <Image
+            src={MovingSmall.src}
+            className="w-full max-w-[600px] cursor-pointer"
+            alt="소형이사"
+            width={600}
+            height={300}
+          />
+          <Image
+            src={MovingHome.src}
+            className="w-full max-w-[600px] cursor-pointer"
+            alt="가정이사"
+            width={600}
+            height={300}
+          />
+          <Image
+            src={MovingBusiness.src}
+            className="w-full max-w-[600px] cursor-pointer"
+            alt="기업, 사무실 이사"
+            width={600}
+            height={300}
+          />
+        </div>
+
+        {/* 데스크톱 레이아웃 */}
+        <div className="hidden lg:flex lg:items-start lg:justify-center lg:gap-6">
+          <Image
+            src={MovingSmallMd.src}
+            className="cursor-pointer"
+            alt="소형이사"
+            width={432}
+            height={508}
+          />
+          <div className="flex flex-col gap-6">
             <Image
               src={MovingHomeMd.src}
-              className="hidden cursor-pointer outline-none lg:block lg:h-[287px] lg:w-[764px] lg:object-contain"
-              alt=""
-              width={100}
-              height={100}
-            />
-
-            <Image
-              src={MovingBusiness.src}
-              className="cursor-pointer outline-none lg:hidden"
-              alt=""
-              width={100}
-              height={100}
+              className="cursor-pointer"
+              alt="가정이사"
+              width={764}
+              height={241}
             />
             <Image
               src={MovingBusinessMd.src}
-              className="hidden cursor-pointer outline-none lg:block lg:h-[287px] lg:w-[764px] lg:object-contain"
-              alt=""
-              width={100}
-              height={100}
+              className="cursor-pointer"
+              alt="기업, 사무실 이사"
+              width={764}
+              height={241}
             />
           </div>
         </div>
 
-        <div className="mt-8 flex w-full flex-col items-center gap-4 pb-10 lg:flex-row lg:justify-center lg:gap-6">
+        <div className="mt-8 flex w-full flex-col items-center gap-4 px-4 pb-10 md:flex-row md:justify-center md:gap-6">
           {!isLoggedIn && (
             <>
-              <Button className="w-[320px]" radius="full">
+              <Button className="w-full max-w-[320px]" radius="full">
                 로그인
               </Button>
-              <Button className="w-[320px]" variant="secondary" radius="full">
+              <Button className="w-full max-w-[320px]" variant="secondary" radius="full">
                 회원가입
               </Button>
             </>
