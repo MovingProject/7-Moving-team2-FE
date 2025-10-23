@@ -8,10 +8,12 @@ import MovingHomeMd from "@/assets/img/Landing_md_02.svg";
 import MovingBusinessMd from "@/assets/img/Landing_md_03.svg";
 import Image from "next/image";
 import { useAuthStore } from "@/store/authStore";
+import { useRouter } from "next/navigation";
 
 export default function Landing() {
   const user = useAuthStore((s) => s.user);
   const isLoggedIn = !!user;
+  const router = useRouter();
 
   console.log("user", user, "succ", isLoggedIn);
 
@@ -103,10 +105,19 @@ export default function Landing() {
         <div className="mt-8 flex w-full flex-col items-center gap-4 px-4 pb-10 md:flex-row md:justify-center md:gap-6">
           {!isLoggedIn && (
             <>
-              <Button className="w-full max-w-[320px]" radius="full">
+              <Button
+                className="w-full max-w-[320px]"
+                radius="full"
+                onClick={() => router.push("/login")}
+              >
                 로그인
               </Button>
-              <Button className="w-full max-w-[320px]" variant="secondary" radius="full">
+              <Button
+                className="w-full max-w-[320px]"
+                variant="secondary"
+                radius="full"
+                onClick={() => router.push("/signUp")}
+              >
                 회원가입
               </Button>
             </>
