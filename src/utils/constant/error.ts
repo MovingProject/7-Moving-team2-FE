@@ -8,7 +8,7 @@ export const errors = {
   emailEmpty: "이메일을 입력해 주세요.",
   emailInvalid: "잘못된 이메일 형식입니다.",
   telNumberEmpty: "전화번호를 입력해 주세요.",
-  telNumberInvalid: "010-XXXX-XXXX 형식으로 입력해 주세요.",
+  telNumberInvalid: "숫자만 입력해 주세요.",
   nicknameEmpty: "닉네임을 입력해 주세요.",
   passwordEmpty: "비밀번호를 입력해 주세요.",
   passwordInvalid: `비밀번호는 ${PASSWORD_MIN_LENGTH}자 이상 ${PASSWORD_MAX_LENGTH}자 이하로 입력해 주세요.`,
