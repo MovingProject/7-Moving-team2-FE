@@ -14,6 +14,9 @@ import Image from "next/image";
 import React from "react";
 import { useSignup, type SignUpDTO } from "@/utils/hook/signup/api";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+import WelcomeOverlay from "@/components/WelcomeOverlay";
+import { useLogin } from "@/utils/hook/auth/useLogin";
 import axios from "axios";
 
 export default function Signup() {
@@ -79,6 +82,9 @@ export default function Signup() {
 
   const router = useRouter();
   const signupMutation = useSignup();
+  const loginMutation = useLogin();
+  const [showOverlay, setShowOverlay] = React.useState(false);
+  const [signupRole, setSignupRole] = React.useState<"CONSUMER" | "DRIVER">("CONSUMER");
 
   const isFormFilled = !!(email && password && passwordCheck && userName && telNumber);
   const hasErrors = !!(
@@ -116,8 +122,24 @@ export default function Signup() {
 
     signupMutation.mutate(payload, {
       onSuccess: () => {
-        // 자동 로그인은 아직 사용하지 않으므로 성공 시 바로 리다이렉트
-        router.push("/login");
+        // 회원가입 성공 후 오버레이 표시
+        setSignupRole(role); // role 정보 저장
+        setShowOverlay(true);
+
+        // 자동 로그인 시도
+        (async () => {
+          try {
+            await loginMutation.mutateAsync({
+              email: payload.email,
+              password: payload.password,
+              role: payload.role,
+            });
+            // 로그인 성공 (오버레이는 자동으로 닫히면서 프로필 페이지로 이동)
+          } catch (err) {
+            console.warn("자동 로그인 실패:", err);
+            // 로그인 실패해도 오버레이는 표시
+          }
+        })();
       },
       onError: (err: unknown) => {
         if (axios.isAxiosError(err)) {
@@ -227,6 +249,14 @@ export default function Signup() {
           </Link>
         </div>
       </div>
+      <WelcomeOverlay 
+        open={showOverlay} 
+        onClose={() => {
+          setShowOverlay(false);
+          // 오버레이 닫힐 때 프로필 등록 페이지로 이동 (role 쿼리 전달)
+          router.push(`/mypage/profile?role=${signupRole}`);
+        }} 
+      />
     </div>
   );
 }
