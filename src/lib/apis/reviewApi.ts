@@ -24,9 +24,9 @@ export interface CreateReviewResponse {
 export interface GetReviewsResponse {
   reviews: Array<{
     id: string;
-    user: any; // DriverUser 타입
-    request: any; // RequestData 타입
-    quotation: any; // QuotationData 타입
+    user: unknown; // DriverUser 타입 (BE API 구현 후 수정)
+    request: unknown; // RequestData 타입 (BE API 구현 후 수정)
+    quotation: unknown; // QuotationData 타입 (BE API 구현 후 수정)
     review?: ReviewData;
   }>;
   totalCount: number;
