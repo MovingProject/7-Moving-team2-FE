@@ -4,6 +4,7 @@ import clsx from "clsx";
 import React from "react";
 import { IconType } from "../Tag";
 import { CardProvider, cardTypes } from "./CardContext";
+import { DriverDetailItem } from "@/types/driver";
 interface BaseCardProps {
   children: React.ReactNode;
   cardType?: cardTypes;
@@ -14,6 +15,8 @@ export interface CommonCardProps {
   user: UserData;
   request?: RequestData;
   quotation?: QuotationData;
+  variant?: "list" | "detail";
+  driverDetail?: DriverDetailItem;
 }
 
 export type TagData = {
