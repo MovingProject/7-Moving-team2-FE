@@ -127,6 +127,7 @@ export default function BasicEditPage() {
             label="전화번호"
             value={phone}
             onChange={setPhone}
+            inputType="tel"
             className="!max-w-full border-0 bg-gray-100"
           />
         </div>

@@ -140,7 +140,7 @@ export default function ConsumerProfileForm() {
   // 폼 제출 (등록 / 수정)
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     // 등록 모드에서는 비밀번호 검증 불필요
     if (isEditMode && !validatePassword()) {
       return;
@@ -238,6 +238,7 @@ export default function ConsumerProfileForm() {
                   label="전화번호"
                   value={phone}
                   onChange={setPhone}
+                  inputType="tel"
                   className="!max-w-full border-0 bg-gray-100"
                 />
                 <InputArea
