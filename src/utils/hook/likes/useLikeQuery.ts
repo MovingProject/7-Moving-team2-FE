@@ -23,6 +23,8 @@ export const useLikeDriver = () => {
     onSuccess: (data, driverId) => {
       // 기존 찜 목록 갱신
       queryClient.invalidateQueries({ queryKey: ["likedDrivers"] });
+      queryClient.invalidateQueries({ queryKey: ["driverList"], exact: false });
+      queryClient.invalidateQueries({ queryKey: ["driverDetail", driverId] });
 
       if (data.liked) {
         console.log(`기사님(${driverId}) 좋아요 성공`);

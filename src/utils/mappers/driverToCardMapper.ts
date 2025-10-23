@@ -1,4 +1,4 @@
-import { DriverItem } from "@/types/driver";
+import { DriverItem, DriverDetailItem } from "@/types/driver";
 import { DriverUser, RequestData } from "@/types/card";
 import { MoveType } from "@/types/moveTypes";
 import { AreaType } from "@/types/areaTypes";
@@ -25,7 +25,7 @@ export const mapDriverToCardData = (
       driverServiceAreas: driver.profile.serviceAreas as AreaType[],
       likes: {
         likedCount: driver.profile.likeCount,
-        isLikedByCurrentUser: false,
+        isLikedByCurrentUser: driver.profile.isLikedByCurrentUser ?? false,
       },
     },
   },
@@ -38,4 +38,29 @@ export const mapDriverToCardData = (
     moveAt: "",
     createdAt: "",
   },
+});
+
+export const mapDriverDetailToDriverListShape = (data: DriverDetailItem): DriverItem => ({
+  user: {
+    id: data.id,
+    name: data.name,
+    role: "DRIVER",
+    createdAt: "",
+  },
+  profile: {
+    userId: data.id,
+    image: data.image,
+    nickname: data.nickname,
+    oneLiner: data.oneLiner ?? "",
+    description: data.description ?? "",
+    careerYears: data.careerYears,
+    rating: data.rating,
+    reviewCount: data.reviewCount,
+    confirmedCount: data.confirmedCount,
+    likeCount: data.likeCount ?? 0,
+    isLikedByCurrentUser: data.isLikedByCurrentUser ?? false,
+    serviceAreas: data.serviceAreas as string[],
+    serviceTypes: data.serviceTypes as string[],
+  },
+  isInvitedByMe: false,
 });
