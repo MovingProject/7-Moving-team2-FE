@@ -1,9 +1,8 @@
 "use client";
 import LoginForm from "@/app/login/components/LoginForm";
 import SocialLogin from "./components/SocialLogin";
-import SwitchButton from "./components/SwitchButton";
-import LogoText from "@/assets/icon/Logo-2.svg";
-import Image from "next/image";
+import SlidToggle from "@/components/ui/SlidToggle";
+import LogoText from "@/components/ui/LogoText";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
@@ -36,8 +35,14 @@ export default function Login() {
     <div className="mt-10 flex justify-center">
       <div className="flex w-full max-w-[480px] flex-col items-center">
         <div className="mb-[40px] flex flex-col items-center">
-          <Image className="mb-[24px]" src={LogoText} alt="" width={100} height={100}></Image>
-          <SwitchButton selected={role} setSelected={setRole} />
+          <Link href={"/"}>
+            <LogoText
+              className={`mb-[24px] h-auto w-48 transition-colors duration-300 ${
+                role === "CONSUMER" ? "text-blue-500" : "text-amber-400"
+              }`}
+            />
+          </Link>
+          <SlidToggle value={role} onChange={setRole} />
         </div>
         <LoginForm role={role} />
         <p className="font-pretendard mt-[24px] text-[16px] leading-[18px] font-normal text-gray-500">
