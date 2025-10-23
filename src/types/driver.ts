@@ -32,6 +32,7 @@ export interface DriverItem {
     reviewCount: number;
     confirmedCount: number;
     likeCount: number;
+    isLikedByCurrentUser?: boolean;
     serviceAreas: string[];
     serviceTypes: string[];
     description?: string | null;
@@ -60,8 +61,6 @@ export interface DriverDetailItem {
   reviewCount: number;
   serviceAreas: AreaType[];
   serviceTypes: MoveType[];
-  likes: {
-    likedCount: number;
-    isLikedByCurrentUser: boolean;
-  };
+  likeCount: number;
+  isLikedByCurrentUser?: boolean;
 }

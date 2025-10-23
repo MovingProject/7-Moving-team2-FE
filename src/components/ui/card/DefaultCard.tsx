@@ -8,8 +8,15 @@ import { DriverProfileData, DriverUser } from "@/types/card";
 import { MoveTypeMap } from "@/types/moveTypes";
 import UserProfileArea from "../profile/UserProfileArea";
 import { isDriverUser } from "@/utils/type-guards";
+import DriverDetailPage from "@/app/driverList/[id]/page";
 
-export default function DefaultCard({ user, request, quotation }: CommonCardProps) {
+export default function DefaultCard({
+  user,
+  request,
+  quotation,
+  variant = "list",
+  driverDetail,
+}: CommonCardProps) {
   const isDriver = isDriverUser(user);
   if (!isDriver) {
     return null;
@@ -37,9 +44,11 @@ export default function DefaultCard({ user, request, quotation }: CommonCardProp
 
       <UserProfileArea
         user={user}
+        driverDetail={driverDetail}
         request={request}
         quotation={quotation}
         show={["name", "reviews", "likes"]}
+        variant={variant}
         className="rounded-lg border border-gray-200 p-[10px]"
       />
       {price && (
