@@ -102,6 +102,29 @@ export default function Input({
     onChange("");
   };
 
+  // 전화번호 자동 포맷 (ex: 010-1234-5678)
+  const formatPhoneWithHyphen = (raw: string) => {
+    const digits = raw.replace(/\D/g, "");
+    if (!digits) return "";
+    if (digits.startsWith("010")) {
+      if (digits.length <= 3) return digits;
+      if (digits.length <= 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+      return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7, 11)}`;
+    }
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+    return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7, 11)}`;
+  };
+
+  const handleInputChange = (val: string) => {
+    if (inputType === "tel") {
+      const formatted = formatPhoneWithHyphen(val);
+      onChange(formatted);
+      return;
+    }
+    onChange(val);
+  };
+
   return (
     <div className={wrapperClass} style={wrapperStyle} aria-invalid={!!error}>
       {icon && icon === "left" && (
@@ -120,7 +143,7 @@ export default function Input({
           type={inputType === "password" ? (showPassword ? "text" : "password") : inputType}
           value={value}
           placeholder={placeholder}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => handleInputChange(e.target.value)}
           className={inputClass}
         />
       )}
