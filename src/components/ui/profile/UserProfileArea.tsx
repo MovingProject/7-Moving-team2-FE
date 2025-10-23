@@ -9,20 +9,25 @@ import { MoveTypeMap, ServerMoveType } from "@/types/moveTypes";
 import { DriverProfileData, QuotationData, RequestData, UserData } from "@/types/card";
 import CardText from "../card/CardText";
 import { isDriverUser } from "@/utils/type-guards";
+import { DriverDetailItem } from "@/types/driver";
 
 interface UserProfileInfoProps {
   user: UserData;
+  driverDetail?: DriverDetailItem;
   quotation?: QuotationData;
   request?: RequestData;
   show?: ("name" | "oneLiner" | "services" | "reviews" | "estimated" | "likes")[];
+  variant?: "list" | "detail";
   className?: string;
 }
 
 export default function UserProfileArea({
   user,
+  driverDetail,
   request,
   quotation,
   show = ["name", "reviews"],
+  variant = "list",
   className,
 }: UserProfileInfoProps) {
   const isVisible = (key: "name" | "oneLiner" | "services" | "reviews" | "estimated" | "likes") =>
@@ -31,6 +36,11 @@ export default function UserProfileArea({
   const isDriver = isDriverUser(user);
   const profile = user.profile; // DriverProfileData | ConsumerProfileData
   const driverProfile = isDriver ? (profile as DriverProfileData) : null;
+
+  const likedCount = driverDetail?.likeCount ?? driverProfile?.likes?.likedCount ?? 0;
+
+  const isLikedByCurrentUser =
+    driverDetail?.isLikedByCurrentUser ?? driverProfile?.likes?.isLikedByCurrentUser ?? false;
 
   const movingInfo: MovingInfo = useMemo(() => {
     if (!driverProfile) return {} as MovingInfo;
@@ -87,8 +97,10 @@ export default function UserProfileArea({
         )}
         {isVisible("likes") && driverProfile?.likes && (
           <LikeButton
-            count={driverProfile?.likes.likedCount}
-            isLiked={driverProfile?.likes.isLikedByCurrentUser}
+            driverId={driverProfile.driverId}
+            isLiked={isLikedByCurrentUser}
+            count={likedCount}
+            readOnly={variant === "detail"}
             className="absolute top-2 right-3 lg:top-1/2 lg:right-4 lg:-translate-y-1/2"
           />
         )}
