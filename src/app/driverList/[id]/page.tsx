@@ -12,7 +12,10 @@ import Popup from "@/components/ui/Popup";
 import DefaultModal from "@/components/ui/Modal/DefaultModal";
 import { useLikeDriver } from "@/utils/hook/likes/useLikeQuery";
 import { useDriverDetailQuery } from "@/utils/hook/driver/useDriverDetailQuery";
-import { mapDriverToCardData } from "@/utils/mappers/driverToCardMapper";
+import {
+  mapDriverToCardData,
+  mapDriverDetailToDriverListShape,
+} from "@/utils/mappers/driverToCardMapper";
 import { useInviteDriver } from "@/utils/hook/request/useInviteQuery";
 
 export default function DriverDetailPage() {
@@ -66,7 +69,7 @@ export default function DriverDetailPage() {
         } else {
           setPopup({
             type: "warning",
-            message: "요청 중 오류가 발생했습니다.",
+            message: "지정 견적 요청 수를 초과하였습니다!",
           });
         }
       },
@@ -76,30 +79,9 @@ export default function DriverDetailPage() {
   if (isLoading || !data) {
     return <p className="py-20 text-center text-gray-400">기사님 정보를 불러오는 중...</p>;
   }
-
-  const cardData = mapDriverToCardData({
-    user: {
-      id: data.id,
-      name: data.name,
-      role: "DRIVER",
-      createdAt: "",
-    },
-    profile: {
-      userId: data.id,
-      image: data.image,
-      nickname: data.nickname,
-      oneLiner: data.oneLiner,
-      description: data.description,
-      careerYears: data.careerYears,
-      rating: data.rating,
-      reviewCount: data.reviewCount,
-      confirmedCount: data.confirmedCount,
-      likeCount: data.likes?.likedCount ?? 0,
-      serviceAreas: data.serviceAreas,
-      serviceTypes: data.serviceTypes,
-    },
-    isInvitedByMe: false,
-  });
+  const driverListShape = mapDriverDetailToDriverListShape(data);
+  const cardData = mapDriverToCardData(driverListShape);
+  console.log(" driver detail raw data:", data);
 
   return (
     <main className="min-h-screen w-full bg-white px-8 py-10 md:px-20 lg:px-5 xl:px-60">
@@ -120,7 +102,7 @@ export default function DriverDetailPage() {
 
       <section className="flex flex-col gap-10 lg:flex-row">
         <div className="flex flex-[0.65] flex-col gap-10">
-          <DefaultCard {...cardData} />
+          <DefaultCard {...cardData} variant="detail" driverDetail={data} />
           {/* 공유 영역 (lg 미만에서는 이쪽으로 내려옴) */}
           <div className="block lg:hidden">
             <ShareSection setPopup={setPopup} />

@@ -9,9 +9,11 @@ export const useUnlikeDriver = () => {
       await apiClient.delete(`/drivers/${driverId}/likes`);
       return driverId;
     },
-    onSuccess: () => {
+    onSuccess: (driverId) => {
       // 찜한 기사 목록 갱신
       queryClient.invalidateQueries({ queryKey: ["likedDrivers"] });
+      queryClient.invalidateQueries({ queryKey: ["driverList"] });
+      queryClient.invalidateQueries({ queryKey: ["driverDetail", driverId] });
     },
   });
 };
