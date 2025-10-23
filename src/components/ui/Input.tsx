@@ -3,8 +3,11 @@ import SearchIcon from "@/assets/icon/Search.svg";
 import SearchIconSm from "@/assets/icon/Search-1.svg";
 import XIcon from "@/assets/icon/X.svg";
 import XIconSm from "@/assets/icon/X-1.svg";
+import EyeIcon from "@/assets/icon/eye.svg";
+import CloseEyeIcon from "@/assets/icon/closeEye.svg";
 import clsx from "clsx";
 import Image from "next/image";
+import { useState } from "react";
 
 export type InputType = "basic" | "search" | "textArea";
 type IconType = "left" | "right";
@@ -54,6 +57,7 @@ export default function Input({
   inputType = "text",
   className,
 }: InputProps) {
+  const [showPassword, setShowPassword] = useState(false);
   const fontSizeClass = size === "half" ? "text-sm" : "text-base";
   const widthClass =
     size === "half"
@@ -113,7 +117,7 @@ export default function Input({
         />
       ) : (
         <input
-          type={inputType}
+          type={inputType === "password" ? (showPassword ? "text" : "password") : inputType}
           value={value}
           placeholder={placeholder}
           onChange={(e) => onChange(e.target.value)}
@@ -126,6 +130,18 @@ export default function Input({
       )}
       {icon && icon === "right" && (
         <Image src={size === "half" ? SearchIconSm : SearchIcon} alt="" />
+      )}
+
+      {/* 비밀번호 보이기/숨기기 토글 */}
+      {inputType === "password" && (
+        <button
+          type="button"
+          aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
+          onClick={() => setShowPassword((s: boolean) => !s)}
+          className="absolute right-3 flex items-center justify-center"
+        >
+          <Image src={showPassword ? CloseEyeIcon : EyeIcon} alt="" width={20} height={20} />
+        </button>
       )}
 
       {error && (
