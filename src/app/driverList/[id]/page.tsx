@@ -2,6 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useState } from "react";
+import { AxiosError } from "axios";
 import Button from "@/components/ui/Button";
 import { AreaType, AreaMap } from "@/types/areaTypes";
 import { MoveType, MoveTypeMap } from "@/types/moveTypes";
@@ -56,20 +57,28 @@ export default function DriverDetailPage() {
           });
         }
       },
-      onError: (error: any) => {
-        const msg = error.response?.data?.message || "";
+      onError: (error: unknown) => {
+        if (error instanceof AxiosError) {
+          const msg = error.response?.data?.message ?? "";
 
-        if (msg.includes("진행중인 요청이 없습니다")) {
-          setIsModalOpen(true);
-        } else if (msg.includes("일치하지 않습니다")) {
-          setPopup({
-            type: "warning",
-            message: "해당 기사님의 서비스 조건과 일치하지 않습니다.",
-          });
+          if (msg.includes("진행중인 요청이 없습니다")) {
+            setIsModalOpen(true);
+          } else if (msg.includes("일치하지 않습니다")) {
+            setPopup({
+              type: "warning",
+              message: "해당 기사님의 서비스 조건과 일치하지 않습니다.",
+            });
+          } else {
+            setPopup({
+              type: "warning",
+              message: "지정 견적 요청 수를 초과하였습니다!",
+            });
+          }
         } else {
+          console.error("AxiosError 아님:", error);
           setPopup({
             type: "warning",
-            message: "지정 견적 요청 수를 초과하였습니다!",
+            message: "알 수 없는 오류가 발생했습니다.",
           });
         }
       },
