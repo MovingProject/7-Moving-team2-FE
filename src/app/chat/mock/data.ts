@@ -55,7 +55,7 @@ export interface Conversation {
 export const conversations: Conversation[] = [
   { id: "1", name: "김기사님 (용달이사)", lastMessage: "네, 12월 첫째 주 가능합니다." },
   { id: "2", name: "박사장님 (포장이사)", lastMessage: "견적 확인 부탁드립니다." },
-  { id: "3", name: "최팀장님 (사무실이사)", lastMessage: "알겠습니다." },
+  { id: "3", name: "최팀장님 (사무실이사)", lastMessage: "" },
 ];
 
 // 2. 채팅방 ID별 실제 대화 내용 데이터

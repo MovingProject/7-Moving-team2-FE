@@ -140,13 +140,13 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
             return (
               <div key={msg.id} className={`flex items-end gap-2 ${isMe ? "justify-end" : ""}`}>
                 {!isMe && (
-                  <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-indigo-200 text-xs font-bold text-indigo-600 md:h-8 md:w-8 md:text-sm">
+                  <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-indigo-200 text-xs font-bold text-blue-500 md:h-8 md:w-8 md:text-sm">
                     {msg.senderAvatar || msg.senderName?.charAt(0)}
                   </div>
                 )}
                 <div
                   className={`max-w-[280px] rounded-2xl p-2.5 text-sm md:max-w-md md:p-3 md:text-base ${
-                    isMe ? "bg-blue-500 text-white" : "bg-white"
+                    isMe ? "bg-primary text-white" : "bg-white"
                   }`}
                 >
                   <p>{msg.content}</p>
@@ -191,7 +191,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
           />
           <button
             type="submit"
-            className="flex h-8 w-16 items-center justify-center rounded-full bg-blue-500 text-sm font-medium text-white md:h-10 md:w-20 md:text-base"
+            className="bg-primary flex h-8 w-16 items-center justify-center rounded-full text-sm font-medium text-white md:h-10 md:w-20 md:text-base"
           >
             전송
           </button>
