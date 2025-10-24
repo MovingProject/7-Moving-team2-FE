@@ -13,23 +13,11 @@ export default function SocialLogin() {
           className="cursor-pointer"
           src={Google.src}
           alt="소셜로그인"
-          width={100}
-          height={100}
+          width={54}
+          height={54}
         />
-        <Image
-          className="cursor-pointer"
-          src={Kakao.src}
-          alt="소셜로그인"
-          width={100}
-          height={100}
-        />
-        <Image
-          className="cursor-pointer"
-          src={Naver.src}
-          alt="소셜로그인"
-          width={100}
-          height={100}
-        />
+        <Image className="cursor-pointer" src={Kakao.src} alt="소셜로그인" width={54} height={54} />
+        <Image className="cursor-pointer" src={Naver.src} alt="소셜로그인" width={54} height={54} />
       </div>
     </div>
   );

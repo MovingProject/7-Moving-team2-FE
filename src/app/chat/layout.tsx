@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import useChatStore from "@/store/chatStore";
-import { conversations } from "./mock/data";
+import { conversations, messagesByRoomId } from "./mock/data";
 
 export default function ChatLayout({ children }: { children: React.ReactNode }) {
   const { connectSocket, disconnectSocket } = useChatStore();
@@ -33,14 +33,30 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
         <aside className="w-80 border-r border-gray-200 bg-white p-4">
           <h2 className="mb-4 text-lg font-bold">대화 목록</h2>
           <ul className="space-y-2">
-            {conversations.map((convo) => (
-              <Link key={convo.id} href={`/chat/${convo.id}`}>
-                <li className="cursor-pointer rounded-lg p-3 transition-colors hover:bg-gray-100">
-                  <p className="text-sm font-semibold">{convo.name}</p>
-                  <p className="mt-1 truncate text-xs text-gray-600">{convo.lastMessage}</p>
-                </li>
-              </Link>
-            ))}
+            {conversations.map((convo) => {
+              const roomMessages = messagesByRoomId[convo.id] || [];
+              const lastMsg = roomMessages.length
+                ? roomMessages[roomMessages.length - 1]
+                : undefined;
+              const avatarText =
+                lastMsg?.senderAvatar ?? lastMsg?.senderName?.charAt(0) ?? convo.name.charAt(0);
+
+              return (
+                <Link key={convo.id} href={`/chat/${convo.id}`}>
+                  <li className="cursor-pointer rounded-lg p-3 transition-colors hover:bg-gray-100">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-indigo-200 text-xs font-bold text-blue-500 md:h-8 md:w-8 md:text-sm">
+                        {avatarText}
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold">{convo.name}</p>
+                        <p className="mt-1 truncate text-xs text-gray-600">{convo.lastMessage}</p>
+                      </div>
+                    </div>
+                  </li>
+                </Link>
+              );
+            })}
           </ul>
         </aside>
 
@@ -109,18 +125,38 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
 
               <div className="overflow-y-auto p-4">
                 <ul className="space-y-2">
-                  {conversations.map((convo) => (
-                    <Link
-                      key={convo.id}
-                      href={`/chat/${convo.id}`}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <li className="cursor-pointer rounded-lg p-3 transition-colors hover:bg-gray-100">
-                        <p className="text-sm font-semibold">{convo.name}</p>
-                        <p className="mt-1 truncate text-xs text-gray-600">{convo.lastMessage}</p>
-                      </li>
-                    </Link>
-                  ))}
+                  {conversations.map((convo) => {
+                    const roomMessages = messagesByRoomId[convo.id] || [];
+                    const lastMsg = roomMessages.length
+                      ? roomMessages[roomMessages.length - 1]
+                      : undefined;
+                    const avatarText =
+                      lastMsg?.senderAvatar ??
+                      lastMsg?.senderName?.charAt(0) ??
+                      convo.name.charAt(0);
+
+                    return (
+                      <Link
+                        key={convo.id}
+                        href={`/chat/${convo.id}`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <li className="cursor-pointer rounded-lg p-3 transition-colors hover:bg-gray-100">
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-indigo-200 text-xs font-bold text-indigo-600 md:h-8 md:w-8 md:text-sm">
+                              {avatarText}
+                            </div>
+                            <div>
+                              <p className="text-sm font-semibold">{convo.name}</p>
+                              <p className="mt-1 truncate text-xs text-gray-600">
+                                {convo.lastMessage}
+                              </p>
+                            </div>
+                          </div>
+                        </li>
+                      </Link>
+                    );
+                  })}
                 </ul>
               </div>
             </div>

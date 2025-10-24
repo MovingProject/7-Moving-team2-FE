@@ -61,7 +61,7 @@ export default function QuotationMessage({ quotation, messageId }: QuotationMess
       <div className="space-y-2">
         <div className="flex items-baseline justify-between border-b pb-2">
           <span className="text-sm text-gray-600">견적 금액 &nbsp;</span>
-          <span className="text-2xl font-bold text-blue-600">
+          <span className="text-2xl font-bold text-blue-500">
             {quotation.price.toLocaleString()}원
           </span>
         </div>
@@ -91,7 +91,7 @@ export default function QuotationMessage({ quotation, messageId }: QuotationMess
       {isCustomer && quotation.status === "SUBMITTED" && (
         <button
           onClick={handleAccept}
-          className="mt-4 w-full rounded-lg bg-blue-500 py-2 font-medium text-white hover:bg-blue-600"
+          className="bg-primary mt-4 w-full rounded-lg py-2 font-medium text-white hover:bg-blue-500"
         >
           견적 수락하기
         </button>

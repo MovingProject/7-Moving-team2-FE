@@ -231,7 +231,10 @@ export default function Signup() {
 
       <div className="mx-auto flex max-w-160 flex-row justify-center">
         <span>이미 무빙 회원이신가요?</span>
-        <Link href="/login" className="text-primary mb-3 ml-2 font-semibold">
+        <Link
+          href="/login"
+          className="text-primary mb-3 ml-2 font-semibold underline underline-offset-2"
+        >
           로그인
         </Link>
       </div>
@@ -249,13 +252,13 @@ export default function Signup() {
           </Link>
         </div>
       </div>
-      <WelcomeOverlay 
-        open={showOverlay} 
+      <WelcomeOverlay
+        open={showOverlay}
         onClose={() => {
           setShowOverlay(false);
           // 오버레이 닫힐 때 프로필 등록 페이지로 이동 (role 쿼리 전달)
           router.push(`/mypage/profile?role=${signupRole}`);
-        }} 
+        }}
       />
     </div>
   );
