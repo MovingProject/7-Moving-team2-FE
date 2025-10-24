@@ -33,7 +33,7 @@ export default function WelcomeOverlay({ open, onClose, durationMs = 3000 }: Pro
 
   const truckTransition = shouldReduceMotion
     ? { duration: 0.2 }
-    : { times: [0, 0.7, 1], duration: durationMs / 1000, ease: [0.22, 1, 0.36, 1] };
+    : { times: [0, 0.7, 1], duration: durationMs / 1000, ease: [0.22, 1, 0.36, 1] as const };
 
   const textVariants = {
     hidden: { opacity: 0, y: 10 },
@@ -52,7 +52,7 @@ export default function WelcomeOverlay({ open, onClose, durationMs = 3000 }: Pro
           <motion.div
             className="relative flex w-full items-center justify-center overflow-visible"
             animate={truckEnter}
-            transition={truckTransition as any}
+            transition={truckTransition}
           >
             {/* replace full SVG truck with a single image for pixel-perfect rendering */}
             <div className="flex items-center gap-6">
