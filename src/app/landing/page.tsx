@@ -29,21 +29,21 @@ export default function Landing() {
         <div className="flex w-full flex-col items-center gap-4 px-4 md:hidden">
           <Image
             src={MovingSmall.src}
-            className="w-full max-w-[360px] cursor-pointer"
+            className="w-full max-w-[360px]"
             alt="소형이사"
             width={360}
             height={200}
           />
           <Image
             src={MovingHome.src}
-            className="w-full max-w-[360px] cursor-pointer"
+            className="w-full max-w-[360px]"
             alt="가정이사"
             width={360}
             height={200}
           />
           <Image
             src={MovingBusiness.src}
-            className="w-full max-w-[360px] cursor-pointer"
+            className="w-full max-w-[360px]"
             alt="기업, 사무실 이사"
             width={360}
             height={200}
@@ -54,21 +54,21 @@ export default function Landing() {
         <div className="hidden w-full flex-col items-center gap-4 px-6 md:flex lg:hidden">
           <Image
             src={MovingSmall.src}
-            className="w-full max-w-[600px] cursor-pointer"
+            className="w-full max-w-[600px]"
             alt="소형이사"
             width={600}
             height={300}
           />
           <Image
             src={MovingHome.src}
-            className="w-full max-w-[600px] cursor-pointer"
+            className="w-full max-w-[600px]"
             alt="가정이사"
             width={600}
             height={300}
           />
           <Image
             src={MovingBusiness.src}
-            className="w-full max-w-[600px] cursor-pointer"
+            className="w-full max-w-[600px]"
             alt="기업, 사무실 이사"
             width={600}
             height={300}
@@ -77,28 +77,10 @@ export default function Landing() {
 
         {/* 데스크톱 레이아웃 */}
         <div className="hidden lg:flex lg:items-start lg:justify-center lg:gap-6">
-          <Image
-            src={MovingSmallMd.src}
-            className="cursor-pointer"
-            alt="소형이사"
-            width={432}
-            height={508}
-          />
+          <Image src={MovingSmallMd.src} alt="소형이사" width={432} height={508} />
           <div className="flex flex-col gap-6">
-            <Image
-              src={MovingHomeMd.src}
-              className="cursor-pointer"
-              alt="가정이사"
-              width={764}
-              height={241}
-            />
-            <Image
-              src={MovingBusinessMd.src}
-              className="cursor-pointer"
-              alt="기업, 사무실 이사"
-              width={764}
-              height={241}
-            />
+            <Image src={MovingHomeMd.src} alt="가정이사" width={764} height={241} />
+            <Image src={MovingBusinessMd.src} alt="기업, 사무실 이사" width={764} height={241} />
           </div>
         </div>
 
