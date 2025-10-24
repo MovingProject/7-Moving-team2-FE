@@ -163,7 +163,7 @@ export default function Input({
           onClick={() => setShowPassword((s: boolean) => !s)}
           className="absolute right-3 flex items-center justify-center"
         >
-          <Image src={showPassword ? CloseEyeIcon : EyeIcon} alt="" width={20} height={20} />
+          <Image src={showPassword ? EyeIcon : CloseEyeIcon} alt="" width={20} height={20} />
         </button>
       )}
 
