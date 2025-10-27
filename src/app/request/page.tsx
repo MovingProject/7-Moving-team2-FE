@@ -105,7 +105,7 @@ export default function RequestPage() {
             <div className="flex items-center justify-between py-1">
               <p className="text-sm lg:text-base">전체 {responseData.length}건</p>
               <div className="flex items-center gap-2">
-                <SortTechFilter selected={sortTech} onChange={setSortTech} />
+                <SortTechFilter selected={sortTech} onChange={setSortTech} filterKey="sortTech" />
                 <button
                   className="border-primary rounded border p-0.5 text-white lg:hidden"
                   onClick={() => setFilterOpen((prev) => !prev)}
