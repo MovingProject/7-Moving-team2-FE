@@ -58,6 +58,13 @@ const dropdownRadiusMap: Record<DropdownType, string> = {
   notification: "rounded-3xl",
 };
 
+const paddingMap: Record<DropdownType, Record<DropdownLayout, string>> = {
+  filter: { default: "px-4", grid: "px-4" },
+  sort: { default: "px-2", grid: "px-4" },
+  profile: { default: "px-4", grid: "px-4" },
+  notification: { default: "px-4", grid: "px-4" },
+};
+
 export default function Dropdown({
   type,
   layout,
@@ -76,7 +83,7 @@ export default function Dropdown({
   return (
     <div
       className={clsx(
-        "absolute z-10 mt-2 border border-gray-200 bg-white shadow-lg",
+        "absolute z-100 mt-2 border border-gray-200 bg-white shadow-lg",
         dropdownSizeMap[type][layout],
         dropdownRadiusMap[type],
         scrollClass,
@@ -89,7 +96,8 @@ export default function Dropdown({
           <li
             key={opt}
             className={clsx(
-              "cursor-pointer px-4 py-2 hover:bg-gray-100",
+              "cursor-pointer py-2 hover:bg-gray-100",
+              paddingMap[type][layout],
               type === "notification" && idx !== 0 && "border-t border-gray-200", // 알림일 때만 border-top
               layout === "grid" && idx % 2 === 1 && "border-l border-gray-200"
             )}
