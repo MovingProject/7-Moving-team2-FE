@@ -11,33 +11,52 @@ import {
   MOVE_TYPE_OPTIONS,
   CHECK_FILTER_OPTIONS,
 } from "./filterOptions";
+import { useFilterStore } from "@/store/filterStore";
 
 // 지역 필터
 export function RegionFilter(
   props: Omit<React.ComponentProps<typeof FilterBox>, "type" | "label" | "options">
 ) {
-  return <FilterBox type="filter" label="지역" options={REGION_OPTIONS} {...props} />;
+  return (
+    <FilterBox type="filter" label="지역" options={REGION_OPTIONS} {...props} filterKey="region" />
+  );
 }
 
 // 서비스 필터
 export function ServiceFilter(
   props: Omit<React.ComponentProps<typeof FilterBox>, "type" | "label" | "options">
 ) {
-  return <FilterBox type="filter" label="서비스" options={SERVICE_OPTIONS} {...props} />;
+  return (
+    <FilterBox
+      type="filter"
+      label="서비스"
+      options={SERVICE_OPTIONS}
+      {...props}
+      filterKey="service"
+    />
+  );
 }
 
 // 정렬 필터 (회원 기사 찾기 페이지)
 export function SortFilter(
   props: Omit<React.ComponentProps<typeof FilterBox>, "type" | "label" | "options">
 ) {
-  return <FilterBox type="sort" label="정렬" options={SORT_OPTIONS} {...props} />;
+  return <FilterBox type="sort" label="정렬" options={SORT_OPTIONS} {...props} filterKey="sort" />;
 }
 
 // 정렬 필터 (기사 받은 요청 페이지)
 export function SortTechFilter(
   props: Omit<React.ComponentProps<typeof FilterBox>, "type" | "label" | "options">
 ) {
-  return <FilterBox type="sort" label="정렬" options={SORT_TECH_OPTIONS} {...props} />;
+  return (
+    <FilterBox
+      type="sort"
+      label="정렬"
+      options={SORT_TECH_OPTIONS}
+      {...props}
+      filterKey="sortTech"
+    />
+  );
 }
 
 // 체크 필터 - 이사 유형
