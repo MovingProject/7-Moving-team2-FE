@@ -102,7 +102,7 @@ export default function BasicEditPage() {
     return <div className="p-10 text-center">프로필 정보를 불러오지 못했습니다.</div>;
 
   return (
-    <main className="px-[24px] py-10 md:px-[200px] lg:px-[100px] xl:px-[260px]">
+    <main className="px-4 pt-6 md:px-5 lg:px-8 xl:px-60">
       <Header />
       <section className="w-full py-3">
         <div className="border-t border-gray-200" />

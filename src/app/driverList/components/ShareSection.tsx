@@ -94,7 +94,7 @@ export default function ShareSection({ setPopup }: ShareSectionProps) {
   };
 
   return (
-    <div className="relative flex flex-col gap-6 p-6">
+    <div className="relative flex flex-col gap-6 lg:p-6">
       <p className="text-lg font-semibold text-gray-800">나만 알기 아쉬운 기사님인가요?</p>
 
       {/* 아이콘 버튼 그룹 */}

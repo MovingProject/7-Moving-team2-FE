@@ -103,13 +103,13 @@ export default function RequestPage() {
   return (
     <div className="estimate-container flex min-h-[calc(100vh-80px)] flex-col">
       <div className="flex flex-grow flex-col">
-        <div className="mx-auto flex w-full flex-col gap-2 px-4 pt-6 pb-4 lg:max-w-[1400px] lg:gap-8 lg:px-0">
-          <h1 className="text-lg font-bold lg:text-3xl">견적요청</h1>
+        <div className="mx-auto flex w-full flex-col gap-2 px-4 pt-6 pb-4 md:px-5 lg:max-w-[1400px] lg:gap-8 lg:px-8 xl:max-w-[1400px] xl:gap-8 xl:px-0">
+          <h1 className="text-xl font-bold text-gray-900 lg:text-3xl">견적요청</h1>
           <ProgressBar currentStep={getCurrentActiveStep()} />
         </div>
 
         <div className="flex-grow bg-gray-200 py-6 lg:py-12">
-          <div className="mx-auto flex flex-col gap-4 px-4 lg:max-w-[1400px] lg:px-0">
+          <div className="mx-auto flex flex-col gap-4 px-4 md:px-5 lg:max-w-[1400px] lg:px-8 xl:max-w-[1400px] xl:gap-8 xl:px-0">
             {/* 1. 이사 종류 (MovingType) */}
             <div id="step-type" className="flex flex-col gap-4 transition-opacity duration-500">
               <MovingType
