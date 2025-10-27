@@ -14,6 +14,7 @@ interface DropdownProps {
   onSelect: (value: string) => void;
   header?: React.ReactNode; // profile, notification 전용
   footer?: React.ReactNode; // profile 전용 (로그아웃)
+  position?: "left" | "right" | "center";
 }
 // 드롭다운 타입 별 사이즈
 const dropdownSizeMap: Record<DropdownType, Record<DropdownLayout, string>> = {
@@ -65,9 +66,12 @@ export default function Dropdown({
   onSelect,
   header,
   footer,
+  position,
 }: DropdownProps) {
   const scrollClass =
     scroll === "scrollable" ? "max-h-60 overflow-y-auto overflow-x-hidden scroll-thin" : "";
+  const positionClass =
+    position === "left" ? "left-0" : position === "right" ? "right-0" : "left-1/2 -translate-x-1/2";
 
   return (
     <div
@@ -75,7 +79,8 @@ export default function Dropdown({
         "absolute z-10 mt-2 border border-gray-200 bg-white shadow-lg",
         dropdownSizeMap[type][layout],
         dropdownRadiusMap[type],
-        scrollClass
+        scrollClass,
+        positionClass
       )}
     >
       {header && <div className="px-4 py-2">{header}</div>}
