@@ -59,7 +59,7 @@ export default function LikedDriversPage() {
 
   if (isLoading) {
     return (
-      <main className="min-h-screen w-full bg-white px-6 py-10 md:px-16 lg:px-24 xl:px-40">
+      <main className="min-h-screen w-full bg-white px-8 pt-6 md:px-16 lg:px-24 xl:px-40">
         <header className="mb-10">
           <h1 className="text-2xl font-semibold text-gray-900">찜한 기사님</h1>
           <p className="mt-2 text-sm text-gray-500">
@@ -120,10 +120,10 @@ export default function LikedDriversPage() {
   }
 
   return (
-    <main className="min-h-screen w-full bg-white px-6 py-10 md:px-16 lg:px-24 xl:px-40">
+    <main className="min-h-screen w-full bg-white px-8 pt-6 md:px-16 lg:px-24 xl:px-60">
       {/* 헤더 */}
       <header className="mb-10">
-        <h1 className="text-2xl font-semibold text-gray-900">찜한 기사님</h1>
+        <h1 className="text-3xl font-bold text-gray-900">찜한 기사님</h1>
       </header>
 
       {/* 카드 리스트 */}

@@ -86,9 +86,9 @@ export default function RequestPage() {
 
   return (
     <>
-      <div className="mx-auto flex flex-col gap-1.5 px-4 lg:max-w-[1400px] lg:gap-0 lg:px-0">
+      <div className="mx-auto flex flex-col gap-1.5 px-4 md:px-5 lg:max-w-[1400px] lg:gap-2 lg:px-8 xl:max-w-[1400px] xl:gap-0 xl:px-0">
         <div className="py-[14px] lg:py-8">
-          <h3 className="text-lg font-semibold lg:text-2xl">받은 요청</h3>
+          <h3 className="text-xl font-bold lg:text-3xl">받은 요청</h3>
         </div>
         <div className="flex lg:gap-28">
           <div className="hidden lg:flex lg:w-[328px] lg:flex-col">
