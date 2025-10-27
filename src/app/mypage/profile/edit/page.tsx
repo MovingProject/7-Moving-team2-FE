@@ -172,7 +172,7 @@ export default function DriverProfileEdit() {
           <div className="flex w-full flex-col gap-4 lg:w-1/2">
             <div className="w-full">
               <div className="flex w-full">
-                <p className="w-full border-b border-[#F2F2F2] pb-4 text-[18px] leading-[26px] font-bold text-[#1F1F1F]">
+                <p className="w-full border-b border-[#F2F2F2] pb-4 text-xl leading-[26px] font-bold text-gray-900 lg:text-3xl">
                   프로필수정
                 </p>
               </div>

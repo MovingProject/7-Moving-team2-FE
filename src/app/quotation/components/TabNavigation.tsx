@@ -11,7 +11,7 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ tabs }) => {
 
   return (
     <div className="border-b border-gray-200 lg:pt-3">
-      <div className="mx-auto flex px-4 lg:max-w-[1400px] lg:gap-0 lg:px-0">
+      <div className="mx-auto flex px-4 md:px-5 lg:max-w-[1400px] lg:gap-0 lg:px-5 xl:max-w-[1400px] xl:gap-8 xl:px-0">
         {tabs.map((tab) => {
           const isActive = pathname.includes(tab.path);
           console.log(isActive);
