@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect } from "react";
 import clsx from "clsx";
 import Image from "next/image";
 import Dropdown from "./Dropdown";
 import ArrowIconDown from "@/assets/icon/ArrowIconDown.svg";
+import { useFilterStore } from "@/store/filterStore";
 
 // 타입 정의 (filter는 지역/서비스 필터처럼 데이터 필터링, sort는 데이터 정렬 변경)
 type FilterType = "filter" | "sort";
@@ -17,6 +18,7 @@ interface FilterProps {
   selected?: string;
   variant?: FilterVariant;
   onChange: (value: string) => void;
+  filterKey: string;
 }
 
 const typeResponsiveMap: Record<FilterType, string> = {
@@ -55,15 +57,26 @@ export default function FilterBox({
   selected,
   variant = "default",
   onChange,
+  filterKey,
 }: FilterProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const { openFilter, toggleFilter, closeAll } = useFilterStore();
+  const isOpen = openFilter === filterKey;
   const isActive = isOpen || variant === "active";
   const dropdownType = options.length > 6 ? "grid" : "default";
 
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest(".filterbox")) closeAll();
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [closeAll]);
+
   return (
-    <div className="relative inline-block">
+    <div className="relative inline-block min-h-[40px] align-top">
       <button
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={() => toggleFilter(filterKey)}
         className={clsx(
           "flex items-center justify-between gap-2 transition-colors duration-150",
           typeResponsiveMap[type],
@@ -87,8 +100,9 @@ export default function FilterBox({
           options={options}
           onSelect={(value) => {
             onChange(value);
-            setIsOpen(false);
+            closeAll();
           }}
+          position="left"
         />
       )}
     </div>

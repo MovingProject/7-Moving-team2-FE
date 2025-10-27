@@ -110,11 +110,11 @@ export default function DriverListPage() {
           <div className="flex flex-col gap-5">
             <div className="mt-3 flex flex-col gap-5">
               <h3>지역을 선택해주세요</h3>
-              <RegionFilter selected={region} onChange={setRegion} />
+              <RegionFilter selected={region} onChange={setRegion} filterKey="region" />
             </div>
             <div className="flex flex-col gap-5">
               <h3>어떤 서비스가 필요하세요?</h3>
-              <ServiceFilter selected={service} onChange={setService} />
+              <ServiceFilter selected={service} onChange={setService} filterKey="service" />
             </div>
           </div>
           {/* 찜한 기사님 */}
@@ -141,10 +141,10 @@ export default function DriverListPage() {
           {/* Sort & Input */}
           <div className="mb-5 flex flex-wrap items-center justify-between gap-4 lg:justify-end">
             <div className="flex max-w-[70%] flex-1 gap-3 lg:hidden">
-              <RegionFilter selected={region} onChange={setRegion} />
-              <ServiceFilter selected={service} onChange={setService} />
+              <RegionFilter selected={region} onChange={setRegion} filterKey="region" />
+              <ServiceFilter selected={service} onChange={setService} filterKey="service" />
             </div>
-            <SortFilter selected={sort} onChange={setSort} />
+            <SortFilter selected={sort} onChange={setSort} filterKey="sort" />
             <Input
               type="search"
               value={query}

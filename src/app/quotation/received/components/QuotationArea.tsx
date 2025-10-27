@@ -101,7 +101,7 @@ export default function QuotationArea({
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <h3 className="text-base font-bold lg:text-2xl">견적서 목록</h3>
-          <SortFilter selected={sortTech} onChange={setSortTech} />
+          <SortFilter selected={sortTech} onChange={setSortTech} filterKey="sortTech" />
         </div>
         <div className="flex flex-col gap-6">
           {quotations.length > 0 ? (
