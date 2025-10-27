@@ -27,7 +27,7 @@ export default function ProfilePage() {
   // userData가 null이거나 에러가 있어도 프로필 등록 폼 표시
   // authStore의 role을 사용하여 폼 표시
   return (
-    <main className="container mx-auto p-4">
+    <main className="container mx-auto px-8">
       {authUser.role === "DRIVER" ? <DriverProfileForm /> : <ConsumerProfileForm />}
     </main>
   );

@@ -91,9 +91,9 @@ export default function DriverListPage() {
   };
 
   return (
-    <main className="min-h-screen w-full bg-white px-8 py-10 md:px-20 lg:px-30 xl:px-60">
+    <main className="min-h-screen w-full bg-white px-8 pt-6 pb-4 md:px-20 lg:px-30 xl:px-60">
       <header className="mb-10 flex-shrink-0">
-        <h1 className="text-2xl font-semibold text-gray-900">기사님 찾기</h1>
+        <h1 className="text-3xl font-bold text-gray-900">기사님 찾기</h1>
       </header>
       <section className="flex flex-col gap-10 lg:flex-row">
         <div className="hidden flex-[0.25] flex-col gap-6 lg:block">

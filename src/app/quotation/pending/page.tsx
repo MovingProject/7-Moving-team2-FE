@@ -109,7 +109,7 @@ export default function ReceivedPage() {
     <div className="estimate-container flex min-h-[calc(100vh-80px)] flex-col">
       <div className="flex flex-grow flex-col">
         <TabNavigation tabs={CONSUMER_TAB_LIST} />
-        <div className="mx-auto flex w-full flex-col gap-4 py-6 lg:max-w-[1400px] lg:flex-row lg:justify-between lg:gap-8 lg:px-0">
+        <div className="mx-auto flex w-full flex-col gap-4 px-4 py-6 md:px-5 lg:max-w-[1400px] lg:flex-row lg:justify-between lg:gap-8 lg:px-8 xl:max-w-[1400px] xl:gap-8 xl:px-0">
           <div className="flex flex-col gap-2">
             <h3 className="text-lg font-semibold md:text-2xl">소형이사</h3>
             <p className="text-sm text-gray-500 md:text-base">견적 신청일: 2024년 6월 24일</p>
@@ -130,7 +130,7 @@ export default function ReceivedPage() {
           </div>
         </div>
         <div className="flex-grow bg-gray-200 py-6 lg:py-12">
-          <div className="mx-auto grid gap-4 px-4 lg:max-w-[1400px] lg:grid-cols-2 lg:gap-6 lg:px-0">
+          <div className="mx-auto grid gap-4 px-4 md:px-5 lg:max-w-[1400px] lg:grid-cols-2 lg:gap-6 lg:px-8 xl:max-w-[1400px] xl:gap-8 xl:px-0">
             {quotations.length > 0 ? (
               quotations.map((q) => (
                 <DefaultCard
