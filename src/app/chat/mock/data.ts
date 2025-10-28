@@ -33,7 +33,8 @@ export interface Quotation {
   arrivalFloor: number;
   arrivalPyeong: number;
   arrivalElevator: boolean;
-  additionalRequirements?: string;
+  additionalRequirements?: string; // 고객의 원래 추가 요청사항
+  quotationMessage?: string; // 기사의 견적 추가 설명
   price: number;
   status: "SUBMITTED" | "REVISED" | "WITHDRAWN" | "SELECTED" | "EXPIRED";
   previousQuotationId?: string;
@@ -115,7 +116,8 @@ export const messagesByRoomId: { [key: string]: Message[] } = {
         arrivalFloor: 5,
         arrivalPyeong: 25,
         arrivalElevator: false,
-        additionalRequirements: "포장 서비스 포함",
+        additionalRequirements: "포장 서비스 포함", // 고객의 원래 요청사항
+        quotationMessage: "해당 날짜로 이사 가능합니다.", // 기사의 견적 추가 설명
         price: 250000,
         status: "SUBMITTED",
         createdAt: new Date().toISOString(),

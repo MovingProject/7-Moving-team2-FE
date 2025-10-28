@@ -79,10 +79,20 @@ export default function QuotationMessage({ quotation, messageId }: QuotationMess
             <span className="text-gray-600">도착지</span>
             <span className="font-medium">{quotation.arrivalAddress}</span>
           </div>
+
+          {/* 고객의 추가 요청사항 */}
           {quotation.additionalRequirements && (
-            <div className="mt-2 rounded bg-gray-50 p-2">
-              <p className="text-xs text-gray-600">견적 추가 설명</p>
-              <p className="mt-1 text-sm">{quotation.additionalRequirements}</p>
+            <div className="mt-2 rounded bg-gray-100 p-2">
+              <p className="text-xs font-medium text-gray-600">고객 추가 요청사항</p>
+              <p className="mt-1 text-sm text-gray-800">{quotation.additionalRequirements}</p>
+            </div>
+          )}
+
+          {/* 기사의 견적 추가 설명 */}
+          {quotation.quotationMessage && (
+            <div className="mt-2 rounded bg-blue-50 p-2">
+              <p className="text-xs font-medium text-blue-600">견적 추가 설명</p>
+              <p className="mt-1 text-sm text-gray-800">{quotation.quotationMessage}</p>
             </div>
           )}
         </div>
