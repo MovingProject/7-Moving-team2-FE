@@ -1,5 +1,6 @@
 // Figma 상 명시된 필터 모음, pure wrapper
 
+import { useEffect } from "react";
 import FilterBox from "./FilterBox";
 import CheckFilter from "./CheckFilter";
 import ResponsiveCheckFilter from "./ResponsiveCheckFilter";
@@ -12,6 +13,22 @@ import {
   CHECK_FILTER_OPTIONS,
 } from "./filterOptions";
 import { useFilterStore } from "@/store/filterStore";
+
+export default function FiltersWrapper() {
+  const { closeAll } = useFilterStore();
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest(".filterbox")) closeAll();
+    };
+
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, [closeAll]);
+
+  return null;
+}
 
 // 지역 필터
 export function RegionFilter(
