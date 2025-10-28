@@ -187,7 +187,7 @@ export default function ConsumerProfileForm() {
         await refetch();
 
         alert("프로필이 성공적으로 등록되었습니다!");
-        router.push("/landing");
+        router.push("/request/write");
       }
     } catch (err) {
       console.error(`프로필 ${isEditMode ? "수정" : "등록"} 중 오류:`, err);
