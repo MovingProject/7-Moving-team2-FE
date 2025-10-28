@@ -10,6 +10,7 @@ interface TagFormProps {
   subText?: string;
   selectedTags: string[];
   setSelectedTags: (tags: string[]) => void;
+  multiSelect?: boolean;
 }
 
 export default function TagForm({
@@ -19,12 +20,18 @@ export default function TagForm({
   selectedTags,
   subText,
   setSelectedTags,
+  multiSelect = false,
 }: TagFormProps) {
   const handleTagClick = (tag: string) => {
-    if (selectedTags.includes(tag)) {
-      setSelectedTags(selectedTags.filter((t) => t !== tag));
+    const isSelected = selectedTags.includes(tag);
+    if (multiSelect) {
+      if (isSelected) {
+        setSelectedTags(selectedTags.filter((t) => t !== tag));
+      } else {
+        setSelectedTags([...selectedTags, tag]);
+      }
     } else {
-      setSelectedTags([...selectedTags, tag]);
+      setSelectedTags(isSelected ? [] : [tag]);
     }
   };
 

@@ -22,7 +22,7 @@ export const errors = {
 // ProfileForm 관련 error
 export const error = {
   nickNameEmpty: "별명을 입력해주세요.",
-  histotyInvalid: "숫자만 입력해주세요.",
+  historyInvalid: "숫자만 입력해주세요.",
   overViewInvalid: "8자 이상 입력해주세요.",
   details: "10자 이상 입력해주세요.",
   service: "*1개 이상 선택해주세요.",

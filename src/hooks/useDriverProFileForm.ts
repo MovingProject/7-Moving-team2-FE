@@ -56,7 +56,7 @@ export function useDriverProfileForm() {
 
   const validateCareer = useCallback((value: string) => {
     if (!value.trim()) return "경력을 입력해주세요.";
-    if (!isValidHistory(value)) return error.histotyInvalid;
+    if (!isValidHistory(value)) return error.historyInvalid;
     return "";
   }, []);
 

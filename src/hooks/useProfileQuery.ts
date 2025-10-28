@@ -80,6 +80,8 @@ export const useProfileQuery = (options?: UseProfileQueryOptions) => {
     refetchOnMount: true,
     retry: false,
     throwOnError: false,
+
+    enabled: !!authUser && authUser.isProfileRegistered !== false,
   });
 
   // 프로필 수정
