@@ -1,7 +1,11 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { RegionFilter, ServiceFilter, SortFilter } from "@/components/ui/Filters/Filters";
+import FiltersWrapper, {
+  RegionFilter,
+  ServiceFilter,
+  SortFilter,
+} from "@/components/ui/Filters/Filters";
 import DefaultCard from "@/components/ui/card/DefaultCard";
 import { useRouter } from "next/navigation";
 import { LikedDriver, useLikedDriversQuery } from "@/utils/hook/likes/useLikedQuery";
@@ -92,6 +96,7 @@ export default function DriverListPage() {
 
   return (
     <main className="min-h-screen w-full bg-white px-8 pt-6 pb-4 md:px-20 lg:px-30 xl:px-60">
+      <FiltersWrapper />
       <header className="mb-10 flex-shrink-0">
         <h1 className="text-3xl font-bold text-gray-900">기사님 찾기</h1>
       </header>

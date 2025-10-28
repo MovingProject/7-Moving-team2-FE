@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SortFilter } from "@/components/ui/Filters/Filters";
+import FiltersWrapper, { SortFilter } from "@/components/ui/Filters/Filters";
 import { getRandomProfileImage } from "@/utils/constant/getProfileImage";
 import { UserData, RequestData, QuotationData } from "@/types/card";
 import DefaultCard from "@/components/ui/card/DefaultCard";
@@ -73,6 +73,7 @@ export default function QuotationArea({
 
   return (
     <div className="flex flex-col gap-10 rounded-2xl border border-gray-300 bg-white p-4 shadow-md lg:p-10">
+      <FiltersWrapper />
       <div className="flex flex-col gap-4">
         <h3 className="text-base font-bold lg:text-2xl">견적 정보</h3>
         <div className="flex flex-col gap-2.5 rounded-xl bg-gray-100 p-4 lg:p-8">
