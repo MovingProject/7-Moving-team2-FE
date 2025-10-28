@@ -64,17 +64,8 @@ export default function FilterBox({
   const isActive = isOpen || variant === "active";
   const dropdownType = options.length > 6 ? "grid" : "default";
 
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (!target.closest(".filterbox")) closeAll();
-    };
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [closeAll]);
-
   return (
-    <div className="relative inline-block min-h-[40px] align-top">
+    <div className="filterbox relative inline-block min-h-[40px] align-top">
       <button
         onClick={() => toggleFilter(filterKey)}
         className={clsx(
