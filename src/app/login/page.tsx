@@ -32,7 +32,7 @@ export default function Login() {
   }, [user, router]);
 
   return (
-    <div className="mt-10 flex justify-center">
+    <div className="mt-10 flex justify-center px-4 md:px-5 lg:px-8 xl:px-60">
       <div className="flex w-full max-w-[480px] flex-col items-center">
         <div className="mb-[40px] flex flex-col items-center">
           <Link href={"/"}>

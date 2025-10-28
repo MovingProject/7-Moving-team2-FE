@@ -1,5 +1,5 @@
 import Input from "@/components/ui/Input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "@/components/ui/Button";
 import { useLogin } from "@/utils/hook/auth/useLogin";
 import { useRouter } from "next/navigation";
@@ -15,10 +15,19 @@ export default function LoginForm({ role }: LoginFormProps) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [remember, setRemember] = useState(false);
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
 
   const { mutate: login, isPending } = useLogin();
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("rememberEmail");
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRemember(true);
+    }
+  }, []);
 
   const handleEmailChange = (value: string) => {
     setEmail(value);
@@ -47,6 +56,12 @@ export default function LoginForm({ role }: LoginFormProps) {
       {
         onSuccess: async () => {
           console.log("로그인성공");
+
+          if (remember) {
+            localStorage.setItem("rememberEmail", email);
+          } else {
+            localStorage.removeItem("rememberEmail");
+          }
 
           // 프로필 여부 확인 (기사/고객 모두)
           try {
@@ -99,6 +114,14 @@ export default function LoginForm({ role }: LoginFormProps) {
           value={password}
           inputType="password"
         ></Input>
+        <label className="mt-3 flex items-center gap-2 text-sm text-gray-700">
+          <input
+            type="checkbox"
+            checked={remember}
+            onChange={(e) => setRemember(e.target.checked)}
+          />
+          로그인 정보 기억하기
+        </label>
         <div className="m-4" />
         <Button type="submit" disabled={isPending}>
           {isPending ? "로그인 중..." : "로그인"}
