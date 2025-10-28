@@ -5,7 +5,7 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import LogoText from "@/components/ui/LogoText";
 import SlidToggle from "@/components/ui/SlidToggle";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuthForm } from "@/hooks/useAuthForm";
 import Google from "@/assets/icon/google.svg";
 import Kakao from "@/assets/icon/kakao.svg";
@@ -26,7 +26,7 @@ export default function Signup() {
     {
       key: "callNumber",
       label: "전화번호",
-      placeholder: "전화번호를 입력해 주세요",
+      placeholder: "010을 제외한 전화번호를 입력해 주세요",
       inputType: "tel",
     },
     {
@@ -45,6 +45,7 @@ export default function Signup() {
 
   // local UI state
   const [role, setRole] = useState<"CONSUMER" | "DRIVER">("CONSUMER");
+  const phoneRef = useRef<HTMLInputElement>(null);
 
   // hook 상태 / 유효성 함수
   const {
@@ -95,6 +96,38 @@ export default function Signup() {
     passwordCheckError
   );
   const isSubmitDisabled = signupMutation.status === "pending" || !isFormFilled || hasErrors;
+
+  const handlePhoneChange = (v: string) => {
+    let digits = v.replace(/[^0-9]/g, "");
+
+    if (digits.length === 0) {
+      setTelNumber("");
+      return;
+    }
+
+    if (!digits.startsWith("010")) {
+      digits = "010" + digits.replace(/^010/, "");
+    }
+
+    let formatted = digits;
+    if (digits.length > 3 && digits.length <= 7) {
+      formatted = digits.replace(/^(\d{3})(\d{0,4})/, "$1-$2");
+    } else if (digits.length > 7) {
+      formatted = digits.replace(/^(\d{3})(\d{4})(\d{0,4})/, "$1-$2-$3");
+    } else if (digits.length <= 3) {
+      formatted = "010-";
+    }
+
+    if (!formatted.startsWith("010-")) formatted = "010-";
+
+    if (formatted === "010-" && v.endsWith("-") === false) {
+      setTelNumber("");
+      return;
+    }
+
+    setTelNumber(formatted);
+    validateTelNumber(formatted);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -196,8 +229,7 @@ export default function Signup() {
                     validateEmail(v);
                   }
                   if (f.key === "callNumber") {
-                    setTelNumber(v);
-                    validateTelNumber(v);
+                    handlePhoneChange(v);
                   }
                   if (f.key === "pw") {
                     setPassword(v);

@@ -105,6 +105,7 @@ export default function DriverProfileForm() {
     isCreatingDriverProfile,
     createDriverProfileError,
     error: profileError,
+    refetch,
   } = useProfileQuery();
 
   const [loading, setLoading] = useState(false);
@@ -127,6 +128,7 @@ export default function DriverProfileForm() {
         serviceAreas: backendRegions,
       });
 
+      await refetch();
       alert("프로필이 성공적으로 등록되었습니다!");
       router.push("/mypage");
     } catch (err) {
@@ -200,6 +202,7 @@ export default function DriverProfileForm() {
                     setSelectedServices(tags);
                     validateServices(tags);
                   }}
+                  multiSelect={true}
                 />
                 <TagForm
                   selectedTags={selectedRegions}
@@ -210,6 +213,7 @@ export default function DriverProfileForm() {
                   Tags={REGIONS as unknown as string[]}
                   label="가능구역"
                   colType="grid"
+                  multiSelect={true}
                 />
               </div>
             </div>
@@ -239,6 +243,7 @@ export default function DriverProfileForm() {
               Tags={Object.keys(SERVICE_MAP)}
               label="제공 서비스"
               colType="flex"
+              multiSelect={true}
             />
             <TagForm
               selectedTags={selectedRegions}
@@ -249,6 +254,7 @@ export default function DriverProfileForm() {
               Tags={REGIONS as unknown as string[]}
               label="가능구역"
               colType="grid"
+              multiSelect={true}
             />
           </div>
         </div>
