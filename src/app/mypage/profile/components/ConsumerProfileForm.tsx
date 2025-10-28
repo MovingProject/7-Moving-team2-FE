@@ -73,10 +73,8 @@ export default function ConsumerProfileForm() {
   const {
     user,
     updateProfile,
-    updateBasicInfo,
     createConsumerProfile,
-    isCreatingConsumerProfile,
-    createConsumerProfileError,
+    refetch,
     isLoading,
     error: queryError,
   } = useProfileQuery();
@@ -186,6 +184,8 @@ export default function ConsumerProfileForm() {
           areas,
         });
 
+        await refetch();
+
         alert("프로필이 성공적으로 등록되었습니다!");
         router.push("/landing");
       }
@@ -278,8 +278,9 @@ export default function ConsumerProfileForm() {
                 setSelectedTags={setSelectedServices}
                 Tags={["소형이사", "가정이사", "사무실이사"]}
                 label="이용 서비스"
-                subText="* 이용 서비스는 중복 선택 가능하며, 언제든 수정 가능해요!"
+                subText="* 이용 서비스는 하나만 선택 가능하며, 언제든 수정 가능해요!"
                 colType="flex"
+                multiSelect={false}
               />
 
               {/* 관심 지역 태그 */}
@@ -288,8 +289,9 @@ export default function ConsumerProfileForm() {
                 setSelectedTags={setSelectedAreas}
                 Tags={REGIONS}
                 label="내가 사는 지역"
-                subText="*내가 사는 지역은 언제든 수정 가능해요!"
+                subText="*내가 사는 지역은 하나만 선택 가능하며, 언제든 수정 가능해요!"
                 colType="grid"
+                multiSelect={false}
               />
             </div>
           </div>
