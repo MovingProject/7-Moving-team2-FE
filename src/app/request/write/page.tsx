@@ -12,6 +12,7 @@ import { submitRequest } from "@/services/requestService";
 import RequestCompleteModal from "../components/RequestCompleteModal";
 import { isAxiosError } from "axios";
 import { ServerErrorResponse } from "@/types/serverError";
+import Script from "next/script";
 
 const initialStepStatus: StepStatus = STEP_KEYS.reduce((acc, key) => {
   acc[key] = false;
@@ -119,68 +120,9 @@ export default function RequestPage() {
                 onEdit={!isFinalComplete ? () => handlePrev("type") : undefined}
               />
             </div>
-
-            {/* 2. 이사 일자 (MovingDate) */}
-            {stepsCompleted.type && (
-              <div id="step-date" className="flex flex-col gap-4 transition-opacity duration-500">
-                <MovingDate
-                  onNext={(data) => handleStepComplete("date", data)}
-                  initialData={formData}
-                  isCompleted={stepsCompleted.date}
-                  onEdit={!isFinalComplete ? () => handlePrev("date") : undefined}
-                />
-              </div>
-            )}
-
-            {/* 3. 출발지 정보 (DepartureDetails) */}
-            {stepsCompleted.date && (
-              <div
-                id="step-departure"
-                className="flex flex-col gap-4 transition-opacity duration-500"
-              >
-                <DepartureDetails
-                  onNext={(data) => handleStepComplete("departure", data)}
-                  initialData={formData}
-                  isCompleted={stepsCompleted.departure}
-                  onEdit={!isFinalComplete ? () => handlePrev("departure") : undefined}
-                />
-              </div>
-            )}
-
-            {/* 4. 도착지 정보 (ArrivalDetails) */}
-            {stepsCompleted.departure && (
-              <div
-                id="step-arrival"
-                className="flex flex-col gap-4 transition-opacity duration-500"
-              >
-                <ArrivalDetails
-                  onNext={(data) => handleStepComplete("arrival", data)}
-                  initialData={formData}
-                  isCompleted={stepsCompleted.arrival}
-                  onEdit={!isFinalComplete ? () => handlePrev("arrival") : undefined}
-                />
-              </div>
-            )}
-
-            {/* 5. 요구사항 정보 (Requirements) */}
-            {stepsCompleted.arrival && (
-              <div
-                id="step-requirements"
-                className="flex flex-col gap-4 transition-opacity duration-500"
-              >
-                <Requirements
-                  onNext={(data) => handleStepComplete("requirements", data)}
-                  initialData={formData}
-                  isCompleted={stepsCompleted.requirements}
-                  onEdit={undefined}
-                />
-              </div>
-            )}
-
-            {isSubmissionSuccess && <RequestCompleteModal formData={formData} />}
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

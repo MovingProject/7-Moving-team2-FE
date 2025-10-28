@@ -1,23 +1,38 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useRef } from "react";
 import { StepProps, RequestFormData } from "@/types/request";
 import ChatBubble from "@/components/ui/ChatBubble";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { cleanNumericInput } from "@/utils/constant/numericInput";
+import clsx from "clsx";
+import AddressInputGroup from "./AddressInputGroup";
 
 const DepartureDetails: React.FC<StepProps> = ({ onNext, initialData, isCompleted, onEdit }) => {
-  const [address, setAddress] = useState(initialData.departureAddress || "");
+  const [baseAddress, setBaseAddress] = useState(
+    initialData.departureAddress?.split(" | ")[0] || ""
+  );
+  const [detailAddress, setDetailAddress] = useState(
+    initialData.departureAddress?.split(" | ")[1] || ""
+  );
   const [floorString, setFloorString] = useState(String(initialData.departureFloor || ""));
   const [pyeongString, setPyeongString] = useState(String(initialData.departurePyeong || ""));
   const [isElevator, setIsElevator] = useState(initialData.departureElevator ?? false);
 
+  const detailAddressRef = useRef<HTMLInputElement>(null);
   const floor = Number(floorString);
   const pyeong = Number(pyeongString);
 
   // 주소, 층수, 면적 : 필수 사항
   const isFormValid = useMemo(() => {
-    return address.trim() !== "" && !isNaN(floor) && floor > 0 && !isNaN(pyeong) && pyeong > 0;
-  }, [address, floor, pyeong]);
+    return (
+      baseAddress.trim() !== "" &&
+      detailAddress.trim() !== "" &&
+      !isNaN(floor) &&
+      floor > 0 &&
+      !isNaN(pyeong) &&
+      pyeong > 0
+    );
+  }, [baseAddress, detailAddress, floor, pyeong]);
 
   const handleFloorChange = (value: string) => {
     const cleanedValue = cleanNumericInput(value);
@@ -34,10 +49,12 @@ const DepartureDetails: React.FC<StepProps> = ({ onNext, initialData, isComplete
       alert("주소, 층수, 면적을 입력해주세요.");
       return;
     }
+    const fullAddress = `${baseAddress} | ${detailAddress.trim()}`;
+
     const data: Partial<RequestFormData> = {
-      departureAddress: address,
-      departureFloor: floor, // Number 타입
-      departurePyeong: pyeong, // Number 타입
+      departureAddress: fullAddress,
+      departureFloor: floor,
+      departurePyeong: pyeong,
       departureElevator: isElevator,
     };
     onNext(data);
@@ -60,15 +77,13 @@ const DepartureDetails: React.FC<StepProps> = ({ onNext, initialData, isComplete
       <div className="flex justify-end">
         {!isCompleted ? (
           <div className="flex w-[312px] flex-col gap-2.5 rounded-2xl bg-white p-4 shadow-lg lg:w-[624px] lg:gap-6 lg:p-10">
-            <div className="">
-              <label className="mb-1 block text-sm font-medium text-gray-700">출발지 주소</label>
-              <Input
-                value={address}
-                onChange={(value) => setAddress(value)}
-                className="w-full rounded-lg border p-2"
-                placeholder="예: 서울특별시 강남구 테헤란로 123"
-              />
-            </div>
+            <AddressInputGroup
+              baseAddress={baseAddress}
+              detailAddress={detailAddress}
+              onBaseAddressChange={setBaseAddress}
+              onDetailAddressChange={setDetailAddress}
+              detailAddressRef={detailAddressRef}
+            />
 
             {/* 상세주소(층수) */}
             <div className="">
@@ -118,7 +133,7 @@ const DepartureDetails: React.FC<StepProps> = ({ onNext, initialData, isComplete
         ) : (
           <div className="flex flex-col items-end">
             <ChatBubble
-              message={`${summaryDetails.addr} ,  ${summaryDetails.flr} , ${summaryDetails.png} , 엘레베이터 ${summaryDetails.elev}`}
+              message={`${summaryDetails.addr.replace(" | ", ", ")} /  ${summaryDetails.flr} / ${summaryDetails.png} / 엘레베이터 ${summaryDetails.elev}`}
               theme="primary"
               isMe={true}
             />
