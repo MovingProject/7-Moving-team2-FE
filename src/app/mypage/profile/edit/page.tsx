@@ -4,13 +4,20 @@ import InputArea from "../../basicEdit/[id]/components/InputArea";
 import ImageInputArea from "../components/ImageInputArea";
 import TagForm from "../components/TagForm";
 import Button from "@/components/ui/Button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useProfileQuery } from "@/hooks/useProfileQuery";
 import { updateUserProfile } from "@/utils/hook/profile/profile";
 import { useUserStore } from "@/store/userStore";
 import { UpdateUserProfileRequest } from "@/types/card";
 import { useQueryClient } from "@tanstack/react-query";
+import {
+  isValidNickName,
+  isValidHistory,
+  isValidOverView,
+  isValidDetails,
+} from "@/utils/validation";
+import { error as ERR } from "@/utils/constant/error";
 
 const regions = [
   "서울",
@@ -72,7 +79,6 @@ export default function DriverProfileEdit() {
   const queryClient = useQueryClient();
   const { setUser } = useUserStore();
   const { user, isLoading, error } = useProfileQuery();
-  console.log("🚩 user data 확인:", user);
 
   // tag 목록
   const regions = Object.keys(REGION_MAP);
@@ -86,6 +92,87 @@ export default function DriverProfileEdit() {
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const [errors, setErrors] = useState({
+    nickname: "",
+    career: "",
+    oneLiner: "",
+    description: "",
+    services: "",
+    regions: "",
+  });
+
+  // 개별 검증 (입력 시마다 즉시 반영)
+  const validateNickname = useCallback((v: string) => {
+    let msg = "";
+    if (!v.trim()) msg = ERR.nickNameEmpty;
+    else if (!isValidNickName(v)) msg = "별명을 2자 이상 입력해주세요.";
+    setErrors((p) => ({ ...p, nickname: msg }));
+    return msg;
+  }, []);
+
+  const validateCareer = useCallback((v: string) => {
+    let msg = "";
+    if (!v.trim()) msg = "경력을 입력해주세요.";
+    else if (!isValidHistory(v)) msg = ERR.historyInvalid;
+    setErrors((p) => ({ ...p, career: msg }));
+    return msg;
+  }, []);
+
+  const validateOneLiner = useCallback((v: string) => {
+    let msg = "";
+    if (!v.trim()) msg = "한 줄 소개를 입력해주세요.";
+    else if (!isValidOverView(v)) msg = ERR.overViewInvalid; // (>= 8자)
+    setErrors((p) => ({ ...p, oneLiner: msg }));
+    return msg;
+  }, []);
+
+  const validateDescription = useCallback((v: string) => {
+    let msg = "";
+    if (!v.trim()) msg = "상세 설명을 입력해주세요.";
+    else if (!isValidDetails(v)) msg = ERR.details; // (>= 10자)
+    setErrors((p) => ({ ...p, description: msg }));
+    return msg;
+  }, []);
+
+  const validateServices = useCallback((arr: string[]) => {
+    const msg = arr.length === 0 ? ERR.service : "";
+    setErrors((p) => ({ ...p, services: msg }));
+    return msg;
+  }, []);
+
+  const validateRegions = useCallback((arr: string[]) => {
+    const msg = arr.length === 0 ? ERR.serviceArea : "";
+    setErrors((p) => ({ ...p, regions: msg }));
+    return msg;
+  }, []);
+
+  // 전체 검증
+  const runAllValidations = useCallback(() => {
+    const next = {
+      nickname: validateNickname(nickname),
+      career: validateCareer(String(careerYears)),
+      oneLiner: validateOneLiner(oneLiner),
+      description: validateDescription(description),
+      services: validateServices(selectedServices),
+      regions: validateRegions(selectedRegions),
+    };
+    setErrors(next);
+    return Object.values(next).every((m) => !m);
+  }, [
+    nickname,
+    careerYears,
+    oneLiner,
+    description,
+    selectedServices,
+    selectedRegions,
+    validateNickname,
+    validateCareer,
+    validateOneLiner,
+    validateDescription,
+    validateServices,
+    validateRegions,
+  ]);
 
   // 드라이버 프로필 수정 페이지 진입 시 캐시 무효화
   useEffect(() => {
@@ -121,7 +208,28 @@ export default function DriverProfileEdit() {
       const areaKo = profile.driverServiceAreas.map((a) => REVERSE_REGION_MAP[a]).filter(Boolean);
       setSelectedRegions(areaKo);
     }
-  }, [user]); // user가 바뀌었을 때만 실행
+
+    setErrors({
+      nickname: "",
+      career: "",
+      oneLiner: "",
+      description: "",
+      services: "",
+      regions: "",
+    });
+  }, [user]);
+
+  const isFormValid = useMemo(() => {
+    const hasErrors = Object.values(errors).some(Boolean);
+    const filled =
+      !!nickname.trim() &&
+      careerYears > 0 &&
+      !!oneLiner.trim() &&
+      !!description.trim() &&
+      selectedServices.length > 0 &&
+      selectedRegions.length > 0;
+    return filled && !hasErrors;
+  }, [nickname, careerYears, oneLiner, description, selectedServices, selectedRegions, errors]);
 
   const handleCancel = () => router.push("/mypage");
 
@@ -130,7 +238,18 @@ export default function DriverProfileEdit() {
       alert("드라이버 계정만 수정 가능합니다.");
       return;
     }
-
+    if (selectedServices.length === 0) {
+      alert("제공 서비스를 최소 1개 이상 선택해주세요.");
+      return;
+    }
+    if (selectedRegions.length === 0) {
+      alert("가능 구역을 최소 1개 이상 선택해주세요.");
+      return;
+    }
+    if (!runAllValidations()) {
+      alert("입력하신 내용을 다시 확인해주세요.");
+      return;
+    }
     setLoading(true);
 
     try {
@@ -140,7 +259,6 @@ export default function DriverProfileEdit() {
           careerYears,
           oneLiner,
           description,
-          // 한글 → enum 매핑 변환
           driverServiceTypes: selectedServices.map((s) => SERVICE_MAP[s]),
           driverServiceAreas: selectedRegions.map((r) => REGION_MAP[r]),
         },
@@ -176,29 +294,62 @@ export default function DriverProfileEdit() {
                   프로필수정
                 </p>
               </div>
-              <InputArea label="별명" value={nickname} onChange={setNickname} />
+              <InputArea
+                label="별명"
+                value={nickname}
+                onChange={(v) => {
+                  setNickname(v);
+                  validateNickname(v);
+                }}
+                error={errors.nickname}
+                placeholder="사이트에 노출될 별명을 입력해 주세요"
+              />
               <ImageInputArea />
               <InputArea
                 label="경력"
                 value={careerYears ? String(careerYears) : ""}
-                onChange={(value) => setCareerYears(Number(value) || 0)}
+                onChange={(v) => {
+                  const n = Number(v) || 0;
+                  setCareerYears(n);
+                  validateCareer(String(n));
+                }}
+                inputType="number"
+                error={errors.career}
+                placeholder="기사님의 경력을 입력해 주세요"
               />
-              <InputArea label="한 줄 소개" value={oneLiner} onChange={setOneLiner} />
+              <InputArea
+                label="한 줄 소개"
+                value={oneLiner}
+                onChange={(v) => {
+                  setOneLiner(v);
+                  validateOneLiner(v);
+                }}
+                error={errors.oneLiner}
+                placeholder="8자 이상으로 입력해 주세요"
+              />
 
               <div className="mt-4 lg:hidden">
                 <TagForm
                   Tags={moveTypes}
-                  label="상세설명"
+                  label="제공 서비스"
                   colType="flex"
                   selectedTags={selectedServices}
-                  setSelectedTags={setSelectedServices}
+                  setSelectedTags={(tags) => {
+                    setSelectedServices(tags);
+                    validateServices(tags);
+                  }}
+                  multiSelect={true}
                 />
                 <TagForm
                   selectedTags={selectedRegions}
-                  setSelectedTags={setSelectedRegions}
+                  setSelectedTags={(tags) => {
+                    setSelectedRegions(tags);
+                    validateRegions(tags);
+                  }}
                   Tags={regions}
                   label="가능구역"
                   colType="grid"
+                  multiSelect={true}
                 />
               </div>
             </div>
@@ -207,8 +358,13 @@ export default function DriverProfileEdit() {
               <InputArea
                 label="상세 설명"
                 value={description}
-                onChange={setDescription}
+                onChange={(v) => {
+                  setDescription(v);
+                  validateDescription(v);
+                }}
+                error={errors.description}
                 type="textArea"
+                placeholder="10자 이상으로 입력해 주세요"
               />
             </div>
           </div>
@@ -216,17 +372,25 @@ export default function DriverProfileEdit() {
           <div className="hidden gap-4 lg:flex lg:w-1/2 lg:flex-col">
             <TagForm
               selectedTags={selectedServices}
-              setSelectedTags={setSelectedServices}
+              setSelectedTags={(tags) => {
+                setSelectedServices(tags);
+                validateServices(tags);
+              }}
               Tags={moveTypes}
-              label="상세설명"
+              label="제공 서비스"
               colType="flex"
+              multiSelect={true}
             />
             <TagForm
               selectedTags={selectedRegions}
-              setSelectedTags={setSelectedRegions}
+              setSelectedTags={(tags) => {
+                setSelectedRegions(tags);
+                validateRegions(tags);
+              }}
               Tags={regions}
               label="가능구역"
               colType="grid"
+              multiSelect={true}
             />
           </div>
         </div>

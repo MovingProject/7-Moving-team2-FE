@@ -1,6 +1,6 @@
 // useDriverProfileForm.ts 수정 (현재 버전 기준)
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import {
   isValidNickName,
   isValidHistory,
@@ -37,7 +37,6 @@ export function useDriverProfileForm() {
     regionsError: "",
   });
 
-  // ✅ 개별 필드 setter
   const setNickname = (value: string) => setForm((p) => ({ ...p, nickname: value }));
   const setCareerYears = (value: number) => setForm((p) => ({ ...p, careerYears: value }));
   const setOneLiner = (value: string) => setForm((p) => ({ ...p, oneLiner: value }));
@@ -47,42 +46,54 @@ export function useDriverProfileForm() {
   const setSelectedRegions = (value: string[]) =>
     setForm((p) => ({ ...p, selectedRegions: value }));
 
-  // ✅ 유효성 검사
   const validateNickname = useCallback((value: string) => {
-    if (!value.trim()) return error.nickNameEmpty;
-    if (!isValidNickName(value)) return "별명을 2자 이상 입력해주세요.";
-    return "";
+    let message = "";
+    if (!value.trim()) message = error.nickNameEmpty;
+    else if (!isValidNickName(value)) message = "별명을 2자 이상 입력해주세요.";
+
+    setErrors((prev) => ({ ...prev, nicknameError: message }));
+    return message;
   }, []);
 
   const validateCareer = useCallback((value: string) => {
-    if (!value.trim()) return "경력을 입력해주세요.";
-    if (!isValidHistory(value)) return error.historyInvalid;
-    return "";
+    let message = "";
+    if (!value.trim()) message = "경력을 입력해주세요.";
+    else if (!isValidHistory(value)) message = error.historyInvalid;
+
+    setErrors((prev) => ({ ...prev, careerError: message }));
+    return message;
   }, []);
 
   const validateOneLiner = useCallback((value: string) => {
-    if (!value.trim()) return "한 줄 소개를 입력해주세요.";
-    if (!isValidOverView(value)) return error.overViewInvalid;
-    return "";
+    let message = "";
+    if (!value.trim()) message = "한 줄 소개를 입력해주세요.";
+    else if (!isValidOverView(value)) message = error.overViewInvalid;
+
+    setErrors((prev) => ({ ...prev, oneLinerError: message }));
+    return message;
   }, []);
 
   const validateDescription = useCallback((value: string) => {
-    if (!value.trim()) return "상세 설명을 입력해주세요.";
-    if (!isValidDetails(value)) return error.details;
-    return "";
+    let message = "";
+    if (!value.trim()) message = "상세 설명을 입력해주세요.";
+    else if (!isValidDetails(value)) message = error.details;
+
+    setErrors((prev) => ({ ...prev, descriptionError: message }));
+    return message;
   }, []);
 
-  const validateServices = useCallback(
-    (services: string[]) => (services.length === 0 ? error.service : ""),
-    []
-  );
+  const validateServices = useCallback((services: string[]) => {
+    const message = services.length === 0 ? error.service : "";
+    setErrors((prev) => ({ ...prev, servicesError: message }));
+    return message;
+  }, []);
 
-  const validateRegions = useCallback(
-    (regions: string[]) => (regions.length === 0 ? error.serviceArea : ""),
-    []
-  );
+  const validateRegions = useCallback((regions: string[]) => {
+    const message = regions.length === 0 ? error.serviceArea : "";
+    setErrors((prev) => ({ ...prev, regionsError: message }));
+    return message;
+  }, []);
 
-  // ✅ 전체 유효성 검사
   const validateAll = useCallback(() => {
     const newErrors = {
       nicknameError: validateNickname(form.nickname),
@@ -94,9 +105,16 @@ export function useDriverProfileForm() {
     };
     setErrors(newErrors);
     return Object.values(newErrors).every((v) => !v);
-  }, [form]);
+  }, [
+    form,
+    validateNickname,
+    validateCareer,
+    validateOneLiner,
+    validateDescription,
+    validateServices,
+    validateRegions,
+  ]);
 
-  // ✅ 초기화
   const resetForm = useCallback(() => {
     setForm({
       nickname: "",
@@ -116,7 +134,6 @@ export function useDriverProfileForm() {
     });
   }, []);
 
-  // ✅ 초기 데이터 세팅
   const setInitialData = useCallback((data: Partial<DriverFormData>) => {
     setForm((prev) => ({
       ...prev,
@@ -129,15 +146,20 @@ export function useDriverProfileForm() {
     }));
   }, []);
 
-  const hasErrors = Object.values(errors).some((v) => !!v);
-  const isFormComplete =
-    !!form.nickname.trim() &&
-    form.careerYears > 0 &&
-    !!form.oneLiner.trim() &&
-    !!form.description.trim() &&
-    form.selectedServices.length > 0 &&
-    form.selectedRegions.length > 0 &&
-    !hasErrors;
+  const isFormComplete = useMemo(() => {
+    const hasErrors = Object.values(errors).some((v) => !!v);
+    return (
+      !!form.nickname.trim() &&
+      form.careerYears > 0 &&
+      !!form.oneLiner.trim() &&
+      !!form.description.trim() &&
+      form.selectedServices.length > 0 &&
+      form.selectedRegions.length > 0 &&
+      !hasErrors
+    );
+  }, [form, errors]);
+
+  const hasErrors = useMemo(() => Object.values(errors).some((v) => !!v), [errors]);
 
   return {
     ...form,
