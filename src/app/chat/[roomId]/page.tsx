@@ -57,7 +57,17 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
     }
   };
 
-  const handleSendQuotation = (price: number, message: string) => {
+  const handleSendQuotation = (
+    price: number,
+    message: string,
+    requestInfo: {
+      serviceType: string;
+      moveAt: string;
+      departureAddress: string;
+      arrivalAddress: string;
+      additionalRequirements?: string;
+    }
+  ) => {
     // TODO: Replace with real API call to POST /quotations
     const quotationMessage = {
       id: `msg-${Date.now()}`,
@@ -72,17 +82,18 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
         driverId: currentUser.role === "driver" ? currentUser.id : "driver-123",
         chattingRoomId: resolvedParams.roomId,
         requestId: "req-1",
-        serviceType: "HOME_MOVE" as const,
-        moveAt: "2025-12-10",
-        departureAddress: "서울시 강남구",
+        serviceType: requestInfo.serviceType,
+        moveAt: requestInfo.moveAt,
+        departureAddress: requestInfo.departureAddress,
         departureFloor: 3,
         departurePyeong: 20,
         departureElevator: true,
-        arrivalAddress: "서울시 송파구",
+        arrivalAddress: requestInfo.arrivalAddress,
         arrivalFloor: 5,
         arrivalPyeong: 25,
         arrivalElevator: false,
-        additionalRequirements: message,
+        additionalRequirements: requestInfo.additionalRequirements, // 고객의 원래 요청사항
+        quotationMessage: message, // 기사의 견적 추가 설명
         price: price,
         status: "SUBMITTED" as const,
         createdAt: new Date().toISOString(),
@@ -203,6 +214,13 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
         isOpen={isQuotationModalOpen}
         onClose={() => setIsQuotationModalOpen(false)}
         onSend={handleSendQuotation}
+        initialRequestInfo={{
+          serviceType: "HOME_MOVE",
+          moveAt: "2025-10-30",
+          departureAddress: "서울특별시 강남구 테헤란로 123",
+          arrivalAddress: "서울특별시 송파구 중앙로 23",
+          additionalRequirements: "사다리차 사용 불가",
+        }}
       />
     </div>
   );
