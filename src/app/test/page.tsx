@@ -39,10 +39,10 @@ export default function TestPage() {
       <h1 className="text-xl font-bold">필터 테스트 페이지</h1>
 
       <div className="flex flex-col flex-wrap gap-20">
-        <RegionFilter selected={region} onChange={setRegion} />
-        <ServiceFilter selected={service} onChange={setService} />
-        <SortFilter selected={sort} onChange={setSort} />
-        <SortTechFilter selected={sortTech} onChange={setSortTech} />
+        <RegionFilter selected={region} onChange={setRegion} filterKey="region" />
+        <ServiceFilter selected={service} onChange={setService} filterKey="service" />
+        <SortFilter selected={sort} onChange={setSort} filterKey="sort" />
+        <SortTechFilter selected={sortTech} onChange={setSortTech} filterKey="sortTech" />
       </div>
       <div className="mt-6">
         <p>선택된 지역: {region}</p>
