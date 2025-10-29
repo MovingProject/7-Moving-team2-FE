@@ -21,6 +21,16 @@ export interface RequestDraftStore extends RequestFormData {
   updateField: <K extends keyof RequestFormData>(key: K, value: RequestFormData[K]) => void;
   resetDraft: () => void;
 }
+export interface RequestDetail extends RequestFormData {
+  id: string;
+  status: "PENDING" | "COMPLETED" | "CANCELLED";
+  createdAt: string;
+}
+
+export interface RequestCheckResponseDto {
+  pendingRequest: RequestDetail | null;
+}
+
 export interface StepProps {
   // onPrev: () => void;
   onNext: () => void;
