@@ -1,6 +1,7 @@
 import { useInfiniteQuery, InfiniteData } from "@tanstack/react-query";
 import apiClient from "@/lib/apiClient";
 import { MoveTypeMap } from "@/types/moveTypes";
+import { useAuthStore } from "@/store/authStore";
 
 export interface LikedDriver {
   id: string;
@@ -43,6 +44,7 @@ export const getLikedDrivers = async (
 };
 
 export const useLikedDriversQuery = (limit: number = 10) => {
+  const { user } = useAuthStore();
   return useInfiniteQuery<
     GetLikedDriversResponse, // queryFn이 반환하는 타입
     Error, // 에러 타입
@@ -54,5 +56,6 @@ export const useLikedDriversQuery = (limit: number = 10) => {
     queryFn: async ({ pageParam }) => getLikedDrivers(pageParam, limit),
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     initialPageParam: undefined,
+    enabled: !!user,
   });
 };

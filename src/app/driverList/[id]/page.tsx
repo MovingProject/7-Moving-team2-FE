@@ -18,17 +18,25 @@ import {
   mapDriverDetailToDriverListShape,
 } from "@/utils/mappers/driverToCardMapper";
 import { useInviteDriver } from "@/utils/hook/request/useInviteQuery";
+import { useAuthStore } from "@/store/authStore";
 
 export default function DriverDetailPage() {
   const params = useParams();
   const driverId = params?.id as string;
+  const { user } = useAuthStore();
   const { data, isLoading } = useDriverDetailQuery(driverId);
   const [popup, setPopup] = useState<{ type: "info" | "warning"; message: string } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const { mutate: likeMutate, isPending } = useLikeDriver();
   const { mutate: inviteDriver, isPending: isInviting } = useInviteDriver();
 
   const handleLikeClick = () => {
+    if (!user) {
+      setShowLoginModal(true);
+      return;
+    }
+
     if (!driverId) return;
     likeMutate(driverId, {
       onSuccess: (res) =>
@@ -41,8 +49,12 @@ export default function DriverDetailPage() {
   };
 
   const handleInviteClick = () => {
-    if (!driverId) return;
+    if (!user) {
+      setShowLoginModal(true);
+      return;
+    }
 
+    if (!driverId) return;
     inviteDriver(driverId, {
       onSuccess: (res) => {
         if (res.alreadyExisted) {
@@ -92,8 +104,21 @@ export default function DriverDetailPage() {
   const cardData = mapDriverToCardData(driverListShape);
   console.log(" driver detail raw data:", data);
 
+  const renderLoginModal = (
+    <DefaultModal
+      isOpen={showLoginModal}
+      onClose={() => setShowLoginModal(false)}
+      title="로그인이 필요한 작업입니다"
+      buttonText="로그인하기"
+      onButtonClick={() => window.location.replace("/login")}
+    >
+      <p className="text-center text-gray-700">로그인 후에 이용하실 수 있습니다.</p>
+    </DefaultModal>
+  );
+
   return (
     <main className="min-h-screen w-full bg-white px-8 py-10 md:px-20 lg:px-5 xl:px-60">
+      {renderLoginModal}
       {popup && (
         <div className="absolute top-[70px] left-1/2 z-50 flex w-full -translate-x-1/2 justify-center">
           <Popup type={popup.type} message={popup.message} onClose={() => setPopup(null)} />

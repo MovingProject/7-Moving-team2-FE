@@ -25,10 +25,12 @@ export function useInitAuth() {
     }
 
     // 공개 페이지에서는 인증 초기화 건너뛰기
-    const publicPages = ["/signUp", "/login", "/landing", "/"];
+    const publicPages = ["/signUp", "/login", "/landing", "/driverList", "/"];
     if (typeof window !== "undefined") {
       const currentPath = window.location.pathname;
-      if (publicPages.includes(currentPath)) {
+      const isDriverDetailPage = currentPath.startsWith("/driverList/");
+
+      if (publicPages.includes(currentPath) || isDriverDetailPage) {
         console.log("[useInitAuth] 공개 페이지 - 인증 초기화 건너뛰기:", currentPath);
         setIsInitialized(true);
         return;
