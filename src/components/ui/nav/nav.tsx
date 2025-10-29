@@ -13,6 +13,8 @@ import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
+import { getWeather } from "@/utils/hook/landing/landing";
+import WeeklyForecastPanel from "../WeeklyForecastPanel";
 
 interface NavProps {
   option?: string;
@@ -33,7 +35,15 @@ export default function Nav({ option }: NavProps) {
   const isLoggedIn = !!user;
   const role = user?.role;
   const displayName = user?.name ?? profileUser?.name ?? "임시유저";
-
+  const [weatherData, setWeatherData] = useState<{
+    location: string;
+    temp: number;
+    condition: string;
+    icon: string;
+  } | null>(null);
+  const [city, setCity] = useState("Seoul");
+  const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false);
+  const [isWeeklyOpen, setIsWeeklyOpen] = useState(false);
   const optionFont =
     "text-[#1F1F1F] font-[Pretendard] text-base font-medium leading-[26px] cursor-pointer";
 
@@ -42,6 +52,19 @@ export default function Nav({ option }: NavProps) {
     "새로운 견적 요청이 도착했습니다.",
     "고객님이 견적을 수락했습니다.",
     "채팅방에 새 메시지가 있습니다.",
+  ];
+  const cityList = [
+    "Seoul",
+    "Busan",
+    "Incheon",
+    "Daegu",
+    "Daejeon",
+    "Gwangju",
+    "Ulsan",
+    "Suwon",
+    "Sejong",
+    "Jeju",
+    "Chuncheon",
   ];
 
   const handleLogout = async () => {
@@ -74,6 +97,23 @@ export default function Nav({ option }: NavProps) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await getWeather(city); // 기본: 서울
+        if (data) {
+          setWeatherData({
+            location: data.location,
+            temp: data.temp,
+            condition: data.condition,
+            icon: data.icon,
+          });
+        }
+      } catch (err) {
+        console.error("날씨 데이터를 불러오지 못했습니다:", err);
+      }
+    })();
+  }, [city]);
 
   /** 역할별 메뉴 렌더링 */
   const renderMenuItems = () => {
@@ -123,7 +163,7 @@ export default function Nav({ option }: NavProps) {
 
   return (
     <>
-      <div className="flex items-center justify-between border-b border-gray-300 pb-5">
+      <div className="relative flex items-center justify-between border-b border-gray-300 pb-5">
         <div className="flex pt-5 pl-5">
           <Image
             className="hidden cursor-pointer md:block"
@@ -148,6 +188,58 @@ export default function Nav({ option }: NavProps) {
         </div>
 
         <div className="flex gap-4 pt-5 pr-5">
+          <p
+            className="hover:text-primary flex cursor-pointer items-center font-semibold text-gray-700"
+            onClick={() => setIsWeeklyOpen((prev) => !prev)}
+          >
+            주간날씨
+          </p>
+
+          {isWeeklyOpen && (
+            <div className="absolute top-full left-0 z-40 w-full border-t border-gray-200 bg-white shadow-md">
+              <WeeklyForecastPanel city={city} />
+            </div>
+          )}
+          <div className="relative mr-4" ref={notiRef}>
+            {weatherData && (
+              <div
+                className="flex cursor-pointer items-center gap-2 text-sm text-gray-700"
+                onClick={() => setIsCityDropdownOpen((prev) => !prev)}
+              >
+                <img
+                  src={`https:${weatherData.icon}`}
+                  alt={weatherData.condition}
+                  width={28}
+                  height={28}
+                />
+                <div>
+                  <p className="font-medium">{weatherData.location}</p>
+                  <p className="text-xs">
+                    {weatherData.temp}°C · {weatherData.condition}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {isCityDropdownOpen && (
+              <div className="absolute right-0 z-99 mt-2 w-32 rounded-lg border border-gray-200 bg-white shadow-lg">
+                {cityList.map((cityName) => (
+                  <div
+                    key={cityName}
+                    className={`cursor-pointer px-4 py-2 text-sm hover:bg-gray-100 ${
+                      cityName === city ? "font-semibold text-blue-600" : ""
+                    }`}
+                    onClick={() => {
+                      setCity(cityName);
+                      setIsCityDropdownOpen(false);
+                    }}
+                  >
+                    {cityName}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           {!isLoggedIn ? (
             <button
               className="hidden cursor-pointer rounded-[16px] bg-blue-500 px-5.5 py-2 text-white md:block"
