@@ -17,20 +17,27 @@ import Script from "next/script";
 // Zustand 관련 임포트
 import { useRequestDraftStore } from "@/store/useRequestDraftStore";
 import { DraftProvider, useDraftHydration } from "../components/DraftProvider";
+import LogoSpinner from "@/components/ui/LogoSpinner";
 
 const initialStepStatus: StepStatus = STEP_KEYS.reduce((acc, key) => {
   acc[key] = false;
   return acc;
 }, {} as StepStatus);
 
+const loadDaumPostcodeScript = () => {
+  if (typeof window !== "undefined" && !document.getElementById("daum-postcode-script")) {
+    const script = document.createElement("script");
+    script.src = "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+    script.id = "daum-postcode-script";
+    script.async = true;
+    document.head.appendChild(script);
+  }
+};
+
 export default function RequestPage() {
+  loadDaumPostcodeScript();
   return (
     <DraftProvider>
-      {/* 다음/우편번호 찾기 스크립트 로드: Provider 외부에 유지 */}
-      <Script
-        src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
-        strategy="afterInteractive"
-      />
       <RequestPageContent />
     </DraftProvider>
   );
@@ -38,14 +45,6 @@ export default function RequestPage() {
 
 function RequestPageContent() {
   const isHydrated = useDraftHydration();
-
-  if (!isHydrated) {
-    return (
-      <div className="flex h-[50vh] items-center justify-center text-lg font-medium text-gray-500">
-        데이터 로딩 중...
-      </div>
-    );
-  }
   const draftStore = useRequestDraftStore();
   const formData = draftStore as RequestFormData;
 
@@ -56,6 +55,9 @@ function RequestPageContent() {
   const [stepsCompleted, setStepsCompleted] = useState<StepStatus>(initialStepStatus);
   const [isSubmissionSuccess, setIsSubmissionSuccess] = useState(false);
 
+  if (!isHydrated) {
+    return <LogoSpinner />;
+  }
   // 현재 활성화된 스텝을 추적
   const getCurrentActiveStep = (): StepKey => {
     for (const key of STEP_KEYS) {
@@ -82,8 +84,6 @@ function RequestPageContent() {
 
   // 최종 제출 처리
   const handleSubmit = async (finalData: RequestFormData) => {
-    // ⚠️ TODO: 최종 제출 전, 필수 필드(특히 number | null 필드) 유효성 검사 로직 추가 필요
-
     try {
       await submitRequest(finalData);
       console.log("최종 제출 데이터:", finalData);
