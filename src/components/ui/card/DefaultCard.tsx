@@ -8,7 +8,6 @@ import { DriverProfileData, DriverUser } from "@/types/card";
 import { MoveTypeMap } from "@/types/moveTypes";
 import UserProfileArea from "../profile/UserProfileArea";
 import { isDriverUser } from "@/utils/type-guards";
-import DriverDetailPage from "@/app/driverList/[id]/page";
 
 export default function DefaultCard({
   user,
@@ -29,7 +28,7 @@ export default function DefaultCard({
   return (
     <BaseCard className="gap-[14px] border border-gray-300 bg-white px-[14px] py-4 lg:gap-4 lg:px-6 lg:py-5">
       <div className="flex justify-between">
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 md:flex-nowrap">
           {driverServiceTypes?.map((tag, index) => (
             <Tag
               key={index}

@@ -25,9 +25,7 @@ export default function LikedDriverCard({
         {driver.serviceTypes.map((type, index) => (
           <Tag
             key={index}
-            type={
-              MoveTypeMap[type as keyof typeof MoveTypeMap].clientType.toLowerCase() as IconType
-            }
+            type={MoveTypeMap[type as keyof typeof MoveTypeMap].clientType}
             content={MoveTypeMap[type as keyof typeof MoveTypeMap].content}
           />
         ))}
