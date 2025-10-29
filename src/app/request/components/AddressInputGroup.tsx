@@ -1,11 +1,6 @@
+"use client";
 import React from "react";
 import clsx from "clsx";
-
-declare global {
-  interface Window {
-    daum: any;
-  }
-}
 
 interface AddressInputGroupProps {
   baseAddress: string;
@@ -38,7 +33,7 @@ const AddressInputGroup: React.FC<AddressInputGroupProps> = ({
         let newBaseAddress = data.roadAddress || data.jibunAddress;
 
         onBaseAddressChange(newBaseAddress);
-        onDetailAddressChange(""); // 주소 변경 시, 상세 주소 초기화
+        //onDetailAddressChange(""); // 주소 변경 시, 상세 주소 초기화
 
         setTimeout(() => {
           detailAddressRef.current?.focus();
