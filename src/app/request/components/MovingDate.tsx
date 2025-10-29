@@ -1,48 +1,80 @@
-import React, { useMemo, useState } from "react";
-import { RequestFormData, StepProps } from "@/types/request";
+import React, { useMemo, useEffect } from "react";
+import { StepProps } from "@/types/request";
 import ChatBubble from "@/components/ui/ChatBubble";
 import Button from "@/components/ui/Button";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
+// Zustand 임포트
+import { useRequestDraftStore } from "@/store/useRequestDraftStore";
+import { useShallow } from "zustand/react/shallow";
+
 const formatDateToString = (date: Date | null): string => {
   if (!date) return "";
-  return date.toISOString().split("T")[0]; // 'YYYY-MM-DD' 형식
+  return (
+    date.getFullYear() +
+    "-" +
+    String(date.getMonth() + 1).padStart(2, "0") +
+    "-" +
+    String(date.getDate()).padStart(2, "0")
+  );
 };
 
 // string 날짜를 Date 객체로 변환하는 헬퍼 함수
 const parseStringToDate = (dateString: string): Date | null => {
   if (!dateString) return null;
-  return new Date(dateString);
+  // DatePicker가 정확히 'YYYY-MM-DD'를 인식하도록 처리
+  const [year, month, day] = dateString.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+
+  // 유효성 검사
+  if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
+    return null;
+  }
+  return date;
 };
 
-const MovingDate: React.FC<StepProps> = ({ onNext, initialData, isCompleted, onEdit }) => {
-  const [selectedDate, setSelectedDate] = useState<string>(initialData.moveAt || "");
+const MovingDate: React.FC<StepProps> = ({ onNext, isCompleted, onEdit }) => {
+  const { moveAt, updateField } = useRequestDraftStore(
+    useShallow((state) => ({
+      moveAt: state.moveAt,
+      updateField: state.updateField,
+    }))
+  );
 
-  // 날짜 상태를 Date 객체 형태로 변환 (날짜 선택 라이브러리 사용을 위해)
-  const selectedDateObject = useMemo(() => parseStringToDate(selectedDate), [selectedDate]);
+  const selectedDate = moveAt;
+
   const minSelectableDate = useMemo(() => {
     const today = new Date();
-    // 오늘 날짜를 기준으로 다음 날(내일)을 계산합니다.
     const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
-    // 시간 정보를 자정(00:00:00)으로 설정하여 타임존 문제를 방지합니다.
-    tomorrow.setHours(0, 0, 0, 0);
 
+    tomorrow.setDate(today.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
     return tomorrow;
   }, []);
 
+  // 날짜 상태를 Date 객체 형태로 변환 (날짜 선택 라이브러리 사용을 위해)
+  const selectedDateObject = useMemo(() => parseStringToDate(selectedDate), [selectedDate]);
+
+  // 이사일자 초기화/유효성 검사 로직
+  useEffect(() => {
+    const storedDate = parseStringToDate(moveAt);
+
+    // 이사일자가 저장되어 있고, 그 날짜가 내일(minSelectableDate)보다 이전이라면
+    if (storedDate && storedDate < minSelectableDate) {
+      console.log("이사일자가 유효하지 않아, 선택된 날짜 초기화.");
+      updateField("moveAt", ""); // moveAt을 빈 문자열로 초기화
+    }
+  }, [moveAt, minSelectableDate, updateField]);
+
   // 라이브러리에서 Date 객체를 받았을 때 호출되는 핸들러
   const handleDateChange = (date: Date | null) => {
+    let dateString = "";
     if (date) {
-      const offsetMinutes = date.getTimezoneOffset();
-      const correctedDate = new Date(date.getTime() - offsetMinutes * 60 * 1000);
-
-      // 상태 업데이트
-      setSelectedDate(formatDateToString(correctedDate));
-    } else {
-      setSelectedDate("");
+      dateString = formatDateToString(date);
     }
+
+    updateField("moveAt", dateString);
   };
 
   // 폼 유효성 검사 (날짜 문자열이 비어있지 않은지 확인)
@@ -54,25 +86,22 @@ const MovingDate: React.FC<StepProps> = ({ onNext, initialData, isCompleted, onE
       return;
     }
 
-    const data: Partial<RequestFormData> = {
-      moveAt: selectedDate,
-    };
-    onNext(data);
+    onNext();
   };
+
   const summaryValue = useMemo(() => {
-    if (!initialData.moveAt) return "날짜 미정";
+    if (!selectedDate) return "-";
 
     try {
-      // initialData.movingDate가 YYYY-MM-DD 형식이라고 가정하고 파싱합니다.
-      return new Date(initialData.moveAt).toLocaleDateString("ko-KR", {
+      return new Date(selectedDate).toLocaleDateString("ko-KR", {
         year: "numeric",
         month: "long",
         day: "numeric",
       });
     } catch (e) {
-      return initialData.moveAt; // 파싱 실패 시 원본 값 반환
+      return selectedDate;
     }
-  }, [initialData.moveAt]);
+  }, [selectedDate]);
 
   return (
     <>
@@ -90,12 +119,7 @@ const MovingDate: React.FC<StepProps> = ({ onNext, initialData, isCompleted, onE
               minDate={minSelectableDate}
               customInput={<div style={{ display: "none" }} />}
             />
-            {/* <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="focus:border-primary w-full rounded-lg border p-2"
-            /> */}
+
             <Button
               onClick={handleSubmit}
               disabled={!selectedDate}
