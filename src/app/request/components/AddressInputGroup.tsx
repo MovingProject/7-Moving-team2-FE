@@ -1,6 +1,7 @@
 "use client";
-import React from "react";
+import React, { useCallback } from "react";
 import clsx from "clsx";
+import type { PostcodeData } from "@/types/daum.d.ts";
 
 interface AddressInputGroupProps {
   baseAddress: string;
@@ -22,25 +23,24 @@ const AddressInputGroup: React.FC<AddressInputGroupProps> = ({
   detailAddressRef,
 }) => {
   // --- 카카오 주소 검색 로직 (컴포넌트 내부에서만 사용) ---
-  const handleAddressSearch = () => {
-    if (typeof window.daum === "undefined" || !window.daum.Postcode) {
+  const handleAddressSearch = useCallback(() => {
+    // window.daum 객체가 로드되었는지 확인
+    if (!window.daum || !window.daum.Postcode) {
       alert("주소 검색 라이브러리 로딩 중입니다. 잠시 후 다시 시도해주세요.");
       return;
     }
 
     new window.daum.Postcode({
-      oncomplete: function (data: any) {
-        let newBaseAddress = data.roadAddress || data.jibunAddress;
+      oncomplete: function (data: PostcodeData) {
+        const newBaseAddress = data.address;
 
         onBaseAddressChange(newBaseAddress);
-        //onDetailAddressChange(""); // 주소 변경 시, 상세 주소 초기화
-
         setTimeout(() => {
           detailAddressRef.current?.focus();
         }, 100);
       },
     }).open();
-  };
+  }, [onBaseAddressChange, detailAddressRef]);
   // --- END 카카오 주소 검색 로직 ---
 
   return (
