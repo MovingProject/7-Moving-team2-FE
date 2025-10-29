@@ -10,6 +10,7 @@ import DefaultCard from "@/components/ui/card/DefaultCard";
 import { useRouter } from "next/navigation";
 import { LikedDriver, useLikedDriversQuery } from "@/utils/hook/likes/useLikedQuery";
 import { useDriverListInfiniteQuery } from "@/utils/hook/driver/driver";
+import { useInitAuth } from "@/utils/hook/auth/useInitAuth";
 import { useInView } from "react-intersection-observer";
 import Input from "@/components/ui/Input";
 import LikedDriverCard from "../liked/components/LikedDriverCard";
@@ -20,7 +21,7 @@ import { SortOption } from "@/types/driver";
 
 export default function DriverListPage() {
   const router = useRouter();
-
+  const { isInitialized } = useInitAuth();
   const [region, setRegion] = useState("지역");
   const [service, setService] = useState("서비스");
   const [sort, setSort] = useState("리뷰 많은 순");
@@ -93,6 +94,10 @@ export default function DriverListPage() {
     sessionStorage.setItem("selectedLikedDriver", JSON.stringify(driver));
     router.push(`/driverList/${driver.id}`);
   };
+
+  if (!isInitialized) {
+    return <div className="p-10 text-center text-gray-500">페이지를 준비 중입니다...</div>;
+  }
 
   return (
     <main className="min-h-screen w-full bg-white px-8 pt-6 pb-4 md:px-20 lg:px-30 xl:px-60">
