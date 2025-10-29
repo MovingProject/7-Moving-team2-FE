@@ -13,7 +13,7 @@ import { useDriverListInfiniteQuery } from "@/utils/hook/driver/driver";
 import { useInitAuth } from "@/utils/hook/auth/useInitAuth";
 import { useInView } from "react-intersection-observer";
 import Input from "@/components/ui/Input";
-import LikedDriverCard from "../liked/components/LikedDriverCard";
+import CompactLikedDriverCard from "../liked/components/CompactLikedDriverCard";
 import { AreaType, AreaMap } from "@/types/areaTypes";
 import { MoveType } from "@/types/moveTypes";
 import { mapDriverToCardData } from "@/utils/mappers/driverToCardMapper";
@@ -134,7 +134,7 @@ export default function DriverListPage() {
               {likedDrivers && likedDrivers.length > 0 ? (
                 likedDrivers.map((driver) =>
                   driver ? (
-                    <LikedDriverCard
+                    <CompactLikedDriverCard
                       key={driver.id}
                       driver={driver}
                       onClickAction={() => handleLikedDriverClick(driver)}

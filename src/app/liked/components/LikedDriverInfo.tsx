@@ -27,7 +27,7 @@ export default function LikedDriverInfo({ driver }: { driver: LikedDriver }) {
 
       {/* 경력 */}
       <div className="flex items-center gap-1">
-        <span>{driver.careerYears}</span>
+        <span>{driver.careerYears}년</span>
       </div>
 
       <span className="text-gray-300">|</span>

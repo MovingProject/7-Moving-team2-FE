@@ -79,26 +79,46 @@ const iconMap: Record<Exclude<IconType, "default">, Record<IconSize, Icon>> = {
  * @param content - 태그에 표시할 텍스트 (선택)
  * @param borderType - 모서리 스타일 (default -> 사각형, radius -> 둥근 모서리) (선택)
  */
-export default function Tag({ type, size = "md", content, borderType, selected }: TagProps) {
-  const icon = type === "default" ? null : iconMap[type]?.[size] || iconMap[type]?.md;
+export default function Tag({ type, size = "sm", content, borderType, selected }: TagProps) {
+  const isMoveType = ["SMALL_MOVE", "HOME_MOVE", "OFFICE_MOVE"].includes(type);
+  const icon = type === "default" ? null : iconMap[type];
   const containerClass = clsx(
-    "inline-flex items-center px-2 whitespace-nowrap h-8 flex-shrink-0 gap-2",
+    "inline-flex items-center px-2 whitespace-nowrap flex-shrink-0 gap-2",
+    "h-7 gap-1.5 px-2 py-1.5 lg:h-8 lg:gap-2 lg:px-4 lg:py-2.5",
     selected
       ? "bg-primary-light text-primary"
-      : ["smallMove", "homeMove", "officeMove"].includes(type)
+      : isMoveType
         ? "bg-primary-light text-primary"
         : type === "requestQuote"
           ? "bg-warning-light text-warning"
           : "bg-gray-100 text-black",
-    borderType === "radius" ? "px-3 py-1.5 rounded-full lg:px-5 lg:py-2.5" : "rounded-md"
+    borderType === "radius" ? "rounded-full" : "rounded-md",
+    "text-xs lg:text-base"
   );
 
   return (
     <div className={containerClass}>
       {icon && (
-        <Image src={icon.src} width={icon.width} height={icon.height} alt={`${type} icon`} />
+        <>
+          <div className="block lg:hidden">
+            <Image
+              src={icon.sm.src}
+              width={icon.sm.width}
+              height={icon.sm.height}
+              alt={`${type} icon`}
+            />
+          </div>
+          <div className="hidden lg:block">
+            <Image
+              src={icon.md.src}
+              width={icon.md.width}
+              height={icon.md.height}
+              alt={`${type} icon`}
+            />
+          </div>
+        </>
       )}
-      {content && <span className="inline-block">{content}</span>}
+      {content && <span className="inline-block leading-none">{content}</span>}
     </div>
   );
 }
