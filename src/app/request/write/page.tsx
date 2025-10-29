@@ -10,6 +10,7 @@ import { STEP_KEYS, StepKey, StepStatus, RequestFormData } from "@/types/request
 import Requirements from "../components/Requirements";
 import { submitRequest } from "@/services/requestService";
 import RequestCompleteModal from "../components/RequestCompleteModal";
+import RequestCompletePage from "../components/RequestCompletePage";
 import { isAxiosError } from "axios";
 import { ServerErrorResponse } from "@/types/serverError";
 import Script from "next/script";
@@ -18,6 +19,7 @@ import Script from "next/script";
 import { useRequestDraftStore } from "@/store/useRequestDraftStore";
 import { DraftProvider, useDraftHydration } from "../components/DraftProvider";
 import LogoSpinner from "@/components/ui/LogoSpinner";
+import { useActiveRequestQuery } from "@/utils/hook/request/useActiveRequestQuery";
 
 const initialStepStatus: StepStatus = STEP_KEYS.reduce((acc, key) => {
   acc[key] = false;
@@ -54,6 +56,29 @@ function RequestPageContent() {
 
   const [stepsCompleted, setStepsCompleted] = useState<StepStatus>(initialStepStatus);
   const [isSubmissionSuccess, setIsSubmissionSuccess] = useState(false);
+  const { data, isLoading, isError } = useActiveRequestQuery();
+  const pendingRequest = data?.pendingRequest;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20 text-gray-500">
+        요청 상태를 확인하는 중입니다...
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex items-center justify-center py-20 text-red-500">
+        요청 상태를 불러오는 중 오류가 발생했습니다.
+      </div>
+    );
+  }
+
+  // 진행 중 요청 존재 시 완료 페이지 표시
+  if (pendingRequest) {
+    return <RequestCompletePage data={pendingRequest} />;
+  }
 
   if (!isHydrated) {
     return <LogoSpinner />;
