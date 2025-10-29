@@ -1,9 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
 import { getWeeklyWeather } from "@/utils/hook/landing/landing";
+import type { WeeklyWeather } from "@/utils/hook/landing/landing";
 
 export default function WeeklyForecastPanel({ city }: { city: string }) {
-  const [forecast, setForecast] = useState<any[]>([]);
+  const [forecast, setForecast] = useState<WeeklyWeather[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
