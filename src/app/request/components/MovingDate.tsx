@@ -46,11 +46,13 @@ const MovingDate: React.FC<StepProps> = ({ onNext, isCompleted, onEdit }) => {
 
   const minSelectableDate = useMemo(() => {
     const today = new Date();
-    const tomorrow = new Date(today);
+    // 오늘 날짜를 기준으로 내일 모레를 계산합니다.
+    const dayAfterTomorrow = new Date(today);
+    dayAfterTomorrow.setDate(today.getDate() + 2);
+    // 시간 정보를 자정(00:00:00)으로 설정하여 타임존 문제를 방지합니다.
+    dayAfterTomorrow.setHours(0, 0, 0, 0);
 
-    tomorrow.setDate(today.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
-    return tomorrow;
+    return dayAfterTomorrow;
   }, []);
 
   // 날짜 상태를 Date 객체 형태로 변환 (날짜 선택 라이브러리 사용을 위해)
