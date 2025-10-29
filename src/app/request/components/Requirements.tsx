@@ -1,19 +1,36 @@
-import React, { useState } from "react";
-import { StepProps, RequestFormData } from "@/types/request";
+import React from "react";
+import { StepProps } from "@/types/request";
 import ChatBubble from "@/components/ui/ChatBubble";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 
-const Requirements: React.FC<StepProps> = ({ onNext, initialData }) => {
-  const [requirements, setRequirements] = useState(initialData.additionalRequirements || "");
+// Zustand 임포트
+import { useRequestDraftStore } from "@/store/useRequestDraftStore";
+import { useShallow } from "zustand/react/shallow";
+
+const Requirements: React.FC<StepProps> = ({ onNext }) => {
+  const { additionalRequirements, updateField } = useRequestDraftStore(
+    useShallow((state) => ({
+      additionalRequirements: state.additionalRequirements,
+      updateField: state.updateField,
+    }))
+  );
+
+  const requirements = additionalRequirements || "";
+
+  // 입력 필드 변경 핸들러
+  const handleRequirementsChange = (value: string) => {
+    updateField("additionalRequirements", value);
+  };
 
   // 최종 제출 (견적 요청하기)
   const handleFinalSubmit = () => {
-    const data: Partial<RequestFormData> = {
-      additionalRequirements: requirements.trim() || undefined,
-    };
+    const trimmedRequirements = requirements.trim();
 
-    onNext(data);
+    const finalValue = trimmedRequirements === "" ? undefined : trimmedRequirements;
+    updateField("additionalRequirements", finalValue);
+
+    onNext();
   };
 
   return (
@@ -24,14 +41,14 @@ const Requirements: React.FC<StepProps> = ({ onNext, initialData }) => {
       </div>
       <div className="flex justify-end">
         <div className="flex w-[312px] flex-col gap-2.5 rounded-2xl bg-white p-4 shadow-lg lg:w-[624px] lg:gap-6 lg:p-10">
-          <div className="">
+          <div className="w-full">
             <label className="mb-1 block text-sm font-medium text-gray-700">
               기타 특이사항 (사다리차 필요, 주차 등)
             </label>
             <Input
               inputType="textArea"
               value={requirements.toString()}
-              onChange={setRequirements}
+              onChange={handleRequirementsChange}
               className="w-full rounded-lg border p-2"
               placeholder="계단 작업, 주차 공간 협소 등 기사님께 전달할 정보"
             />

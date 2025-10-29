@@ -1,35 +1,46 @@
-import React, { useMemo, useState } from "react";
-import { StepProps } from "@/types/request";
+import React, { useMemo } from "react";
+import { RequestDraftStore, StepProps } from "@/types/request";
 import ChatBubble from "@/components/ui/ChatBubble";
 import Button from "@/components/ui/Button";
-import { MoveTypeMap, ClientMoveItem } from "@/types/moveTypes";
+import { MoveTypeMap, ClientMoveItem, MoveType } from "@/types/moveTypes";
 
-const MovingType: React.FC<StepProps> = ({ onNext, initialData, isCompleted, onEdit }) => {
-  const [selectedType, setSelectedType] = useState(initialData.serviceType);
+// Zustand 임포트
+import { useRequestDraftStore } from "@/store/useRequestDraftStore";
+import { useShallow } from "zustand/react/shallow";
 
-  // MoveTypeMap을 배열 형태로 변환하여 렌더링에 사용
-  const moveTypesArray: ClientMoveItem[] = useMemo(() => {
-    return Object.keys(MoveTypeMap).map((key) => {
-      const serverKey = key as keyof typeof MoveTypeMap;
-      return {
-        type: MoveTypeMap[serverKey].clientType,
-        content: MoveTypeMap[serverKey].content,
-      };
-    });
-  }, []);
+// MoveTypeMap
+const moveTypesArray: ClientMoveItem[] = Object.keys(MoveTypeMap).map((key) => {
+  const serverKey = key as keyof typeof MoveTypeMap;
+  return {
+    type: MoveTypeMap[serverKey].clientType,
+    content: MoveTypeMap[serverKey].content,
+  };
+});
+
+// initialData
+const MovingType: React.FC<StepProps> = ({ onNext, isCompleted, onEdit }) => {
+  const { serviceType, updateField } = useRequestDraftStore(
+    useShallow((state) => ({
+      serviceType: state.serviceType,
+      updateField: state.updateField,
+    }))
+  );
+
+  const selectedType = serviceType;
+
   const summaryValue = useMemo(() => {
-    const selectedItem = moveTypesArray.find((item) => item.type === initialData.serviceType);
+    const selectedItem = moveTypesArray.find((item) => item.type === selectedType);
     return selectedItem ? selectedItem.content : "선택되지 않음";
-  }, [initialData.serviceType, moveTypesArray]);
+  }, [selectedType]);
 
-  // 선택된 이사 종류의 표시 이름 (content) 찾기
-  const selectedTypeDisplayName = useMemo(() => {
-    return moveTypesArray.find((item) => item.type === selectedType)?.content;
-  }, [selectedType, moveTypesArray]);
+  // 이사 타입 변경 핸들러
+  const handleSelectType = (type: MoveType) => {
+    updateField("serviceType", type);
+  };
 
   const handleSubmit = () => {
     if (selectedType) {
-      onNext({ serviceType: selectedType });
+      onNext();
     } else {
       alert("이사 종류를 선택해주세요.");
     }
@@ -52,7 +63,7 @@ const MovingType: React.FC<StepProps> = ({ onNext, initialData, isCompleted, onE
                 <button
                   key={item.type}
                   className={`text-md rounded-lg border p-2 font-medium transition-colors lg:p-4 lg:text-lg ${selectedType === item.type ? "border-primary text-primary font-bold shadow-md" : "border-gray-300 bg-white text-gray-500 hover:bg-gray-100"}`}
-                  onClick={() => setSelectedType(item.type)}
+                  onClick={() => handleSelectType(item.type as MoveType)}
                 >
                   {item.content}
                 </button>
