@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { RequestFormData } from "@/types/request";
 import Button from "@/components/ui/Button";
@@ -14,7 +14,11 @@ const getMoveTypeDisplayName = (typeKey: MoveType | undefined): string => {
 };
 
 const RequestCompleteModal: React.FC<ModalProps> = ({ formData }) => {
-  const displayMoveType = getMoveTypeDisplayName(formData.serviceType);
+  const displayMoveType = useMemo(
+    () => getMoveTypeDisplayName(formData.serviceType ?? undefined),
+    [formData.serviceType]
+  );
+
   const router = useRouter();
 
   const handleGoToMain = () => {
