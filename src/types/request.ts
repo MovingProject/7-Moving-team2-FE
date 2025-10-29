@@ -1,28 +1,32 @@
 import { MoveType } from "./moveTypes";
 
 export interface RequestFormData {
-  serviceType: MoveType;
+  serviceType: MoveType | null;
   moveAt: string;
 
   departureAddress: string;
-  departureFloor: number;
+  departureFloor: number | null;
   departureElevator: boolean;
-  departurePyeong: number;
+  departurePyeong: number | null;
 
   arrivalAddress: string;
-  arrivalFloor: number;
+  arrivalFloor: number | null;
   arrivalElevator: boolean;
-  arrivalPyeong: number;
+  arrivalPyeong: number | null;
 
   additionalRequirements?: string;
 }
 
+export interface RequestDraftStore extends RequestFormData {
+  updateField: <K extends keyof RequestFormData>(key: K, value: RequestFormData[K]) => void;
+  resetDraft: () => void;
+}
 export interface StepProps {
   // onPrev: () => void;
-  onNext: (data: Partial<RequestFormData>) => void;
-  initialData: Partial<RequestFormData>;
+  onNext: () => void;
+  initialData: RequestDraftStore;
   isCompleted: boolean;
-  onEdit?: () => void;
+  onEdit: (() => void) | undefined;
 }
 
 // 견적요청 단계 순서

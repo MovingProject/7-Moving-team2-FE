@@ -1,26 +1,73 @@
-import React, { useMemo, useState, useRef } from "react";
-import { StepProps, RequestFormData } from "@/types/request";
+import React, { useMemo, useCallback, useRef } from "react";
+import { StepProps } from "@/types/request";
 import ChatBubble from "@/components/ui/ChatBubble";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { cleanNumericInput } from "@/utils/constant/numericInput";
-import clsx from "clsx";
 import AddressInputGroup from "./AddressInputGroup";
+import { splitAddress } from "@/utils/constant/addressUtils";
 
-const DepartureDetails: React.FC<StepProps> = ({ onNext, initialData, isCompleted, onEdit }) => {
-  const [baseAddress, setBaseAddress] = useState(
-    initialData.departureAddress?.split(" | ")[0] || ""
-  );
-  const [detailAddress, setDetailAddress] = useState(
-    initialData.departureAddress?.split(" | ")[1] || ""
-  );
-  const [floorString, setFloorString] = useState(String(initialData.departureFloor || ""));
-  const [pyeongString, setPyeongString] = useState(String(initialData.departurePyeong || ""));
-  const [isElevator, setIsElevator] = useState(initialData.departureElevator ?? false);
+// Zustand 임포트
+import { useRequestDraftStore } from "@/store/useRequestDraftStore";
+import { useShallow } from "zustand/react/shallow";
 
-  const detailAddressRef = useRef<HTMLInputElement>(null);
+const DepartureDetails: React.FC<StepProps> = ({ onNext, isCompleted, onEdit }) => {
+  const { departureAddress, departureFloor, departurePyeong, departureElevator, updateField } =
+    useRequestDraftStore(
+      useShallow((state) => ({
+        departureAddress: state.departureAddress,
+        departureFloor: state.departureFloor,
+        departurePyeong: state.departurePyeong,
+        departureElevator: state.departureElevator,
+        updateField: state.updateField,
+      }))
+    );
+
+  const { base: baseAddress, detail: detailAddress } = useMemo(
+    () => splitAddress(departureAddress),
+    [departureAddress]
+  );
+  const floorString = String(departureFloor || "");
+  const pyeongString = String(departurePyeong || "");
+  const isElevator = departureElevator ?? false;
+
+  // 유효성 검사를 위한 숫자 변환
   const floor = Number(floorString);
   const pyeong = Number(pyeongString);
+
+  const detailAddressRef = useRef<HTMLInputElement>(null);
+
+  const handleBaseAddressChange = useCallback(
+    (value: string) => {
+      const newAddress = `${value} | `;
+      updateField("departureAddress", newAddress);
+    },
+    [updateField]
+  );
+  const handleDetailAddressChange = useCallback(
+    (value: string) => {
+      const newAddress = `${baseAddress} | ${value.trim()}`;
+      updateField("departureAddress", newAddress);
+    },
+    [baseAddress, updateField]
+  );
+
+  const handleFloorChange = (value: string) => {
+    const cleanedValue = cleanNumericInput(value);
+    // String -> Number | null 로 변환하여 Zustand에 저장
+    const numValue = cleanedValue ? Number(cleanedValue) : null;
+    updateField("departureFloor", numValue);
+  };
+
+  const handlePyeongChange = (value: string) => {
+    const cleanedValue = cleanNumericInput(value);
+    const numValue = cleanedValue ? Number(cleanedValue) : null;
+    updateField("departurePyeong", numValue);
+  };
+
+  const handleElevatorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    updateField("departureElevator", e.target.checked);
+  };
 
   // 주소, 층수, 면적 : 필수 사항
   const isFormValid = useMemo(() => {
@@ -34,40 +81,22 @@ const DepartureDetails: React.FC<StepProps> = ({ onNext, initialData, isComplete
     );
   }, [baseAddress, detailAddress, floor, pyeong]);
 
-  const handleFloorChange = (value: string) => {
-    const cleanedValue = cleanNumericInput(value);
-    setFloorString(cleanedValue);
-  };
-
-  const handlePyeongChange = (value: string) => {
-    const cleanedValue = cleanNumericInput(value);
-    setPyeongString(cleanedValue);
-  };
-
   const handleSubmit = () => {
     if (!isFormValid) {
       alert("주소, 층수, 면적을 입력해주세요.");
       return;
     }
-    const fullAddress = `${baseAddress} | ${detailAddress.trim()}`;
-
-    const data: Partial<RequestFormData> = {
-      departureAddress: fullAddress,
-      departureFloor: floor,
-      departurePyeong: pyeong,
-      departureElevator: isElevator,
-    };
-    onNext(data);
+    onNext();
   };
 
   const summaryDetails = useMemo(() => {
-    const addr = initialData.departureAddress || "-";
-    const flr = initialData.departureFloor ? `${initialData.departureFloor}층` : "-";
-    const png = initialData.departurePyeong ? `${initialData.departurePyeong}평` : "-";
-    const elev = initialData.departureElevator ? "있음" : "없음";
+    const addr = departureAddress || "-";
+    const flr = departureFloor ? `${departureFloor}층` : "-";
+    const png = departurePyeong ? `${departurePyeong}평` : "-";
+    const elev = departureElevator ? "있음" : "없음";
 
     return { addr, flr, png, elev };
-  }, [initialData]);
+  }, [departureAddress, departureFloor, departurePyeong, departureElevator]);
 
   return (
     <>
@@ -80,8 +109,8 @@ const DepartureDetails: React.FC<StepProps> = ({ onNext, initialData, isComplete
             <AddressInputGroup
               baseAddress={baseAddress}
               detailAddress={detailAddress}
-              onBaseAddressChange={setBaseAddress}
-              onDetailAddressChange={setDetailAddress}
+              onBaseAddressChange={handleBaseAddressChange}
+              onDetailAddressChange={handleDetailAddressChange}
               detailAddressRef={detailAddressRef}
             />
 
@@ -112,7 +141,7 @@ const DepartureDetails: React.FC<StepProps> = ({ onNext, initialData, isComplete
               <input
                 type="checkbox"
                 checked={isElevator}
-                onChange={(e) => setIsElevator(e.target.checked)}
+                onChange={handleElevatorChange}
                 id="dep-elevator"
                 className="text-primary border-primary h-4 w-4 rounded"
               />
@@ -133,7 +162,7 @@ const DepartureDetails: React.FC<StepProps> = ({ onNext, initialData, isComplete
         ) : (
           <div className="flex flex-col items-end">
             <ChatBubble
-              message={`${summaryDetails.addr.replace(" | ", ", ")} /  ${summaryDetails.flr} / ${summaryDetails.png} / 엘레베이터 ${summaryDetails.elev}`}
+              message={`${summaryDetails.addr.replace(" | ", ", ")} / ${summaryDetails.flr} / ${summaryDetails.png} / 엘레베이터 ${summaryDetails.elev}`}
               theme="primary"
               isMe={true}
             />
