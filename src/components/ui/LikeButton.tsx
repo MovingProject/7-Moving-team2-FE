@@ -4,6 +4,9 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useLikeDriver } from "@/utils/hook/likes/useLikeQuery";
 import { useUnlikeDriver } from "@/utils/hook/likes/useUnlike";
+import { useAuthStore } from "@/store/authStore";
+import DefaultModal from "./Modal/DefaultModal";
+import { useRouter } from "next/navigation";
 
 export interface LikeButtonProps {
   driverId?: string;
@@ -22,6 +25,9 @@ export default function LikeButton({
   className,
   onClick,
 }: LikeButtonProps) {
+  const router = useRouter();
+  const { user } = useAuthStore();
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [liked, setLiked] = useState(isLiked);
   const [count, setCount] = useState(initialCount);
@@ -36,6 +42,11 @@ export default function LikeButton({
     // 외부 onClick 있으면 그거 우선 실행
     if (onClick) {
       onClick(e);
+      return;
+    }
+
+    if (!user) {
+      setShowLoginModal(true);
       return;
     }
 
@@ -81,18 +92,29 @@ export default function LikeButton({
   }, [isLiked, initialCount]);
 
   return (
-    <button
-      onClick={toggleLike}
-      disabled={readOnly}
-      className={`flex cursor-pointer items-center gap-1 focus:outline-none ${className}`}
-    >
-      <Image
-        src={liked ? "/icon/like-on.svg" : "/icon/like-off.svg"}
-        alt="좋아요"
-        width={isDesktop ? 24 : 20}
-        height={isDesktop ? 24 : 20}
-      />
-      <span className="text-xs text-gray-700 lg:text-base">{count}</span>
-    </button>
+    <>
+      <button
+        onClick={toggleLike}
+        disabled={readOnly}
+        className={`flex cursor-pointer items-center gap-1 focus:outline-none ${className}`}
+      >
+        <Image
+          src={liked ? "/icon/like-on.svg" : "/icon/like-off.svg"}
+          alt="좋아요"
+          width={isDesktop ? 24 : 20}
+          height={isDesktop ? 24 : 20}
+        />
+        <span className="text-xs text-gray-700 lg:text-base">{count}</span>
+      </button>
+      <DefaultModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        title="로그인이 필요한 작업입니다"
+        buttonText="로그인하기"
+        onButtonClick={() => router.push("/login")}
+      >
+        <p className="text-center text-gray-700">로그인 후에 이용하실 수 있습니다.</p>
+      </DefaultModal>
+    </>
   );
 }
