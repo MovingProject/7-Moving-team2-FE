@@ -1,7 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { type Quotation } from "@/app/chat/mock/data";
 import useChatStore from "@/store/chatStore";
+import ContractModal from "./ContractModal";
+import { Contract } from "@/types/contract";
+import { generateContractNumber, downloadPDF } from "@/utils/pdfUtils";
+import ContractPreview from "./ContractPreview";
 
 interface QuotationMessageProps {
   quotation: Quotation;
@@ -12,6 +17,9 @@ export default function QuotationMessage({ quotation, messageId }: QuotationMess
   const { currentUser, updateMessage, addMessage } = useChatStore();
   const isDriver = currentUser.role === "driver";
   const isCustomer = currentUser.role === "consumer";
+  const [isContractModalOpen, setIsContractModalOpen] = useState(false);
+  const [contract, setContract] = useState<Contract | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const getStatusBadge = (status: string) => {
     const statusMap = {
@@ -25,6 +33,15 @@ export default function QuotationMessage({ quotation, messageId }: QuotationMess
   };
 
   const handleAccept = () => {
+    // 계약서 데이터 생성 및 저장
+    const newContract = generateContract();
+    setContract(newContract);
+
+    // 계약서 모달 열기
+    setIsContractModalOpen(true);
+  };
+
+  const handleContractConfirm = () => {
     // TODO: Replace with real API call
     // await apiClient.post(`/quotations/${quotation.id}/accept`);
 
@@ -40,9 +57,91 @@ export default function QuotationMessage({ quotation, messageId }: QuotationMess
       senderId: "system",
       senderName: "시스템",
       messageType: "MESSAGE",
-      content: "견적이 수락되었습니다.",
+      content: "견적이 수락되고 계약서가 작성되었습니다.",
       createdAt: new Date().toISOString(),
     });
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!contract) return;
+
+    setIsDownloading(true);
+    try {
+      // PDF 생성을 위해 임시 div 생성
+      const tempDiv = document.createElement("div");
+      tempDiv.id = "temp-contract-preview";
+      tempDiv.style.position = "absolute";
+      tempDiv.style.left = "-9999px";
+      document.body.appendChild(tempDiv);
+
+      // ContractPreview를 임시 div에 렌더링
+      const { createRoot } = await import("react-dom/client");
+      const root = createRoot(tempDiv);
+
+      await new Promise<void>((resolve) => {
+        root.render(<ContractPreview contract={contract} isCustomerAgreed={true} />);
+        setTimeout(resolve, 100); // 렌더링 대기
+      });
+
+      // PDF 다운로드
+      await downloadPDF(
+        "temp-contract-preview",
+        `이사계약서_${contract.contractNumber}_${contract.customerName}`
+      );
+
+      // 정리
+      root.unmount();
+      document.body.removeChild(tempDiv);
+    } catch (error) {
+      alert("PDF 다운로드 중 오류가 발생했습니다.");
+      console.error(error);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  // 계약서 데이터 생성
+  const generateContract = (): Contract => {
+    return {
+      id: `contract-${Date.now()}`,
+      quotationId: quotation.id,
+      contractNumber: generateContractNumber(),
+
+      // 고객 정보 (실제로는 API에서 가져와야 함)
+      customerName: "홍길동",
+      customerPhone: "010-1234-5678",
+      customerAddress: "서울특별시 강남구 테헤란로 123",
+
+      // 기사 정보 (실제로는 API에서 가져와야 함)
+      driverName: "김기사",
+      driverPhone: "010-9876-5432",
+      driverNickname: "친절한기사",
+
+      // 이사 정보
+      serviceType: quotation.serviceType,
+      moveAt: quotation.moveAt,
+      departureAddress: quotation.departureAddress,
+      departureFloor: quotation.departureFloor,
+      departureElevator: quotation.departureElevator,
+      arrivalAddress: quotation.arrivalAddress,
+      arrivalFloor: quotation.arrivalFloor,
+      arrivalElevator: quotation.arrivalElevator,
+
+      // 금액 정보
+      estimatedPrice: quotation.price,
+      additionalRequirements: quotation.additionalRequirements,
+
+      // 계약 조건
+      depositAmount: Math.floor(quotation.price * 0.1), // 계약금 10%
+      cancellationPolicy: "이사 3일 전까지 취소 시 계약금 반환, 이후 취소 시 계약금 환불 불가",
+
+      // 날짜
+      contractedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+
+      // 상태
+      status: "PENDING",
+    };
   };
 
   const statusBadge = getStatusBadge(quotation.status);
@@ -107,10 +206,55 @@ export default function QuotationMessage({ quotation, messageId }: QuotationMess
         </button>
       )}
 
-      {isDriver && quotation.status === "SELECTED" && (
-        <div className="mt-4 rounded-lg bg-green-50 p-2 text-center text-sm text-green-700">
-          ✓ 고객이 견적을 수락했습니다
+      {quotation.status === "SELECTED" && (
+        <div className="mt-4 space-y-2">
+          <div className="rounded-lg bg-green-50 p-2 text-center text-sm text-green-700">
+            ✓ 견적이 수락되었습니다
+          </div>
+          <button
+            onClick={handleDownloadPDF}
+            disabled={isDownloading}
+            className="w-full rounded-lg bg-green-500 px-4 py-2 font-medium text-white hover:bg-green-600 disabled:bg-gray-400"
+          >
+            {isDownloading ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg
+                  className="h-5 w-5 animate-spin"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                PDF 생성 중...
+              </span>
+            ) : (
+              "📄 계약서 PDF 다운로드"
+            )}
+          </button>
         </div>
+      )}
+
+      {/* 계약서 모달 */}
+      {isContractModalOpen && contract && (
+        <ContractModal
+          isOpen={isContractModalOpen}
+          onClose={() => setIsContractModalOpen(false)}
+          contract={contract}
+          onConfirm={handleContractConfirm}
+        />
       )}
     </div>
   );
