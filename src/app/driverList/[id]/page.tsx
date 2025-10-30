@@ -108,11 +108,13 @@ export default function DriverDetailPage() {
     <DefaultModal
       isOpen={showLoginModal}
       onClose={() => setShowLoginModal(false)}
-      title="로그인이 필요한 작업입니다"
+      title=""
       buttonText="로그인하기"
       onButtonClick={() => window.location.replace("/login")}
     >
-      <p className="text-center text-gray-700">로그인 후에 이용하실 수 있습니다.</p>
+      <p className="text-center text-base text-gray-700 lg:text-xl">
+        로그인 후에 이용하실 수 있습니다.
+      </p>
     </DefaultModal>
   );
 
