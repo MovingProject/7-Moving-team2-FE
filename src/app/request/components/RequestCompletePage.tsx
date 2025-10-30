@@ -9,7 +9,7 @@ interface Props {
   data: RequestDetail;
 }
 
-const getMoveTypeDisplayName = (typeKey: MoveType | undefined): string => {
+const getMoveTypeDisplayName = (typeKey: MoveType | undefined | null): string => {
   if (!typeKey) return "-";
   const item = Object.values(MoveTypeMap).find((item) => item.clientType === typeKey);
   return item ? item.content : typeKey;
