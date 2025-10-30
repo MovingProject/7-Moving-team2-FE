@@ -10,16 +10,8 @@ interface ImageInputAreaProps {
   className?: string;
 }
 
-const avatarList = [
-  "/images/avatars/avatartion1.jpg",
-  "/images/avatars/avatartion2.jpg",
-  "/images/avatars/avatartion3.jpg",
-  "/images/avatars/avatartion4.jpg",
-  "/images/avatars/avatartion5.jpg",
-];
-
 export default function ImageInputArea({ size = "w-32 h-32", className }: ImageInputAreaProps) {
-  const [selected, setSelected] = useState<string>(avatarList[0]);
+  const [selected, setSelected] = useState("/images/avatars/avatartion1.jpg");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (

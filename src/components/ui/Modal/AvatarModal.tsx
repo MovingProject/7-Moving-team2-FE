@@ -18,6 +18,16 @@ const avatarList = [
   "/images/avatars/avatartion3.jpg",
   "/images/avatars/avatartion4.jpg",
   "/images/avatars/avatartion5.jpg",
+  "/images/avatars/avatartion6.png",
+  "/images/avatars/avatartion8.png",
+  "/images/avatars/avatartion13.png",
+  "/images/avatars/avatartion10.png",
+  "/images/avatars/avatartion14.png",
+  "/images/avatars/avatartion7.png",
+  "/images/avatars/avatartion9.png",
+  "/images/avatars/avatartion12.png",
+  "/images/avatars/avatartion11.png",
+  "/images/avatars/avatartion15.png",
 ];
 
 export default function AvatarSelectModal({
@@ -41,7 +51,7 @@ export default function AvatarSelectModal({
       buttonText="이미지 선택"
       onButtonClick={handleConfirm}
     >
-      <div className="flex flex-wrap items-center justify-center gap-1 py-4 md:gap-4">
+      <div className="grid grid-cols-5 place-items-center gap-2 py-4 md:gap-4">
         {avatarList.map((avatar) => (
           <button
             key={avatar}
