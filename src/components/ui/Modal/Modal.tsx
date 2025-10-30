@@ -36,7 +36,7 @@ const modalSizeMap: Record<ModalType, Record<ModalSize, string>> = {
     md: "w-[328px] rounded-4xl pt-4 pb-8",
   },
   default: {
-    sm: "rounded-3xl py-6 px-4 gap-7.5",
+    sm: "rounded-3xl py-6 px-1 gap-7.5",
     md: "rounded-4xl px-6 pt-8 pb-10 gap-10",
   },
 };

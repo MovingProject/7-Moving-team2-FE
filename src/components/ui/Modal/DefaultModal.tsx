@@ -31,7 +31,7 @@ export default function DefaultModal({
           text={buttonText}
           variant="primary"
           onClick={onButtonClick ?? onClose}
-          className={size === "md" ? "w-[560px]" : "w-[260px]"}
+          className={size === "md" ? "w-[560px]" : "w-full"}
           textSize={size === "md" ? "desktop" : "mobile"}
         />
       )}
