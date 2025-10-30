@@ -2,53 +2,58 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import upload from "@/assets/img/upload.svg"; // 👉 기본 이미지
 import clsx from "clsx";
+import AvatarSelectModal from "@/components/ui/Modal/AvatarModal";
 
 interface ImageInputAreaProps {
-  size?: string; // Tailwind 크기 (예: "w-32 h-32")
+  size?: string;
   className?: string;
 }
 
-export default function ImageInputArea({ size = "w-32 h-32", className }: ImageInputAreaProps) {
-  const [preview, setPreview] = useState<string | null>(null);
+const avatarList = [
+  "/images/avatars/avatartion1.jpg",
+  "/images/avatars/avatartion2.jpg",
+  "/images/avatars/avatartion3.jpg",
+  "/images/avatars/avatartion4.jpg",
+  "/images/avatars/avatartion5.jpg",
+];
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setPreview(URL.createObjectURL(file));
-    }
-  };
+export default function ImageInputArea({ size = "w-32 h-32", className }: ImageInputAreaProps) {
+  const [selected, setSelected] = useState<string>(avatarList[0]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <div
       className={clsx("flex flex-col items-start gap-2 border-b border-gray-200 pb-8", className)}
     >
-      <label
-        htmlFor="imageUpload"
-        className="font-Pretendard leading-[26px] font-semibold lg:text-xl"
-      >
+      <label className="font-Pretendard pb-4 leading-[26px] font-semibold text-gray-700 lg:text-xl">
         프로필 이미지
       </label>
 
-      {/* 숨겨진 input */}
-      <input
-        id="imageUpload"
-        type="file"
-        accept="image/*"
-        onChange={handleImageChange}
-        className="hidden"
-      />
-
-      {/* 이미지 클릭 시 업로드 */}
-      <label htmlFor="imageUpload" className="cursor-pointer">
+      <button
+        type="button"
+        onClick={() => setIsModalOpen(true)}
+        className="relative cursor-pointer transition hover:opacity-80 focus:outline-none"
+      >
         <Image
-          src={preview || upload.src} // 👉 upload 이미지가 기본값
-          alt="업로드 이미지"
+          src={selected}
+          alt="선택된 프로필 이미지"
           width={100}
           height={100}
-          className={`${size} h-4 w-4 border border-gray-300 object-cover shadow-sm transition hover:opacity-80`} // 사이즈 임의로 넣었음
+          className={clsx(size, "rounded-full border border-gray-300 object-cover shadow-sm")}
         />
-      </label>
+        <div className="pt-2">
+          <span className="text-sm text-gray-500">클릭하여 변경</span>
+        </div>
+      </button>
+
+      {/* 아바타 선택 모달 */}
+      <AvatarSelectModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSelect={(avatar) => setSelected(avatar)}
+        selected={selected}
+      />
     </div>
   );
 }
