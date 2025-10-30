@@ -23,12 +23,18 @@ export default function WeeklyForecastPanel({ city }: { city: string }) {
       {forecast.map((day) => (
         <div
           key={day.date}
-          className="flex flex-col items-center rounded-lg bg-white p-2 shadow-sm"
+          className="flex flex-col items-center gap-1 rounded-lg bg-white p-2 shadow-sm"
         >
           <p className="text-xs text-gray-500">{day.date.slice(5)}</p>
-          <img src={`https:${day.icon}`} alt={day.condition} width={40} height={40} />
-          <p className="text-xs">{day.condition}</p>
-          <p className="text-xs text-gray-600">
+          <img
+            src={`https:${day.icon}`}
+            alt={day.condition}
+            width={40}
+            height={40}
+            className="block"
+          />
+          <p className="hidden text-xs md:block">{day.condition}</p>
+          <p className="flex items-center justify-center text-[10px] text-gray-600 md:text-xs">
             {Math.round(day.mintemp_c)}° / {Math.round(day.maxtemp_c)}°
           </p>
         </div>
