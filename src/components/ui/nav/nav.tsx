@@ -45,7 +45,7 @@ export default function Nav({ option }: NavProps) {
   const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false);
   const [isWeeklyOpen, setIsWeeklyOpen] = useState(false);
   const optionFont =
-    "text-[#1F1F1F] font-[Pretendard] text-base font-medium leading-[26px] cursor-pointer";
+    "text-[#1F1F1F] font-[Pretendard] text-sm lg:text-base font-medium leading-[26px] cursor-pointer";
 
   // 알림 목업 데이터
   const notifications = [
@@ -97,6 +97,34 @@ export default function Nav({ option }: NavProps) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    if (open) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   useEffect(() => {
     (async () => {
       try {
@@ -182,14 +210,14 @@ export default function Nav({ option }: NavProps) {
             onClick={() => router.push("/landing")}
           />
           {/* PC 메뉴 */}
-          <div className="ml-8 hidden items-center gap-8 space-x-4 md:flex">
+          <div className="ml-8 hidden items-center gap-4 space-x-4 md:flex lg:gap-8">
             {renderMenuItems()}
           </div>
         </div>
 
-        <div className="flex gap-4 pt-5 pr-5">
+        <div className="flex items-center gap-1 pt-5 pr-5 lg:gap-4">
           <p
-            className="hover:text-primary flex cursor-pointer items-center font-semibold text-gray-700"
+            className="hover:text-primary flex cursor-pointer items-center text-sm font-semibold text-gray-700 lg:text-base"
             onClick={() => setIsWeeklyOpen((prev) => !prev)}
           >
             주간날씨
@@ -203,7 +231,7 @@ export default function Nav({ option }: NavProps) {
           <div className="relative mr-4" ref={notiRef}>
             {weatherData && (
               <div
-                className="flex cursor-pointer items-center gap-2 text-sm text-gray-700"
+                className="flex cursor-pointer items-center gap-1 text-sm text-gray-700"
                 onClick={() => setIsCityDropdownOpen((prev) => !prev)}
               >
                 <img
@@ -214,7 +242,7 @@ export default function Nav({ option }: NavProps) {
                 />
                 <div>
                   <p className="font-medium">{weatherData.location}</p>
-                  <p className="text-xs">
+                  <p className="hidden text-xs lg:block">
                     {weatherData.temp}°C · {weatherData.condition}
                   </p>
                 </div>
@@ -222,12 +250,12 @@ export default function Nav({ option }: NavProps) {
             )}
 
             {isCityDropdownOpen && (
-              <div className="absolute right-0 z-99 mt-2 w-32 rounded-lg border border-gray-200 bg-white shadow-lg">
+              <div className="absolute left-1/2 z-99 mt-2 w-32 -translate-x-1/2 rounded-lg border border-gray-200 bg-white shadow-lg">
                 {cityList.map((cityName) => (
                   <div
                     key={cityName}
                     className={`cursor-pointer px-4 py-2 text-sm hover:bg-gray-100 ${
-                      cityName === city ? "font-semibold text-blue-600" : ""
+                      cityName === city ? "text-primary font-semibold" : ""
                     }`}
                     onClick={() => {
                       setCity(cityName);
@@ -371,8 +399,8 @@ export default function Nav({ option }: NavProps) {
               src={XIcon}
               alt="취소"
               onClick={() => setOpen(false)}
-              width={100}
-              height={100}
+              width={45}
+              height={45}
             />
           </div>
           <div className="flex flex-col gap-6 p-4">{renderMenuItems()}</div>
