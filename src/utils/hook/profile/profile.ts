@@ -28,6 +28,7 @@ interface RawUserResponse {
   bio?: string;
   experience?: number;
   description?: string;
+  image?: string;
 
   driverProfile?: {
     id: string;
@@ -95,7 +96,7 @@ export const getUserProfile = async (): Promise<UserData> => {
       driverId: raw.id,
       nickname: raw.nickname ?? d.nickname ?? raw.name ?? "",
       oneLiner: d.oneLiner ?? raw.bio ?? "",
-      image: d.image ?? null,
+      image: raw.image ?? d.image ?? null,
       reviewCount: d.reviewCount ?? 0,
       rating: d.rating ?? 0,
       careerYears: d.careerYears ?? raw.experience ?? 0,
@@ -135,7 +136,7 @@ export const getUserProfile = async (): Promise<UserData> => {
   if (role === "CONSUMER") {
     const consumerProfile: ConsumerProfileData = {
       consumerId: raw.id,
-      image: null,
+      image: raw.image ?? raw.consumerProfile?.image ?? null,
       serviceType: raw.service ? (raw.service as ServerMoveType) : undefined,
       areas: raw.region ? (raw.region as AreaType) : undefined,
     };

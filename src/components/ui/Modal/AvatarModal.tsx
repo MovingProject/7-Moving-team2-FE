@@ -13,21 +13,21 @@ interface AvatarSelectModalProps {
 }
 
 const avatarList = [
-  "/images/avatars/avatartion1.jpg",
-  "/images/avatars/avatartion2.jpg",
-  "/images/avatars/avatartion3.jpg",
-  "/images/avatars/avatartion4.jpg",
-  "/images/avatars/avatartion5.jpg",
-  "/images/avatars/avatartion6.png",
-  "/images/avatars/avatartion8.png",
-  "/images/avatars/avatartion13.png",
-  "/images/avatars/avatartion10.png",
-  "/images/avatars/avatartion14.png",
-  "/images/avatars/avatartion7.png",
-  "/images/avatars/avatartion9.png",
-  "/images/avatars/avatartion12.png",
-  "/images/avatars/avatartion11.png",
-  "/images/avatars/avatartion15.png",
+  "/images/avatars/avatartion1.jpg", // 보라맨
+  "/images/avatars/avatartion2.jpg", // 파랑맨
+  "/images/avatars/avatartion3.jpg", // 빨강맨
+  "/images/avatars/avatartion4.jpg", // 초록맨
+  "/images/avatars/avatartion5.jpg", // 노랑맨
+  "/images/avatars/avatartion6.png", // 보라근육맨
+  "/images/avatars/avatartion8.png", // 파랑근육맨
+  "/images/avatars/avatartion13.png", // 빨강근육맨
+  "/images/avatars/avatartion10.png", // 초록근육맨
+  "/images/avatars/avatartion14.png", // 노랑근육맨
+  "/images/avatars/avatartion7.png", // 보라근육걸
+  "/images/avatars/avatartion9.png", // 파랑근육걸
+  "/images/avatars/avatartion12.png", // 빨강근육걸
+  "/images/avatars/avatartion11.png", // 초록근육걸
+  "/images/avatars/avatartion15.png", // 노랑근육걸
 ];
 
 export default function AvatarSelectModal({

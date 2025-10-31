@@ -2,7 +2,7 @@
 
 import ProfileImage from "@/components/ui/profile/ProfileImage";
 import { getRandomProfileImage } from "@/utils/constant/getProfileImage";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface ProfileViewerProps {
   initialImageUrl: string;
@@ -10,9 +10,14 @@ interface ProfileViewerProps {
 }
 
 export default function ProfileViewer({ initialImageUrl, size = "md" }: ProfileViewerProps) {
-  const [profileImageSrc, setProfileImageSrc] = useState(
-    initialImageUrl || getRandomProfileImage()
-  );
+  const defaultImage = initialImageUrl || getRandomProfileImage();
+  const [profileImageSrc, setProfileImageSrc] = useState(defaultImage);
+
+  useEffect(() => {
+    if (initialImageUrl) {
+      setProfileImageSrc(initialImageUrl);
+    }
+  }, [initialImageUrl]);
 
   return <>{profileImageSrc && <ProfileImage src={profileImageSrc} />}</>;
 }
