@@ -231,7 +231,7 @@ const transformProfileResponse = (data: ProfileUpdateResponse): UserData => {
   if ("serviceType" in consumerData || "areas" in consumerData) {
     const consumerProfile: ConsumerProfileData = {
       consumerId: data.id,
-      image: consumerData.image ?? null,
+      image: consumerData.image ?? data.image ?? null,
       serviceType: consumerData.serviceType as ServerMoveType | undefined,
       areas: consumerData.areas as AreaType | undefined,
     };
