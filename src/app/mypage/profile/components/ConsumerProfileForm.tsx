@@ -87,6 +87,7 @@ export default function ConsumerProfileForm() {
   const [email] = useState(user?.email ?? "");
   const [phone, setPhone] = useState(user?.phoneNumber ?? "");
   const [profileImage, setProfileImage] = useState<string>("");
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // 비밀번호 입력값
   const [currentPw, setCurrentPw] = useState("");
@@ -103,6 +104,8 @@ export default function ConsumerProfileForm() {
   // 초기 데이터 세팅
   useEffect(() => {
     if (!consumerProfile) return;
+    if (isInitialized) return;
+    setProfileImage(consumerProfile.image || "");
 
     // 서비스 변환 (백엔드 → 한글)
     if (consumerProfile.serviceType) {
@@ -118,7 +121,8 @@ export default function ConsumerProfileForm() {
 
     setName(user?.name ?? "");
     setPhone(user?.phoneNumber ?? "");
-  }, [consumerProfile, user]);
+    setIsInitialized(true);
+  }, [consumerProfile, user, isInitialized]);
 
   // 비밀번호 검증
   const validatePassword = (): boolean => {

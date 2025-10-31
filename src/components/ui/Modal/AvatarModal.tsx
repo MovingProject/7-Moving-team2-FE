@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import clsx from "clsx";
 import DefaultModal from "@/components/ui/Modal/DefaultModal";
@@ -37,6 +37,12 @@ export default function AvatarSelectModal({
   selected,
 }: AvatarSelectModalProps) {
   const [tempSelected, setTempSelected] = useState<string>(selected ?? avatarList[0]);
+
+  useEffect(() => {
+    if (isOpen && selected) {
+      setTempSelected(selected);
+    }
+  }, [isOpen, selected]);
 
   const handleConfirm = () => {
     onSelect(tempSelected);
