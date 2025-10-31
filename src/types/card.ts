@@ -58,7 +58,6 @@ export interface UpdateDriverProfileRequest {
   name?: string;
   email?: string;
   phoneNumber?: string;
-  profileImage?: string;
   currentPassword?: string;
   newPassword?: string;
 
@@ -67,6 +66,7 @@ export interface UpdateDriverProfileRequest {
     careerYears?: number;
     oneLiner?: string;
     description?: string;
+    image?: string;
     rating?: number;
     driverServiceAreas?: string[]; // Area enum 값
     driverServiceTypes?: string[]; // MoveType enum 값
@@ -77,7 +77,6 @@ export interface UpdateConsumerProfileRequest {
   name?: string;
   email?: string;
   phoneNumber?: string;
-  profileImage?: string;
   currentPassword?: string;
   newPassword?: string;
 

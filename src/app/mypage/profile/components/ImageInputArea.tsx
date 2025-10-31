@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import clsx from "clsx";
 import AvatarSelectModal from "@/components/ui/Modal/AvatarModal";
@@ -8,11 +8,27 @@ import AvatarSelectModal from "@/components/ui/Modal/AvatarModal";
 interface ImageInputAreaProps {
   size?: string;
   className?: string;
+  value?: string;
+  onChange?: (imageUrl: string) => void;
 }
 
-export default function ImageInputArea({ size = "w-32 h-32", className }: ImageInputAreaProps) {
+export default function ImageInputArea({
+  size = "w-32 h-32",
+  className,
+  value,
+  onChange,
+}: ImageInputAreaProps) {
   const [selected, setSelected] = useState("/images/avatars/avatartion1.jpg");
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (value) setSelected(value);
+  }, [value]);
+
+  const handleSelect = (avatar: string) => {
+    setSelected(avatar);
+    onChange?.(avatar);
+  };
 
   return (
     <div
@@ -43,7 +59,7 @@ export default function ImageInputArea({ size = "w-32 h-32", className }: ImageI
       <AvatarSelectModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSelect={(avatar) => setSelected(avatar)}
+        onSelect={handleSelect}
         selected={selected}
       />
     </div>
