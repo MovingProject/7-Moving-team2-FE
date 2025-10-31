@@ -109,6 +109,7 @@ export default function DriverProfileForm() {
   } = useProfileQuery();
 
   const [loading, setLoading] = useState(false);
+  const [profileImage, setProfileImage] = useState<string>("");
 
   // 폼 제출 (등록)
   const handleSubmit = async () => {
@@ -124,6 +125,7 @@ export default function DriverProfileForm() {
         careerYears,
         oneLiner,
         description,
+        image: profileImage,
         serviceTypes: backendServices,
         serviceAreas: backendRegions,
       });
@@ -159,7 +161,7 @@ export default function DriverProfileForm() {
                 )}
               </div>
 
-              <ImageInputArea />
+              <ImageInputArea value={profileImage} onChange={setProfileImage} />
               <InputArea
                 label="별명"
                 value={nickname}
