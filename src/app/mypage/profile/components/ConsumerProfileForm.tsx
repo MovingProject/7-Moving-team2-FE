@@ -86,6 +86,7 @@ export default function ConsumerProfileForm() {
   const [name, setName] = useState("");
   const [email] = useState(user?.email ?? "");
   const [phone, setPhone] = useState(user?.phoneNumber ?? "");
+  const [profileImage, setProfileImage] = useState<string>("");
 
   // 비밀번호 입력값
   const [currentPw, setCurrentPw] = useState("");
@@ -170,7 +171,7 @@ export default function ConsumerProfileForm() {
           consumerProfile: {
             serviceType,
             areas,
-            ...(consumerProfile?.image ? { image: consumerProfile.image } : {}),
+            image: profileImage,
           },
         };
 
@@ -182,6 +183,7 @@ export default function ConsumerProfileForm() {
         await createConsumerProfile({
           serviceType,
           areas,
+          image: profileImage,
         });
 
         await refetch();
@@ -271,7 +273,7 @@ export default function ConsumerProfileForm() {
               </div>
             )}
             <div className="flex w-full flex-col gap-6">
-              <ImageInputArea className="py-8" />
+              <ImageInputArea className="py-8" value={profileImage} onChange={setProfileImage} />
               {/* 선호 서비스 유형 태그 */}
               <TagForm
                 selectedTags={selectedServices}
