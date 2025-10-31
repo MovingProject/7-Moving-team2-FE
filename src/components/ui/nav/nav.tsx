@@ -9,7 +9,7 @@ import LogoMobile from "@/assets/icon/Logo-1.svg";
 import Dropdown from "../Filters/Dropdown";
 import { useAuthStore } from "@/store/authStore";
 import { useUserStore } from "@/store/userStore";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
@@ -26,7 +26,9 @@ export default function Nav({ option }: NavProps) {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const notiRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const pathname = usePathname();
   const user = useAuthStore((s) => s.user);
   const clearUser = useAuthStore((s) => s.clearUser);
   const profileUser = useUserStore((s) => s.user);
@@ -100,7 +102,7 @@ export default function Nav({ option }: NavProps) {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
         setOpen(false);
       }
     };
@@ -124,6 +126,10 @@ export default function Nav({ option }: NavProps) {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     (async () => {
@@ -391,6 +397,7 @@ export default function Nav({ option }: NavProps) {
       {/* 모바일 전용 메뉴 */}
       {open && (
         <div
+          ref={mobileMenuRef}
           className={`fixed top-0 right-0 z-50 h-full w-64 transform bg-white shadow-lg transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"}`}
         >
           <div className="flex flex-col items-end border-b border-gray-300 p-4">
