@@ -92,6 +92,7 @@ export default function DriverProfileEdit() {
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [profileImage, setProfileImage] = useState<string>("");
 
   const [errors, setErrors] = useState({
     nickname: "",
@@ -196,6 +197,7 @@ export default function DriverProfileEdit() {
     setCareerYears(profile.careerYears ?? 0);
     setOneLiner(profile.oneLiner ?? "");
     setDescription(profile.description ?? "");
+    setProfileImage(profile.image || "");
 
     if (profile.driverServiceTypes) {
       const serviceKo = profile.driverServiceTypes
@@ -259,6 +261,7 @@ export default function DriverProfileEdit() {
           careerYears,
           oneLiner,
           description,
+          image: profileImage,
           driverServiceTypes: selectedServices.map((s) => SERVICE_MAP[s]),
           driverServiceAreas: selectedRegions.map((r) => REGION_MAP[r]),
         },
@@ -266,6 +269,8 @@ export default function DriverProfileEdit() {
 
       const updatedUser = await updateUserProfile(dto);
       setUser(updatedUser); // zustand 즉시 반영
+      await queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+      await queryClient.refetchQueries({ queryKey: ["userProfile"] });
       alert("프로필이 성공적으로 수정되었습니다!");
       if (user?.role === "DRIVER") router.push("/mypage");
       else router.back();
@@ -304,7 +309,7 @@ export default function DriverProfileEdit() {
                 error={errors.nickname}
                 placeholder="사이트에 노출될 별명을 입력해 주세요"
               />
-              <ImageInputArea />
+              <ImageInputArea value={profileImage} onChange={setProfileImage} />
               <InputArea
                 label="경력"
                 value={careerYears ? String(careerYears) : ""}
