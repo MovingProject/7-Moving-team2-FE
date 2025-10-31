@@ -14,10 +14,9 @@ export default function ProfileViewer({ initialImageUrl, size = "md" }: ProfileV
   const [profileImageSrc, setProfileImageSrc] = useState(defaultImage);
 
   useEffect(() => {
-    if (initialImageUrl) {
+    if (initialImageUrl && initialImageUrl !== profileImageSrc) {
       setProfileImageSrc(initialImageUrl);
     }
   }, [initialImageUrl]);
-
   return <>{profileImageSrc && <ProfileImage src={profileImageSrc} />}</>;
 }
