@@ -6,6 +6,7 @@ import { MoveTypeMap, MoveType } from "@/types/moveTypes";
 
 interface ModalProps {
   formData: Partial<RequestFormData>;
+  onClose?: () => void;
 }
 const getMoveTypeDisplayName = (typeKey: MoveType | undefined): string => {
   if (!typeKey) return "-";
@@ -13,7 +14,7 @@ const getMoveTypeDisplayName = (typeKey: MoveType | undefined): string => {
   return item ? item.content : typeKey;
 };
 
-const RequestCompleteModal: React.FC<ModalProps> = ({ formData }) => {
+const RequestCompleteModal: React.FC<ModalProps> = ({ formData, onClose }) => {
   const displayMoveType = useMemo(
     () => getMoveTypeDisplayName(formData.serviceType ?? undefined),
     [formData.serviceType]
@@ -22,10 +23,12 @@ const RequestCompleteModal: React.FC<ModalProps> = ({ formData }) => {
   const router = useRouter();
 
   const handleGoToMain = () => {
+    onClose?.();
     router.push("/");
   };
 
   const handleGoToDrivers = () => {
+    onClose?.();
     router.push("/driverList");
   };
 
