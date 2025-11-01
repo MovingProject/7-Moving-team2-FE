@@ -41,18 +41,18 @@ export default function LikedDriverProfile({ driver }: { driver: LikedDriver }) 
       {/* 왼쪽: 프로필 + 정보 */}
       <div className="flex items-center gap-3 overflow-hidden">
         {/* 프로필 이미지 */}
-        <div className="relative h-12 w-12 overflow-hidden rounded-full border border-gray-200">
+        <div className="relative h-12 w-12 overflow-hidden rounded-full border">
           <Image
             src={driver.avatarUrl || "/assets/icon/user.svg"}
             alt={driver.nickname}
-            width={24}
-            height={24}
+            fill
+            sizes="48px"
             className="object-cover"
           />
         </div>
         {/* 이름 + 정보 */}
         <div className="flex flex-col justify-center gap-2">
-          <CardText className="text-[13px] leading-none font-semibold text-gray-900">
+          <CardText className="text-xs leading-none font-semibold text-gray-900 lg:text-base">
             {driver.nickname}
           </CardText>
           {/* 하단 정보 */}
