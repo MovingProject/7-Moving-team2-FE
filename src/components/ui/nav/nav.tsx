@@ -15,6 +15,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getWeather } from "@/utils/hook/landing/landing";
 import WeeklyForecastPanel from "../WeeklyForecastPanel";
+import { useProfileQuery } from "@/hooks/useProfileQuery";
 
 interface NavProps {
   option?: string;
@@ -34,9 +35,13 @@ export default function Nav({ option }: NavProps) {
   const profileUser = useUserStore((s) => s.user);
   const clearProfileUser = useUserStore((s) => s.clearUser);
   const queryClient = useQueryClient();
+  const { user: loadedProfile } = useProfileQuery({
+    enabled: !!user && !profileUser,
+  });
   const isLoggedIn = !!user;
   const role = user?.role;
   const displayName = user?.name ?? profileUser?.name ?? "임시유저";
+  const profileImage = profileUser?.profile?.image || loadedProfile?.profile?.image || null;
   const [weatherData, setWeatherData] = useState<{
     location: string;
     temp: number;
@@ -48,6 +53,8 @@ export default function Nav({ option }: NavProps) {
   const [isWeeklyOpen, setIsWeeklyOpen] = useState(false);
   const optionFont =
     "text-[#1F1F1F] font-[Pretendard] text-sm lg:text-base font-medium leading-[26px] cursor-pointer";
+  const cityDropdownRef = useRef<HTMLDivElement>(null);
+  const weeklyPanelRef = useRef<HTMLDivElement>(null);
 
   // 알림 목업 데이터
   const notifications = [
@@ -55,6 +62,19 @@ export default function Nav({ option }: NavProps) {
     "고객님이 견적을 수락했습니다.",
     "채팅방에 새 메시지가 있습니다.",
   ];
+  const cityMap: { [key: string]: string } = {
+    Seoul: "서울",
+    Busan: "부산",
+    Incheon: "인천",
+    Daegu: "대구",
+    Daejeon: "대전",
+    Gwangju: "광주",
+    Ulsan: "울산",
+    Suwon: "수원",
+    Sejong: "세종",
+    Jeju: "제주",
+    Chuncheon: "춘천",
+  };
   const cityList = [
     "Seoul",
     "Busan",
@@ -95,6 +115,12 @@ export default function Nav({ option }: NavProps) {
       if (notiRef.current && !notiRef.current.contains(event.target as Node)) {
         setIsNotificationOpen(false);
       }
+      if (cityDropdownRef.current && !cityDropdownRef.current.contains(event.target as Node)) {
+        setIsCityDropdownOpen(false);
+      }
+      if (weeklyPanelRef.current && !weeklyPanelRef.current.contains(event.target as Node)) {
+        setIsWeeklyOpen(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -129,6 +155,10 @@ export default function Nav({ option }: NavProps) {
 
   useEffect(() => {
     setOpen(false);
+    setIsCityDropdownOpen(false);
+    setIsWeeklyOpen(false);
+    setIsProfileMenuOpen(false);
+    setIsNotificationOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -222,19 +252,21 @@ export default function Nav({ option }: NavProps) {
         </div>
 
         <div className="flex items-center gap-1 pt-5 pr-5 lg:gap-4">
-          <p
-            className="hover:text-primary flex cursor-pointer items-center text-sm font-semibold text-gray-700 lg:text-base"
-            onClick={() => setIsWeeklyOpen((prev) => !prev)}
-          >
-            주간날씨
-          </p>
+          <div ref={weeklyPanelRef}>
+            <p
+              className="hover:text-primary flex cursor-pointer items-center text-sm font-semibold text-gray-700 lg:text-base"
+              onClick={() => setIsWeeklyOpen((prev) => !prev)}
+            >
+              주간날씨
+            </p>
 
-          {isWeeklyOpen && (
-            <div className="absolute top-full left-0 z-40 w-full border-t border-gray-200 bg-white shadow-md">
-              <WeeklyForecastPanel city={city} />
-            </div>
-          )}
-          <div className="relative mr-4" ref={notiRef}>
+            {isWeeklyOpen && (
+              <div className="absolute top-full left-0 z-40 w-full border-t border-gray-200 bg-white shadow-md">
+                <WeeklyForecastPanel city={city} />
+              </div>
+            )}
+          </div>
+          <div className="relative mr-4" ref={cityDropdownRef}>
             {weatherData && (
               <div
                 className="flex cursor-pointer items-center gap-1 text-sm text-gray-700"
@@ -247,7 +279,7 @@ export default function Nav({ option }: NavProps) {
                   height={28}
                 />
                 <div>
-                  <p className="font-medium">{weatherData.location}</p>
+                  <p className="font-medium">{cityMap[city] || weatherData.location}</p>
                   <p className="hidden text-xs lg:block">
                     {weatherData.temp}°C · {weatherData.condition}
                   </p>
@@ -256,11 +288,11 @@ export default function Nav({ option }: NavProps) {
             )}
 
             {isCityDropdownOpen && (
-              <div className="absolute left-1/2 z-99 mt-2 w-32 -translate-x-1/2 rounded-lg border border-gray-200 bg-white shadow-lg">
+              <div className="absolute left-1/2 z-99 mt-2 w-25 -translate-x-1/2 rounded-lg border border-gray-200 bg-white shadow-lg">
                 {cityList.map((cityName) => (
                   <div
                     key={cityName}
-                    className={`cursor-pointer px-4 py-2 text-sm hover:bg-gray-100 ${
+                    className={`flex cursor-pointer items-center justify-center px-4 py-2 text-base hover:bg-gray-100 ${
                       cityName === city ? "text-primary font-semibold" : ""
                     }`}
                     onClick={() => {
@@ -268,7 +300,7 @@ export default function Nav({ option }: NavProps) {
                       setIsCityDropdownOpen(false);
                     }}
                   >
-                    {cityName}
+                    {cityMap[cityName]}
                   </div>
                 ))}
               </div>
@@ -308,8 +340,16 @@ export default function Nav({ option }: NavProps) {
                 )}
               </div>
               <div className="relative flex" ref={menuRef}>
-                <div className="flex cursor-pointer gap-1" onClick={toggleProfileMenu}>
-                  <Image src={UserIcon} alt="유저" className="h-6 w-6" width={100} height={100} />
+                <div className="flex cursor-pointer gap-2" onClick={toggleProfileMenu}>
+                  <div className="relative h-6 w-6 overflow-hidden rounded-full border-1">
+                    <Image
+                      src={profileImage || UserIcon}
+                      alt="유저"
+                      fill
+                      sizes="24px"
+                      className="object-cover"
+                    />
+                  </div>
                   <p className="hidden lg:flex">{displayName}</p>
                 </div>
                 {isProfileMenuOpen && (
