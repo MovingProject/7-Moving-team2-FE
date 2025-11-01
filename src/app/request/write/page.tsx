@@ -56,6 +56,7 @@ function RequestPageContent() {
 
   const [stepsCompleted, setStepsCompleted] = useState<StepStatus>(initialStepStatus);
   const [isSubmissionSuccess, setIsSubmissionSuccess] = useState(false);
+  const [submittedData, setSubmittedData] = useState<RequestFormData | null>(null);
   const { data, isLoading, isError } = useActiveRequestQuery();
   const pendingRequest = data?.pendingRequest;
 
@@ -112,7 +113,7 @@ function RequestPageContent() {
     try {
       await submitRequest(finalData);
       console.log("최종 제출 데이터:", finalData);
-      resetDraft();
+      setSubmittedData({ ...finalData });
 
       setStepsCompleted(
         STEP_KEYS.reduce((acc, key) => {
@@ -140,6 +141,12 @@ function RequestPageContent() {
       alert(userMessage);
       throw error;
     }
+  };
+
+  const handleModalClose = () => {
+    setIsSubmissionSuccess(false);
+    resetDraft();
+    setSubmittedData(null);
   };
 
   const handlePrev = (targetStepKey: StepKey) => {
@@ -233,7 +240,9 @@ function RequestPageContent() {
             )}
 
             {/* 완료 모달에도 Zustand 데이터 전달 */}
-            {isSubmissionSuccess && <RequestCompleteModal formData={formData} />}
+            {isSubmissionSuccess && submittedData && (
+              <RequestCompleteModal formData={submittedData} onClose={handleModalClose} />
+            )}
           </div>
         </div>
       </div>
