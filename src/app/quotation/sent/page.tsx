@@ -34,7 +34,7 @@ export default function QuotationSentPage() {
       price: 180000,
       moveAt: "2025-10-15",
       createdAt: "2025-09-25",
-      quotationStatement: "ACCEPTED",
+      quotationStatement: "CONCLUDED",
     },
   };
   const requestCardData2: {
@@ -45,7 +45,7 @@ export default function QuotationSentPage() {
     user: requestCardData.user,
     request: {
       ...requestCardData.request,
-      requestStatement: "COMPLETED",
+      requestStatement: "COMPLETE",
     },
   };
   return (

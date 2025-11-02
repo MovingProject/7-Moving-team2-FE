@@ -137,7 +137,7 @@ export default function Nav({ option }: NavProps) {
           <Link href={"/chat"} className={optionFont}>
             내 채팅
           </Link>
-          <Link href={"/quotation/pending"} className={optionFont}>
+          <Link href={"/quotation/received"} className={optionFont}>
             내 견적 관리
           </Link>
         </>
