@@ -134,6 +134,7 @@ export interface RequestData {
   requestStatement: "PENDING" | "CONFIRMED" | "CANCELLED" | "EXPIRED" | "COMPLETED";
   moveAt: string;
   createdAt: string;
+  isInvited?: boolean;
 }
 
 // ===== 견적 (Quotation) =====
