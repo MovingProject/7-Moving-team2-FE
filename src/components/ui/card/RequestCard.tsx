@@ -11,6 +11,7 @@ import CardText from "./CardText";
 
 export default function RequestCard({ user, request, quotation }: CommonCardProps) {
   const tags = request?.serviceType;
+  const isInvited = request?.isInvited;
   const requestedAt = request?.createdAt ? formatDate(request.createdAt) : "";
   const moveDate = request?.moveAt ? formatDate(request.moveAt) : "";
   const movingInfo: MovingInfo = useMemo(() => {
@@ -38,17 +39,16 @@ export default function RequestCard({ user, request, quotation }: CommonCardProp
     <BaseCard className="relative justify-between gap-4 border border-gray-300 bg-white px-[14px] py-4 lg:gap-4 lg:px-6 lg:py-5">
       <div className="flex flex-col gap-4">
         <div className="flex justify-between">
-          {tags && (
-            <div className="flex gap-2">
-              {tags.map((tag, index) => (
-                <Tag
-                  key={index}
-                  type={MoveTypeMap[tag].clientType}
-                  content={MoveTypeMap[tag].content}
-                />
-              ))}
-            </div>
-          )}
+          <div className="flex gap-2">
+            {isInvited && <Tag type="requestQuote" content="지정 견적 요청" />}
+            {tags?.map((tag, index) => (
+              <Tag
+                key={index}
+                type={MoveTypeMap[tag].clientType}
+                content={MoveTypeMap[tag].content}
+              />
+            ))}
+          </div>
           {requestedAt && <span className="text-sm text-gray-400">{requestedAt}</span>}
         </div>
         <UserProfileArea user={user} request={request} quotation={quotation} show={["name"]} />

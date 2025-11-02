@@ -15,7 +15,7 @@ import { MoveType } from "@/types/moveTypes";
 import { ReceivedRequestFilter } from "@/types/receivedRequest";
 
 export default function RequestPage() {
-  const [sortTech, setSortTech] = useState("이사 빠른순");
+  const [sortTech, setSortTech] = useState("이사 빠른 순");
   const [moveTypeSelected, setMoveTypeSelected] = useState<MoveType[]>([]);
   const [filterTypeSelected, setFilterTypeSelected] = useState<string[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -25,6 +25,45 @@ export default function RequestPage() {
   const { mutate: filterRequests, data: filteredData, isPending } = useFilteredRequests();
 
   const responseData = filteredData ?? baseData ?? [];
+
+  const sortedData = useMemo(() => {
+    if (!Array.isArray(responseData) || responseData.length === 0) return [];
+
+    console.log("정렬 시작 - sortTech:", sortTech);
+
+    // 1. 먼저 isInvited로 그룹 분리
+    const invitedItems = responseData.filter((item) => item.isInvited);
+    const normalItems = responseData.filter((item) => !item.isInvited);
+
+    // 2. 각 그룹 내에서 정렬
+    const sortFn = (a: any, b: any) => {
+      if (sortTech === "이사 빠른 순") {
+        return new Date(a.moveAt).getTime() - new Date(b.moveAt).getTime();
+      } else if (sortTech === "요청일 빠른 순") {
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      }
+      return 0;
+    };
+
+    const sortedInvited = [...invitedItems].sort(sortFn);
+    const sortedNormal = [...normalItems].sort(sortFn);
+
+    // 3. 지정 견적 요청을 앞에 배치
+    const result = [...sortedInvited, ...sortedNormal];
+
+    console.log("정렬 완료:", {
+      total: result.length,
+      invited: sortedInvited.length,
+      normal: sortedNormal.length,
+      first3: result.slice(0, 3).map((item) => ({
+        name: item.consumerName,
+        isInvited: item.isInvited,
+        moveAt: item.moveAt,
+      })),
+    });
+
+    return result;
+  }, [responseData, sortTech]);
 
   const filterCounts = useMemo(() => {
     if (!Array.isArray(baseData)) {
@@ -38,14 +77,11 @@ export default function RequestPage() {
     };
 
     for (const item of baseData ?? []) {
-      // moveType 카운트
       const type = item.serviceType as MoveType;
       counts.moveType[type] = (counts.moveType[type] || 0) + 1;
 
-      // 지정 요청 카운트
       if (item.isInvited) counts.invited += 1;
 
-      // 지역 카운트 (departure 기준)
       if (item.departureAddress) counts.region += 1;
     }
 
@@ -57,10 +93,14 @@ export default function RequestPage() {
       serviceTypes: moveTypeSelected.length ? moveTypeSelected : undefined,
       isInvited: filterTypeSelected.includes("invited") ? true : undefined,
       consumerName: searchKeyword || undefined,
-      sortByMoveAt: sortTech === "이사 빠른순" ? "asc" : undefined,
-      sortByCreatedAt: sortTech === "요청일 빠른순" ? "asc" : undefined,
     };
-    console.log("📤 필터 요청 payload:", filter);
+    if (sortTech === "이사 빠른 순") {
+      filter.sortByMoveAt = "asc";
+    } else if (sortTech === "요청일 빠른 순") {
+      filter.sortByCreatedAt = "asc";
+    }
+
+    console.log("필터 요청 payload:", filter);
     filterRequests(filter);
   };
 
@@ -120,8 +160,8 @@ export default function RequestPage() {
               </div>
             </div>
             <div className="flex flex-col gap-6 md:gap-8 lg:gap-12">
-              {responseData.length > 0 ? (
-                responseData.map((cardData, index) => (
+              {sortedData.length > 0 ? (
+                sortedData.map((cardData, index) => (
                   <RequestCard
                     key={cardData.id || index}
                     user={{
@@ -139,6 +179,7 @@ export default function RequestPage() {
                       requestStatement: "PENDING",
                       moveAt: cardData.moveAt,
                       createdAt: cardData.createdAt,
+                      isInvited: cardData.isInvited,
                     }}
                   />
                 ))
