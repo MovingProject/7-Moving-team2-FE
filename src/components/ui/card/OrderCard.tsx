@@ -20,24 +20,19 @@ export default function OrderCard({ user, request, quotation }: CommonCardProps)
   const { nickname, oneLiner, rating, confirmedCount, driverServiceTypes, ...restProfileData } =
     profileData as DriverProfileData;
   const price = quotation?.price;
-  const tags = request?.serviceType;
+  const tags = quotation?.serviceType;
+  console.log("profileData", profileData);
 
   return (
-    <BaseCard className="gap-2 px-3 py-5 md:gap-[14px] md:py-[22px] lg:gap-6 lg:px-6 lg:py-7">
+    <BaseCard className="gap-2 border border-gray-300 px-3 py-5 md:gap-[14px] md:py-[22px] lg:gap-4 lg:px-6 lg:py-7">
       <div className="flex justify-between">
         {tags && (
           <div className="flex gap-2">
-            {tags.map((tag, index) => (
-              <Tag
-                key={index}
-                type={MoveTypeMap[tag].clientType}
-                content={MoveTypeMap[tag].content}
-              />
-            ))}
+            <Tag type={MoveTypeMap[tags].clientType} content={MoveTypeMap[tags].content} />
           </div>
         )}
       </div>
-
+      {oneLiner && <CardText className="text-sm font-semibold lg:text-xl">{oneLiner}</CardText>}
       <UserProfileArea
         user={user}
         request={request}
@@ -55,8 +50,7 @@ export default function OrderCard({ user, request, quotation }: CommonCardProps)
       )}
 
       <div className="flex gap-2">
-        <Button size="sm" textSize="mobile" text="견적 제출하기" />
-        <Button size="sm" textSize="mobile" variant="secondary" text="상세보기" />
+        <Button size="sm" textSize="mobile" text="채팅방 바로가기" />
       </div>
     </BaseCard>
   );

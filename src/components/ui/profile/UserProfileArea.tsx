@@ -70,6 +70,8 @@ export default function UserProfileArea({
     return null;
   }
 
+  console.log("driverProfile.oneLiner", driverProfile?.oneLiner);
+
   return (
     <div className={`relative flex items-center gap-3 ${className ?? ""}`}>
       {isDriver && <ProfileViewer initialImageUrl={driverProfile?.image || ""} />}
