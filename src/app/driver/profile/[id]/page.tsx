@@ -66,7 +66,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
       quotationId: "q-123",
       departureAddress: "서울시 강남구",
       arrivalAddress: "경기도 성남시",
-      quotationStatement: "SUBMITTED",
+      quotationStatement: "CONCLUDED",
       price: 180000,
       moveAt: "2025-10-15",
       createdAt: "2025-09-25",
@@ -81,11 +81,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
     user: defaultCardData.user,
     request: {
       ...defaultCardData.request,
-      requestStatement: "CONFIRMED",
+      requestStatement: "CONCLUDED",
     },
     quotation: {
       ...defaultCardData.quotation,
-      quotationStatement: "ACCEPTED",
+      quotationStatement: "CONCLUDED",
     },
   };
 
@@ -118,7 +118,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
     },
     quotation: {
       ...defaultCardData.quotation,
-      quotationStatement: "ACCEPTED",
+      quotationStatement: "CONCLUDED",
     },
   };
   const requestCardData2: {
@@ -129,7 +129,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
     user: requestCardData.user,
     request: {
       ...requestCardData.request,
-      requestStatement: "COMPLETED",
+      requestStatement: "COMPLETE",
     },
   };
 
@@ -142,7 +142,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
     user: defaultCardData.user,
     request: {
       ...defaultCardData.request,
-      requestStatement: "CONFIRMED",
+      requestStatement: "CONCLUDED",
       moveAt: "2025-09-01",
     },
     review: {
