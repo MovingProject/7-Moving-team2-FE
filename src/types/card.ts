@@ -132,7 +132,7 @@ export interface RequestData {
   serviceType: ServerMoveType[];
   departureAddress: string;
   arrivalAddress: string;
-  requestStatement: "PENDING" | "CONFIRMED" | "CANCELLED" | "EXPIRED" | "COMPLETED";
+  requestStatement: "PENDING" | "CONCLUDED" | "COMPLETE" | "CANCELLED" | "EXPIRED" | "WITHDRAWN";
   moveAt: string;
   createdAt: string;
 }
@@ -142,10 +142,11 @@ export interface QuotationData {
   quotationId: string;
   departureAddress: string;
   arrivalAddress: string;
-  quotationStatement: "SUBMITTED" | "ACCEPTED" | "REJECTED" | "EXPIRED";
+  quotationStatement: "PENDING" | "CONCLUDED" | "COMPLETED" | "REJECTED" | "EXPIRED" | "CANCELLED";
   price: number;
   moveAt: string;
-  createdAt: string;
+  createdAt?: string | null;
+  serviceType?: ServerMoveType;
 }
 
 // ===== 리뷰 (Review) =====

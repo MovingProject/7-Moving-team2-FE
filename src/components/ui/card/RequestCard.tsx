@@ -29,7 +29,7 @@ export default function RequestCard({ user, request, quotation }: CommonCardProp
   let stateMessage = "";
   if (request?.requestStatement === "CANCELLED" || quotation?.quotationStatement === "REJECTED") {
     stateMessage = "반려된 요청입니다";
-  } else if (request?.requestStatement === "COMPLETED") {
+  } else if (request?.requestStatement === "COMPLETE") {
     stateMessage = "이사 완료된 견적이에요.";
   } else if (request?.requestStatement === "EXPIRED") {
     stateMessage = "요청이 만료되었습니다";
@@ -71,7 +71,7 @@ export default function RequestCard({ user, request, quotation }: CommonCardProp
           {stateMessage && (
             <span className="text-sm font-bold text-white lg:text-base">{stateMessage}</span>
           )}
-          {request?.requestStatement === "COMPLETED" && (
+          {request?.requestStatement === "CONCLUDED" && (
             <Button
               size="sm"
               textSize="mobile"
