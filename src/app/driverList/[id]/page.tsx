@@ -185,7 +185,7 @@ export default function DriverDetailPage() {
           </div>
           {/* 리뷰 영역 */}
           <div className="flex flex-col gap-6">
-            <ReviewContainer />
+            <ReviewContainer driverId={driverId} />
           </div>
           {/* 페이지 하단 (모바일용 하단 버튼) */}
           <div className="mt-8 flex items-center justify-between lg:hidden">

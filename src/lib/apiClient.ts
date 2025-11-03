@@ -40,18 +40,32 @@ apiClient.interceptors.response.use(
       "responseData 전체": JSON.stringify(responseData, null, 2),
     });
 
-    // 500 에러 + "/users/me" 엔드포인트
-    // → 프로필 미등록 상태로 간주하고 에러 플래그 설정
-    // (백엔드에서 NotFoundException('프로필이 없습니다.')를 던지지만
-    //  전역 필터에서 일반 500 메시지로 변환됨)
+    const publicEndpoints = [
+      "/reviews/drivers", // 기사 리뷰 조회
+      "/drivers", // 기사 상세
+      "/landing", // 랜딩 관련
+    ];
+
+    const isPublicEndpoint = publicEndpoints.some((endpoint) =>
+      originalRequest?.url?.startsWith(endpoint)
+    );
+
     if (status === 500 && originalRequest?.url?.includes("/users/me")) {
       console.log("[인터셉터] /users/me 500 에러 → 프로필 미등록 상태로 처리");
       error._isProfileNotFound = true;
       return Promise.reject(error);
     }
 
-    // access token 만료 (401) + 아직 재시도 안 한 경우
     if (status === 401 && !originalRequest._retry) {
+      // 공개 API면 refresh 시도 / 리다이렉트 X
+      if (isPublicEndpoint) {
+        console.log(
+          "[인터셉터] 공개 API 401 → refresh 시도/로그아웃 건너뜀:",
+          originalRequest?.url
+        );
+        return Promise.reject(error);
+      }
+
       originalRequest._retry = true;
 
       try {
