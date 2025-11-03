@@ -6,7 +6,7 @@ export interface Message {
   chattingRoomId: string;
   senderId: string;
   messageType: "MESSAGE" | "QUOTATION";
-  content?: string;
+  content?: string | null;
   createdAt: string;
   updatedAt?: string;
   // UI 편의용 필드

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import useChatStore from "@/store/chatStore";
+import { ChatRoomInfo } from "@/types/chat";
 
 export default function ChatLayout({ children }: { children: React.ReactNode }) {
   const { connectSocket, disconnectSocket } = useChatStore();
@@ -11,7 +12,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // TODO: 백엔드 채팅방 목록 API 구현 후 연동 필요
-  const conversations: any[] = [];
+  const conversations: ChatRoomInfo[] = [];
 
   // 현재 채팅방에 있는지 확인 (모바일에서 sidebar 숨김용)
   const isInChatRoom = pathname !== "/chat";
@@ -38,7 +39,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
             <div className="py-8 text-center text-sm text-gray-500">아직 채팅이 없습니다</div>
           ) : (
             <ul className="space-y-2">
-              {conversations.map((convo: any) => (
+              {conversations.map((convo) => (
                 <Link key={convo.id} href={`/chat/${convo.id}`}>
                   <li className="cursor-pointer rounded-lg p-3 transition-colors hover:bg-gray-100">
                     <div className="flex items-center gap-3">
@@ -125,7 +126,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
                   <div className="py-8 text-center text-sm text-gray-500">아직 채팅이 없습니다</div>
                 ) : (
                   <ul className="space-y-2">
-                    {conversations.map((convo: any) => (
+                    {conversations.map((convo) => (
                       <Link
                         key={convo.id}
                         href={`/chat/${convo.id}`}

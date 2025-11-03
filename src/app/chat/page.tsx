@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { ChatRoomInfo } from "@/types/chat";
 
 export default function ChatHomePage() {
   // TODO: 백엔드 채팅방 목록 API 구현 후 연동 필요
-  const conversations: any[] = [];
+  const conversations: ChatRoomInfo[] = [];
 
   return (
     <div className="h-full bg-gray-50">
