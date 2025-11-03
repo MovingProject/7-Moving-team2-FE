@@ -1,5 +1,6 @@
 "use client";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import BaseCard, { CommonCardProps } from "./BaseCard";
 import Tag from "../Tag";
 import MovingInfoViewer, { MovingInfo } from "../profile/MovingInfoViewer";
@@ -8,8 +9,11 @@ import UserProfileArea from "../profile/UserProfileArea";
 import { MoveTypeMap, ServerMoveType } from "@/types/moveTypes";
 import { formatDate, simplifyAreaName } from "@/utils/formatRequestData";
 import CardText from "./CardText";
+import { createOrGetChatRoom } from "@/lib/apis/chatApi";
 
 export default function RequestCard({ user, request, quotation }: CommonCardProps) {
+  const router = useRouter();
+  const [isCreatingRoom, setIsCreatingRoom] = useState(false);
   const tags = request?.serviceType;
   const isInvited = request?.isInvited;
   const requestedAt = request?.createdAt ? formatDate(request.createdAt) : "";
@@ -35,6 +39,25 @@ export default function RequestCard({ user, request, quotation }: CommonCardProp
   } else if (request?.requestStatement === "EXPIRED") {
     stateMessage = "요청이 만료되었습니다";
   }
+
+  const handleCreateChatRoom = async () => {
+    if (!request?.requestId || !user?.userId) {
+      alert("요청 정보가 부족합니다.");
+      return;
+    }
+
+    setIsCreatingRoom(true);
+    try {
+      const { roomId } = await createOrGetChatRoom(request.requestId, user.userId);
+      router.push(`/chat/${roomId}`);
+    } catch (error: any) {
+      console.error("채팅방 생성 실패:", error);
+      alert(error.response?.data?.message || "채팅방 생성에 실패했습니다.");
+    } finally {
+      setIsCreatingRoom(false);
+    }
+  };
+
   return (
     <BaseCard className="relative justify-between gap-4 border border-gray-300 bg-white px-[14px] py-4 lg:gap-4 lg:px-6 lg:py-5">
       <div className="flex flex-col gap-4">
@@ -62,7 +85,11 @@ export default function RequestCard({ user, request, quotation }: CommonCardProp
         </div>
       ) : (
         <div className="flex gap-2">
-          <Button text="채팅방 개설하기" />
+          <Button
+            text={isCreatingRoom ? "생성 중..." : "채팅방 개설하기"}
+            onClick={handleCreateChatRoom}
+            disabled={isCreatingRoom}
+          />
           <Button size="sm" textSize="mobile" variant="secondary" text="반려" />
         </div>
       )}
