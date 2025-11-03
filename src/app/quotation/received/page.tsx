@@ -32,7 +32,11 @@ export default function ReceivedPage() {
 
   // 3. 로딩 상태 처리
   if (isLoading) {
-    return <LogoSpinner />;
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <LogoSpinner />
+      </div>
+    );
   }
 
   // 4. 에러 상태 처리
