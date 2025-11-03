@@ -1,21 +1,25 @@
 import Image from "next/image";
 import StarEmpty from "@/assets/icon/StarEmpty.svg";
 import StarFilled from "@/assets/icon/StarFilled.svg";
-
-interface Review {
-  rating: number;
-}
+import { DriverRatingDistributionResponse } from "@/lib/apis/reviewApi";
 
 interface ReviewSummaryProps {
-  reviews: Review[];
+  ratingData?: DriverRatingDistributionResponse | null;
 }
 
-export default function ReviewSummary({ reviews }: ReviewSummaryProps) {
-  const total = reviews.length;
-  const avgNum = total > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / total : 0;
-  const average = avgNum.toFixed(1);
-  const rounded = Math.round(avgNum);
-  const counts = [5, 4, 3, 2, 1].map((score) => reviews.filter((r) => r.rating === score).length);
+export default function ReviewSummary({ ratingData }: ReviewSummaryProps) {
+  const safeData: Required<DriverRatingDistributionResponse> = {
+    driverId: ratingData?.driverId ?? "",
+    averageRating: typeof ratingData?.averageRating === "number" ? ratingData.averageRating : 0,
+    totalReviews: typeof ratingData?.totalReviews === "number" ? ratingData.totalReviews : 0,
+    ratings: ratingData?.ratings ?? { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+  };
+
+  const average = safeData.averageRating.toFixed(1);
+  const rounded = Math.round(safeData.averageRating);
+  const counts = [5, 4, 3, 2, 1].map(
+    (score) => safeData.ratings[score as keyof typeof safeData.ratings] ?? 0
+  );
 
   const RatingBlock = ({ desktop = false }: { desktop?: boolean }) => (
     <div className="flex flex-col items-center gap-3 md:gap-4">
@@ -50,18 +54,19 @@ export default function ReviewSummary({ reviews }: ReviewSummaryProps) {
 
   const Distribution = () => (
     <div className="w-full space-y-2 md:space-y-1">
-      {[5, 4, 3, 2, 1].map((score, i) => (
-        <div key={score} className="flex items-center gap-4 text-sm md:gap-7">
-          <span className="w-6 shrink-0">{score}점</span>
-          <div className="h-2 flex-1 rounded bg-gray-200">
-            <div
-              className="h-2 rounded bg-yellow-400"
-              style={{ width: `${total ? (counts[i] / total) * 100 : 0}%` }}
-            />
+      {[5, 4, 3, 2, 1].map((score, i) => {
+        const count = counts[i];
+        const percent = safeData.totalReviews > 0 ? (count / safeData.totalReviews) * 100 : 0;
+        return (
+          <div key={score} className="flex items-center gap-4 text-sm md:gap-7">
+            <span className="w-6 shrink-0">{score}점</span>
+            <div className="h-2 flex-1 rounded bg-gray-200">
+              <div className="h-2 rounded bg-yellow-400" style={{ width: `${percent}%` }} />
+            </div>
+            <span className="w-8 shrink-0 text-left text-gray-500">{count}</span>
           </div>
-          <span className="w-8 shrink-0 text-left text-gray-500">{counts[i]}</span>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 
