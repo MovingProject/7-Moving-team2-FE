@@ -50,6 +50,7 @@ export interface DriverListResponse {
 /** 기사 상세 페이지 조회 */
 export interface DriverDetailItem {
   id: string;
+  userId: string;
   nickname: string;
   name: string;
   image: string | null;
