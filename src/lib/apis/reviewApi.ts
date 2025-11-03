@@ -1,14 +1,26 @@
 import apiClient from "@/lib/apiClient";
 import { ReviewData } from "@/types/card";
 
-// 리뷰 작성 요청 타입
+/**
+ * 공통 API 응답 래퍼 타입
+ */
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+}
+
+/**
+ * 리뷰 작성 요청 타입
+ */
 export interface CreateReviewRequest {
   rating: number;
   content: string;
   quotationId: string;
 }
 
-// 리뷰 작성 응답 타입
+/**
+ * 리뷰 작성 응답 타입
+ */
 export interface CreateReviewResponse {
   id: string;
   consumerId: string;
@@ -21,7 +33,9 @@ export interface CreateReviewResponse {
   deletedAt: string | null;
 }
 
-// 개별 리뷰 응답 타입
+/**
+ * 개별 리뷰 응답 타입
+ */
 export interface ReviewResponseDto {
   id: string;
   rating: number;
@@ -30,13 +44,17 @@ export interface ReviewResponseDto {
   createdAt: string;
 }
 
-// 기사별 리뷰 목록 조회 응답 타입 (커서 페이지네이션)
-export interface GetDriverReviewsResponse {
+/**
+ * 기사별 리뷰 목록 조회 응답 타입 (커서 기반 페이지네이션)
+ */
+export interface GetDriverReviewsData {
   reviews: ReviewResponseDto[];
   nextCursor: string | null;
 }
 
-// 기사 평점 분포 응답 타입
+/**
+ * 기사 평점 분포 응답 타입
+ */
 export interface DriverRatingDistributionResponse {
   driverId: string;
   totalReviews: number;
@@ -50,7 +68,9 @@ export interface DriverRatingDistributionResponse {
   };
 }
 
-// 리뷰 목록 조회 응답 타입 (임시 - BE API가 구현되면 수정 필요)
+/**
+ * 리뷰 목록 조회 응답 타입 (임시 - BE API가 구현되면 수정 필요)
+ */
 export interface GetReviewsResponse {
   reviews: Array<{
     id: string;
@@ -68,8 +88,8 @@ export interface GetReviewsResponse {
  * 리뷰 작성
  */
 export const createReview = async (data: CreateReviewRequest): Promise<CreateReviewResponse> => {
-  const response = await apiClient.post<CreateReviewResponse>("/reviews", data);
-  return response.data;
+  const response = await apiClient.post<ApiResponse<CreateReviewResponse>>("/reviews", data);
+  return response.data.data;
 };
 
 /**
@@ -80,13 +100,6 @@ export const getWritableReviews = async (
   page: number = 1,
   limit: number = 5
 ): Promise<GetReviewsResponse> => {
-  // 임시로 빈 배열 반환
-  // 실제 구현 시 아래와 같은 형태로 작성
-  // const response = await apiClient.get<GetReviewsResponse>('/reviews/writable', {
-  //   params: { page, limit }
-  // });
-  // return response.data;
-
   return {
     reviews: [],
     totalCount: 0,
@@ -103,13 +116,6 @@ export const getWrittenReviews = async (
   page: number = 1,
   limit: number = 5
 ): Promise<GetReviewsResponse> => {
-  // 임시로 빈 배열 반환
-  // 실제 구현 시 아래와 같은 형태로 작성
-  // const response = await apiClient.get<GetReviewsResponse>('/reviews/written', {
-  //   params: { page, limit }
-  // });
-  // return response.data;
-
   return {
     reviews: [],
     totalCount: 0,
@@ -125,16 +131,17 @@ export const getDriverReviews = async (
   driverId: string,
   limit: number = 5,
   cursor?: string
-): Promise<GetDriverReviewsResponse> => {
+): Promise<GetDriverReviewsData> => {
   const params: { limit: number; cursor?: string } = { limit };
   if (cursor) {
     params.cursor = cursor;
   }
 
-  const response = await apiClient.get<GetDriverReviewsResponse>(`/reviews/drivers/${driverId}`, {
-    params,
-  });
-  return response.data;
+  const response = await apiClient.get<ApiResponse<GetDriverReviewsData>>(
+    `/reviews/drivers/${driverId}`,
+    { params }
+  );
+  return response.data.data;
 };
 
 /**
@@ -143,8 +150,8 @@ export const getDriverReviews = async (
 export const getDriverRatingDistribution = async (
   driverId: string
 ): Promise<DriverRatingDistributionResponse> => {
-  const response = await apiClient.get<DriverRatingDistributionResponse>(
+  const response = await apiClient.get<ApiResponse<DriverRatingDistributionResponse>>(
     `/reviews/drivers/${driverId}/rating`
   );
-  return response.data;
+  return response.data.data;
 };
