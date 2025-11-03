@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { ChatRoomInfo } from "@/types/chat";
 
 export default function ChatHomePage() {
