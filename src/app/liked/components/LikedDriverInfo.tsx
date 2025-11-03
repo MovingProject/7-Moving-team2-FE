@@ -1,9 +1,21 @@
 "use client";
 
 import Image from "next/image";
+import { useQuery } from "@tanstack/react-query";
+import { getDriverRatingDistribution } from "@/lib/apis/reviewApi";
 import { LikedDriver } from "@/utils/hook/likes/useLikedQuery";
 
 export default function LikedDriverInfo({ driver }: { driver: LikedDriver }) {
+  const { data: ratingData } = useQuery({
+    queryKey: ["driverRating", driver.id],
+    queryFn: () => getDriverRatingDistribution(driver.id),
+    enabled: !!driver.id,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const averageRating = ratingData?.averageRating ?? driver.rating ?? 0;
+  const totalReviews = ratingData?.totalReviews ?? driver.reviewCount ?? 0;
+
   return (
     <div className="flex items-center gap-1 text-[10px] whitespace-nowrap text-gray-700 xl:text-sm">
       {/* 별점 */}
@@ -17,8 +29,8 @@ export default function LikedDriverInfo({ driver }: { driver: LikedDriver }) {
             height={10}
             className="object-contain"
           />
-          <span className="font-medium">{driver.rating.toFixed(1)}</span>
-          <span className="text-gray-500">({driver.reviewCount})</span>
+          <span className="font-medium">{averageRating.toFixed(1)}</span>
+          <span className="text-gray-500">({totalReviews})</span>
         </dd>
         <span className="text-gray-300">|</span>
       </dl>

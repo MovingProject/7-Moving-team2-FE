@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import LikeButton from "../LikeButton";
 import MovingInfoViewer, { MovingInfo } from "./MovingInfoViewer";
 import ProfileViewer from "./ProfileViewer";
@@ -10,6 +11,7 @@ import { DriverProfileData, QuotationData, RequestData, UserData } from "@/types
 import CardText from "../card/CardText";
 import { isDriverUser } from "@/utils/type-guards";
 import { DriverDetailItem } from "@/types/driver";
+import { getDriverRatingDistribution } from "@/lib/apis/reviewApi";
 
 interface UserProfileInfoProps {
   user: UserData;
@@ -38,18 +40,30 @@ export default function UserProfileArea({
   const driverProfile = isDriver ? (profile as DriverProfileData) : null;
 
   const likedCount = driverDetail?.likeCount ?? driverProfile?.likes?.likedCount ?? 0;
-
   const isLikedByCurrentUser =
     driverDetail?.isLikedByCurrentUser ?? driverProfile?.likes?.isLikedByCurrentUser ?? false;
 
+  const driverId = driverProfile?.driverId ?? driverDetail?.userId ?? driverDetail?.id;
+  const { data: ratingData } = useQuery({
+    queryKey: ["driverRating", driverId],
+    queryFn: () => getDriverRatingDistribution(driverId!),
+    enabled: !!driverId,
+    staleTime: 1000 * 60 * 5,
+  });
+  console.log("[UserProfileArea] driverId for rating:", driverId);
+
+  const averageRating = ratingData?.averageRating ?? driverProfile?.rating ?? 0;
+  const totalReviews = ratingData?.totalReviews ?? driverProfile?.reviewCount ?? 0;
+
   const movingInfo: MovingInfo = useMemo(() => {
     if (!driverProfile) return {} as MovingInfo;
+
     const price = quotation?.price;
     const moveAt = request?.moveAt;
 
     const info: MovingInfo = {
-      reviewCount: driverProfile.reviewCount,
-      rating: driverProfile.rating,
+      reviewCount: totalReviews,
+      rating: Number(averageRating.toFixed(1)),
       careerYears: driverProfile.careerYears,
       confirmedCount: driverProfile.confirmedCount,
       serviceAreas:
@@ -65,10 +79,9 @@ export default function UserProfileArea({
     };
 
     return info;
-  }, [driverProfile, quotation?.price, request?.moveAt]);
-  if (!user) {
-    return null;
-  }
+  }, [driverProfile, quotation?.price, request?.moveAt, averageRating, totalReviews]);
+
+  if (!user) return null;
 
   console.log("driverProfile.oneLiner", driverProfile?.oneLiner);
 
