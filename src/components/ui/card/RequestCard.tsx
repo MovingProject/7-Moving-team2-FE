@@ -50,9 +50,10 @@ export default function RequestCard({ user, request, quotation }: CommonCardProp
     try {
       const { roomId } = await createOrGetChatRoom(request.requestId, user.userId);
       router.push(`/chat/${roomId}`);
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } }; message?: string };
       console.error("채팅방 생성 실패:", error);
-      alert(error.response?.data?.message || "채팅방 생성에 실패했습니다.");
+      alert(err.response?.data?.message || "채팅방 생성에 실패했습니다.");
     } finally {
       setIsCreatingRoom(false);
     }
