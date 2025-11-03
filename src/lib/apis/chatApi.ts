@@ -1,4 +1,5 @@
 import apiClient from "@/lib/apiClient";
+import { GetChatMessagesResponse } from "@/types/chat";
 
 /**
  * 채팅방 생성 또는 조회 (드라이버 전용)
@@ -52,7 +53,7 @@ export const getChatMessages = async (roomId: string, cursor?: string, limit?: n
     : `/chatting-rooms/${roomId}/messages`;
 
   console.log("📡 Requesting URL:", url);
-  const response = await apiClient.get<{ success: boolean; data: any }>(url);
+  const response = await apiClient.get<{ success: boolean; data: GetChatMessagesResponse }>(url);
   console.log("✅ Response received:", response.data);
 
   // 백엔드 응답 구조: { success: true, data: { messages: [...], nextCursor: "..." } }

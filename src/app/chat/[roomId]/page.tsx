@@ -6,6 +6,8 @@ import { useAuthStore } from "@/store/authStore";
 import QuotationModal from "@/components/chat/QuotationModal";
 import QuotationMessage from "@/components/chat/QuotationMessage";
 import { getChatMessages } from "@/lib/apis/chatApi";
+import { WebSocketNewMessageData, BackendChatMessage } from "@/types/chat";
+import { Message } from "@/app/chat/mock/data";
 
 // 이 페이지는 클라이언트 측에서 동적으로 렌더링됩니다.
 export default function ChatRoomPage({ params }: { params: Promise<{ roomId: string }> }) {
@@ -41,7 +43,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
     socket.emit("chat:join", { roomId: resolvedParams.roomId });
 
     // 새 메시지 수신 이벤트 리스너
-    const handleNewMessage = (data: any) => {
+    const handleNewMessage = (data: WebSocketNewMessageData) => {
       console.log("📨 chat:new 이벤트 수신:", data);
 
       if (data.roomId !== resolvedParams.roomId) return;
@@ -52,20 +54,40 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
         return;
       }
 
-      const newMsg: any = {
+      const newMsg: Message = {
         id: data.msg.id,
         chattingRoomId: data.roomId,
         senderId: data.msg.authorId,
         senderName: data.msg.authorId === currentUser.id ? currentUser.name : "상대방",
         senderAvatar: data.msg.authorId === currentUser.id ? currentUser.name.charAt(0) : "상",
         messageType: data.msg.messageType,
-        content: data.msg.messageType === "MESSAGE" ? data.msg.body : null,
+        content: data.msg.messageType === "MESSAGE" ? data.msg.body || null : null,
         createdAt: data.msg.sentAt,
       };
 
-      // QUOTATION 타입은 quotationId만 받으므로 임시로 처리
-      if (data.msg.messageType === "QUOTATION") {
-        newMsg.quotation = { id: data.msg.quotationId };
+      // QUOTATION 타입은 quotationId만 받으므로 임시로 처리 (Message 타입과 호환되도록)
+      if (data.msg.messageType === "QUOTATION" && data.msg.quotationId) {
+        newMsg.quotation = {
+          id: data.msg.quotationId,
+          consumerId: "",
+          driverId: "",
+          chattingRoomId: data.roomId,
+          requestId: "",
+          serviceType: "",
+          moveAt: "",
+          departureAddress: "",
+          departureFloor: 0,
+          departurePyeong: 0,
+          departureElevator: false,
+          arrivalAddress: "",
+          arrivalFloor: 0,
+          arrivalPyeong: 0,
+          arrivalElevator: false,
+          price: 0,
+          status: "SUBMITTED",
+          createdAt: data.msg.sentAt,
+          chattingMessageId: data.msg.id,
+        };
       }
 
       // 내가 보낸 메시지인 경우: tempId를 실제 서버 ID로 교체
@@ -122,7 +144,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
         console.log("✅ 메시지 로딩 성공:", response);
 
         // 백엔드 응답을 프론트엔드 형식으로 변환
-        const formattedMessages = response.messages.map((msg: any) => ({
+        const formattedMessages: Message[] = response.messages.map((msg: BackendChatMessage) => ({
           id: msg.id,
           chattingRoomId: msg.chattingRoomId,
           senderId: msg.senderId,
@@ -131,20 +153,41 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
           messageType: msg.messageType,
           content: msg.content,
           createdAt: msg.createdAt,
-          quotation: msg.quotation || undefined,
+          quotation: msg.quotation ? {
+            id: msg.quotation.id,
+            consumerId: "",
+            driverId: "",
+            chattingRoomId: msg.chattingRoomId,
+            requestId: "",
+            serviceType: "",
+            moveAt: msg.quotation.moveAt,
+            departureAddress: msg.quotation.departureAddress,
+            departureFloor: 0,
+            departurePyeong: 0,
+            departureElevator: false,
+            arrivalAddress: msg.quotation.arrivalAddress,
+            arrivalFloor: 0,
+            arrivalPyeong: 0,
+            arrivalElevator: false,
+            price: msg.quotation.price,
+            status: "SUBMITTED",
+            createdAt: msg.createdAt,
+            chattingMessageId: msg.id,
+          } : undefined,
         }));
 
         setMessages(formattedMessages);
-      } catch (error: any) {
+      } catch (error) {
+        const err = error as { response?: { status?: number; statusText?: string; data?: { message?: string } }; message?: string };
         console.error("❌ 메시지 로딩 실패:", error);
         console.error("Error details:", {
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-          data: error.response?.data,
-          message: error.message,
+          status: err.response?.status,
+          statusText: err.response?.statusText,
+          data: err.response?.data,
+          message: err.message,
         });
         const errorMessage =
-          error.response?.data?.message || error.message || "메시지를 불러올 수 없습니다.";
+          err.response?.data?.message || err.message || "메시지를 불러올 수 없습니다.";
         setError(errorMessage);
       } finally {
         setIsLoading(false);
