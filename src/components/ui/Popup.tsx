@@ -36,13 +36,11 @@ export default function Popup({
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
-    if (type === "info") {
-      const timer = setTimeout(() => {
-        setVisible(false);
-        onClose?.();
-      }, autoCloseDuration);
-      return () => clearTimeout(timer);
-    }
+    const timer = setTimeout(() => {
+      setVisible(false);
+      onClose?.();
+    }, autoCloseDuration);
+    return () => clearTimeout(timer);
   }, [type, autoCloseDuration, onClose]);
 
   if (!visible) return null;
