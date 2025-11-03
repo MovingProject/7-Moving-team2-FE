@@ -31,12 +31,14 @@ export default function RequestPage() {
 
     console.log("정렬 시작 - sortTech:", sortTech);
 
+    type ReceivedRequestItem = (typeof responseData)[0];
+
     // 1. 먼저 isInvited로 그룹 분리
     const invitedItems = responseData.filter((item) => item.isInvited);
     const normalItems = responseData.filter((item) => !item.isInvited);
 
     // 2. 각 그룹 내에서 정렬
-    const sortFn = (a: any, b: any) => {
+    const sortFn = (a: ReceivedRequestItem, b: ReceivedRequestItem) => {
       if (sortTech === "이사 빠른 순") {
         return new Date(a.moveAt).getTime() - new Date(b.moveAt).getTime();
       } else if (sortTech === "요청일 빠른 순") {
