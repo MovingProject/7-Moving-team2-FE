@@ -1,6 +1,6 @@
 import { DriverProfileData, QuotationData, RequestData } from "./card";
 import { MoveType, ServerMoveType } from "./moveTypes";
-import { RequestStatus } from "./statement";
+import { QuotationStatement, RequestStatus } from "./statement";
 
 export interface ApiResponseWrapper<T> {
   success: boolean;
@@ -54,18 +54,35 @@ export type CustomerAllRequestsResponse = ApiCustomerRequestWithQuotations[];
 // 여기서는 API 응답 타입을 위와 같이 정의하고, 어댑터에서 RequestData로 매핑합니다.
 // ----------------------------------------------------------------------------------
 
-export interface DriverQuotationListItem extends QuotationData {
-  // 해당 견적이 속한 견적 요청의 요약 정보
+export interface ApiDriverQuotationItem {
+  id: string; // 견적 ID (be7186a1-ac7d-4c18-8939-2d7a63e16d14)
+  consumerName: string; // 고객 이름
+  moveAt: string; // 이사 날짜 (2025-12-05T...)
+  departureAddress: string;
+  arrivalAddress: string;
+  price: number;
+  serviceType: ServerMoveType; // HOME_MOVE (단일 문자열)
+  isInvited: boolean;
+  quotationStatus: QuotationStatement;
+}
+
+// 훅에서 최종적으로 반환받는 배열 타입
+export type DriverQuotationListResponse = ApiDriverQuotationItem[];
+
+export interface DriverQuotationListItem {
+  quotationId: string;
+  price: number;
+  serviceType: ServerMoveType[]; // UI 표기를 위해 배열로 유지
+  quotationStatement: QuotationStatement; // UI에서 사용하기 위한 표준 상태
+
+  // 견적이 속한 요청의 요약 정보
   requestSummary: {
-    requestId: string;
-    serviceType: ServerMoveType[];
+    requestId: string; // 요청 ID (API에 없으므로 견적 ID 재활용 또는 Mock)
+    consumerName: string; // 고객 이름
     departureAddress: string;
     arrivalAddress: string;
     moveAt: string;
   };
-  // 해당 견적에 고객 응답 여부
-  isCustomerSeen: boolean;
-}
 
-// 응답 타입: 기사 제출 견적 목록
-export type DriverQuotationListResponse = DriverQuotationListItem[];
+  isCustomerSeen: boolean; // 고객 응답/조회 여부 (API에 없으므로 Mock)
+}
