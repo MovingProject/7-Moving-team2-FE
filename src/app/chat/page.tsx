@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { conversations, messagesByRoomId } from "./mock/data";
 
 export default function ChatHomePage() {
+  // TODO: 백엔드 채팅방 목록 API 구현 후 연동 필요
+  const conversations: any[] = [];
+
   return (
     <div className="h-full bg-gray-50">
       {/* 데스크톱: 기존 빈 화면 */}
@@ -41,51 +43,7 @@ export default function ChatHomePage() {
 
         {/* 채팅방 목록 */}
         <div className="p-4">
-          <div className="space-y-3">
-            {conversations.map((convo) => {
-              const roomMessages = messagesByRoomId[convo.id] || [];
-              const lastMsg = roomMessages.length
-                ? roomMessages[roomMessages.length - 1]
-                : undefined;
-              const avatarText =
-                lastMsg?.senderAvatar ?? lastMsg?.senderName?.charAt(0) ?? convo.name.charAt(0);
-
-              return (
-                <Link key={convo.id} href={`/chat/${convo.id}`}>
-                  <div className="rounded-lg border border-gray-200 bg-white p-4 transition-colors hover:bg-gray-50 active:bg-gray-100">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-indigo-200 text-xs font-bold text-blue-500 md:h-10 md:w-10 md:text-sm">
-                          {avatarText}
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="mb-1 font-semibold text-gray-900">{convo.name}</h3>
-                          <p className="truncate text-sm text-gray-600">{convo.lastMessage}</p>
-                        </div>
-                      </div>
-                      <div className="ml-3">
-                        <svg
-                          className="h-5 w-5 text-gray-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 5l7 7-7 7"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-
-          {/* 빈 상태 또는 추가 정보 */}
+          {/* 빈 상태 */}
           {conversations.length === 0 && (
             <div className="py-12 text-center">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-200">

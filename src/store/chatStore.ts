@@ -19,6 +19,7 @@ interface ChatState {
   setMessages: (messages: Message[]) => void;
   setCurrentUser: (user: CurrentUser) => void;
   updateMessage: (messageId: string, updates: Partial<Message>) => void;
+  replaceTempMessage: (tempId: string, realMessage: Message) => void;
 }
 
 const useChatStore = create<ChatState>((set, get) => ({
@@ -82,6 +83,13 @@ const useChatStore = create<ChatState>((set, get) => ({
   updateMessage: (messageId, updates) => {
     set((state) => ({
       messages: state.messages.map((msg) => (msg.id === messageId ? { ...msg, ...updates } : msg)),
+    }));
+  },
+
+  // tempId를 실제 서버 ID로 교체
+  replaceTempMessage: (tempId: string, realMessage: Message) => {
+    set((state) => ({
+      messages: state.messages.map((msg) => (msg.id === tempId ? realMessage : msg)),
     }));
   },
 }));

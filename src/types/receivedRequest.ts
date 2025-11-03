@@ -3,6 +3,7 @@ import { MoveType } from "./moveTypes";
 
 export interface ReceivedRequest {
   id: string;
+  consumerId: string;
   consumerName: string;
   moveAt: string;
   departureAddress: string;
