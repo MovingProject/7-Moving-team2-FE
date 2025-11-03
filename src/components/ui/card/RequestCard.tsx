@@ -26,18 +26,24 @@ export default function RequestCard({ user, request, quotation }: CommonCardProp
     };
   }, [request?.departureAddress, request?.arrivalAddress, moveDate]);
 
-  const NON_ACTIVE_STATUSES = ["CANCELLED", "REJECTED", "EXPIRED", "COMPLETED"];
+  const NON_ACTIVE_STATUSES = ["CANCELLED", "REJECTED", "EXPIRED", "COMPLETED", "COMPLETE"];
   const isDimmed =
     NON_ACTIVE_STATUSES.includes(request?.requestStatement ?? "") ||
     NON_ACTIVE_STATUSES.includes(quotation?.quotationStatement ?? "");
 
   let stateMessage = "";
-  if (request?.requestStatement === "CANCELLED" || quotation?.quotationStatement === "REJECTED") {
-    stateMessage = "반려된 요청입니다";
-  } else if (request?.requestStatement === "COMPLETE") {
+  if (quotation?.quotationStatement === "REJECTED") {
+    stateMessage = "반려된 견적입니다";
+  } else if (
+    request?.requestStatement === "COMPLETE" ||
+    quotation?.quotationStatement === "COMPLETED"
+  ) {
     stateMessage = "이사 완료된 견적이에요.";
-  } else if (request?.requestStatement === "EXPIRED") {
-    stateMessage = "요청이 만료되었습니다";
+  } else if (
+    request?.requestStatement === "EXPIRED" ||
+    quotation?.quotationStatement === "EXPIRED"
+  ) {
+    stateMessage = "요청 혹은 견적이 만료되었습니다";
   }
 
   const handleCreateChatRoom = async () => {

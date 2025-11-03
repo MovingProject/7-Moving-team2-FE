@@ -1,79 +1,84 @@
-import React from "react";
-import TabNavigation from "../components/TabNavigation";
-import { DRIVER_TAB_LIST } from "@/types/tabs";
+"use client";
+
+import React, { useMemo } from "react";
 import RequestCard from "@/components/ui/card/RequestCard";
-import { UserData, RequestData, QuotationData } from "@/types/card";
+import { useAuthStore } from "@/store/authStore";
+import LogoSpinner from "@/components/ui/LogoSpinner";
+import NodataArea from "@/components/ui/nodata/NodataArea";
+import {
+  adaptApiDriverQuotationList,
+  adaptDriverItemToRequestCardProps,
+} from "@/utils/quotationAdapter";
+import { useDriverQuotationList } from "@/utils/hook/quotation/useDriverQuotationList";
 
 export default function QuotationSentPage() {
-  const BASE_PATH = "/quotation/sent";
-  const requestCardData: {
-    user: UserData;
-    request: RequestData;
-    quotation?: QuotationData;
-  } = {
-    user: {
-      userId: "user-consumer-001",
-      name: "김철수",
-      role: "CONSUMER",
-      email: "kim@test.com",
-      phoneNumber: "010-9876-5432",
-    },
-    request: {
-      requestId: "req-789",
-      serviceType: ["SMALL_MOVE"],
-      departureAddress: "인천시 남동구",
-      arrivalAddress: "경기도 고양시",
-      requestStatement: "PENDING",
-      moveAt: "2024-07-01",
-      createdAt: "2025-09-25",
-    },
-    quotation: {
-      quotationId: "q-123",
-      departureAddress: "서울시 강남구",
-      arrivalAddress: "경기도 성남시",
-      price: 180000,
-      moveAt: "2025-10-15",
-      createdAt: "2025-09-25",
-      quotationStatement: "CONCLUDED",
-    },
-  };
-  const requestCardData2: {
-    user: UserData;
-    request: RequestData;
-    quotation?: QuotationData;
-  } = {
-    user: requestCardData.user,
-    request: {
-      ...requestCardData.request,
-      requestStatement: "COMPLETE",
-    },
-  };
+  const { user } = useAuthStore();
+  const userRole = user?.role;
+
+  // 1. 데이터 훅 호출
+  const {
+    data: apiQuotationList, // ApiDriverQuotationItem[] 타입
+    isLoading,
+    error,
+  } = useDriverQuotationList();
+  const quotationList = useMemo(() => {
+    if (!apiQuotationList) return [];
+    return adaptApiDriverQuotationList(apiQuotationList);
+  }, [apiQuotationList]);
+
+  console.log("quotationList", quotationList);
+  // 2. 권한, 로딩, 에러 처리 (이전 답변 유지)
+  if (userRole !== "DRIVER") {
+    return (
+      <div className="py-20 text-center text-red-600">
+        접근 권한이 없습니다. (기사 계정만 접근 가능)
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <LogoSpinner />
+      </div>
+    );
+  }
+
+  // 에러 메시지 추출 (이전 답변의 error 처리를 가정)
+  const errorMessage = error ? error.response?.data?.message || error.message : null;
+  if (error) {
+    return (
+      <div className="py-20 text-center text-red-600">
+        <p>견적 목록을 불러오는 데 실패했습니다. (에러: {errorMessage})</p>
+      </div>
+    );
+  }
+
+  // 4. 데이터 없음 처리
+  if (quotationList.length === 0) {
+    return <NodataArea content="보낸 견적서가 없습니다." />;
+  }
+
   return (
     <div className="flex min-h-[calc(100vh-80px)] flex-col">
       <div className="flex flex-grow flex-col">
-        <TabNavigation tabs={DRIVER_TAB_LIST} />
         <section className="flex-grow bg-gray-200 py-6 lg:py-12">
-          <div className="mx-auto grid gap-4 px-4 lg:max-w-[1400px] lg:grid-cols-2 lg:gap-6 lg:px-0">
-            <RequestCard
-              user={requestCardData.user}
-              request={requestCardData.request}
-              quotation={requestCardData.quotation}
-            />
-            <RequestCard
-              user={requestCardData2.user}
-              request={requestCardData2.request}
-              quotation={requestCardData2.quotation}
-            />
-            <RequestCard
-              user={requestCardData2.user}
-              request={requestCardData2.request}
-              quotation={requestCardData2.quotation}
-            />
-            <RequestCard
-              user={requestCardData2.user}
-              request={requestCardData2.request}
-              quotation={requestCardData2.quotation}
-            />
+          <div className="mx-auto flex border-b border-gray-200 px-4 py-2 md:px-5 lg:max-w-[1400px] lg:gap-0 lg:px-5 xl:max-w-[1400px] xl:gap-8 xl:px-0">
+            <h2 className="w-full text-lg font-semibold lg:text-2xl">기사님의 견적관리</h2>
+          </div>
+          <div className="mx-auto mt-2 grid gap-4 px-4 lg:max-w-[1400px] lg:grid-cols-2 lg:gap-6 lg:px-0">
+            {quotationList.map((item) => {
+              const cardProps = adaptDriverItemToRequestCardProps(item);
+
+              return (
+                <RequestCard
+                  key={item.quotationId}
+                  user={cardProps.user}
+                  request={cardProps.request}
+                  quotation={cardProps.quotation}
+                />
+              );
+            })}
           </div>
         </section>
       </div>
