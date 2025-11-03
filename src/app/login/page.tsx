@@ -54,7 +54,7 @@ export default function Login() {
             이메일로 회원가입하기
           </Link>
         </p>
-        <SocialLogin />
+        <SocialLogin role={role} />
       </div>
     </div>
   );
