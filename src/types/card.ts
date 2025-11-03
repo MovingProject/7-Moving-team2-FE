@@ -131,7 +131,14 @@ export interface RequestData {
   serviceType: ServerMoveType[];
   departureAddress: string;
   arrivalAddress: string;
-  requestStatement: "PENDING" | "CONCLUDED" | "COMPLETE" | "CANCELLED" | "EXPIRED" | "WITHDRAWN";
+  requestStatement:
+    | "PENDING"
+    | "CONCLUDED"
+    | "COMPLETE"
+    | "CANCELLED"
+    | "EXPIRED"
+    | "WITHDRAWN"
+    | "REJECTED";
   moveAt: string;
   createdAt: string;
   isInvited?: boolean;
