@@ -153,32 +153,37 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
           messageType: msg.messageType,
           content: msg.content,
           createdAt: msg.createdAt,
-          quotation: msg.quotation ? {
-            id: msg.quotation.id,
-            consumerId: "",
-            driverId: "",
-            chattingRoomId: msg.chattingRoomId,
-            requestId: "",
-            serviceType: "",
-            moveAt: msg.quotation.moveAt,
-            departureAddress: msg.quotation.departureAddress,
-            departureFloor: 0,
-            departurePyeong: 0,
-            departureElevator: false,
-            arrivalAddress: msg.quotation.arrivalAddress,
-            arrivalFloor: 0,
-            arrivalPyeong: 0,
-            arrivalElevator: false,
-            price: msg.quotation.price,
-            status: "SUBMITTED",
-            createdAt: msg.createdAt,
-            chattingMessageId: msg.id,
-          } : undefined,
+          quotation: msg.quotation
+            ? {
+                id: msg.quotation.id,
+                consumerId: "",
+                driverId: "",
+                chattingRoomId: msg.chattingRoomId,
+                requestId: "",
+                serviceType: "",
+                moveAt: msg.quotation.moveAt,
+                departureAddress: msg.quotation.departureAddress,
+                departureFloor: 0,
+                departurePyeong: 0,
+                departureElevator: false,
+                arrivalAddress: msg.quotation.arrivalAddress,
+                arrivalFloor: 0,
+                arrivalPyeong: 0,
+                arrivalElevator: false,
+                price: msg.quotation.price,
+                status: "SUBMITTED",
+                createdAt: msg.createdAt,
+                chattingMessageId: msg.id,
+              }
+            : undefined,
         }));
 
         setMessages(formattedMessages);
       } catch (error) {
-        const err = error as { response?: { status?: number; statusText?: string; data?: { message?: string } }; message?: string };
+        const err = error as {
+          response?: { status?: number; statusText?: string; data?: { message?: string } };
+          message?: string;
+        };
         console.error("❌ 메시지 로딩 실패:", error);
         console.error("Error details:", {
           status: err.response?.status,
