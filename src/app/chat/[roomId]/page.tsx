@@ -2,20 +2,26 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import useChatStore from "@/store/chatStore";
-import { messagesByRoomId, conversations, type Conversation } from "../mock/data";
+import { useAuthStore } from "@/store/authStore";
 import QuotationModal from "@/components/chat/QuotationModal";
 import QuotationMessage from "@/components/chat/QuotationMessage";
+import { getChatMessages } from "@/lib/apis/chatApi";
 
 // 이 페이지는 클라이언트 측에서 동적으로 렌더링됩니다.
 export default function ChatRoomPage({ params }: { params: Promise<{ roomId: string }> }) {
   const resolvedParams = React.use(params);
-  const { socket, messages, addMessage, setMessages, currentUser, setCurrentUser } = useChatStore();
+  const { socket, messages, addMessage, setMessages, replaceTempMessage } = useChatStore();
+  const { user } = useAuthStore();
   const [newMessage, setNewMessage] = useState("");
   const [isQuotationModalOpen, setIsQuotationModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<null | HTMLDivElement>(null);
-  const currentConvo = conversations.find(
-    (convo: Conversation) => convo.id === resolvedParams.roomId
-  );
+
+  // 현재 사용자 정보
+  const currentUser = user
+    ? { id: user.id, name: user.name, role: user.role.toLowerCase() as "consumer" | "driver" }
+    : { id: "", name: "게스트", role: "consumer" as const };
 
   // 스크롤을 맨 아래로 이동시키는 함수
   const scrollToBottom = () => {
@@ -27,34 +33,154 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
     scrollToBottom();
   }, [messages]);
 
-  // 채팅방에 처음 입장했을 때, 기존 메시지 불러오기 (API 호출로 대체 필요)
+  // WebSocket 채팅방 입장 및 새 메시지 수신
   useEffect(() => {
-    // TODO: API를 통해 `params.roomId`에 해당하는 채팅 내역을 불러와야 합니다.
-    // 현재는 임시 목 데이터에서 채팅 내역을 불러옵니다.
-    const roomMessages = messagesByRoomId[resolvedParams.roomId] || [];
-    setMessages(roomMessages);
-  }, [resolvedParams.roomId, setMessages]);
+    if (!socket) return;
 
-  const handleSendMessage = () => {
-    if (newMessage.trim()) {
-      const messageData = {
-        id: `msg-${Date.now()}`,
-        chattingRoomId: resolvedParams.roomId,
-        senderId: currentUser.id,
-        senderName: currentUser.name,
-        senderAvatar: currentUser.name.charAt(0),
-        messageType: "MESSAGE" as const,
-        content: newMessage,
-        createdAt: new Date().toISOString(),
+    // 채팅방 입장
+    socket.emit("chat:join", { roomId: resolvedParams.roomId });
+
+    // 새 메시지 수신 이벤트 리스너
+    const handleNewMessage = (data: any) => {
+      console.log("📨 chat:new 이벤트 수신:", data);
+
+      if (data.roomId !== resolvedParams.roomId) return;
+
+      // 중복 메시지 체크 (이미 같은 ID의 메시지가 있으면 무시)
+      if (messages.some((msg) => msg.id === data.msg.id)) {
+        console.log("⚠️ 중복 메시지 무시:", data.msg.id);
+        return;
+      }
+
+      const newMsg: any = {
+        id: data.msg.id,
+        chattingRoomId: data.roomId,
+        senderId: data.msg.authorId,
+        senderName: data.msg.authorId === currentUser.id ? currentUser.name : "상대방",
+        senderAvatar: data.msg.authorId === currentUser.id ? currentUser.name.charAt(0) : "상",
+        messageType: data.msg.messageType,
+        content: data.msg.messageType === "MESSAGE" ? data.msg.body : null,
+        createdAt: data.msg.sentAt,
       };
 
-      // TODO: 서버로 메시지 전송 (이벤트명 'sendMessage'는 백엔드와 일치해야 함)
-      // socket?.emit("sendMessage", { roomId: resolvedParams.roomId, ...messageData });
+      // QUOTATION 타입은 quotationId만 받으므로 임시로 처리
+      if (data.msg.messageType === "QUOTATION") {
+        newMsg.quotation = { id: data.msg.quotationId };
+      }
 
-      // 낙관적 업데이트: 내가 보낸 메시지를 바로 UI에 추가
-      addMessage(messageData);
-      setNewMessage("");
-    }
+      // 내가 보낸 메시지인 경우: tempId를 실제 서버 ID로 교체
+      if (data.msg.authorId === currentUser.id) {
+        console.log("💬 내가 보낸 메시지 수신 확인 - tempId를 실제 ID로 교체");
+        // 가장 최근의 temp 메시지를 찾아서 교체
+        const tempMsg = messages.find(
+          (msg) => msg.id.startsWith("temp-") && msg.senderId === currentUser.id
+        );
+        if (tempMsg) {
+          console.log("🔄 tempId 교체:", tempMsg.id, "→", data.msg.id);
+          replaceTempMessage(tempMsg.id, newMsg);
+          return;
+        }
+        console.log("⚠️ temp 메시지를 찾을 수 없음, 새 메시지로 추가");
+      }
+
+      console.log("➕ 새 메시지 추가:", newMsg.id);
+      addMessage(newMsg);
+    };
+
+    socket.on("chat:new", handleNewMessage);
+
+    return () => {
+      console.log("🧹 chat:new 이벤트 리스너 제거");
+      socket.off("chat:new", handleNewMessage);
+    };
+  }, [
+    socket,
+    resolvedParams.roomId,
+    currentUser.id,
+    currentUser.name,
+    addMessage,
+    replaceTempMessage,
+    messages,
+  ]);
+
+  // 채팅방에 처음 입장했을 때, 기존 메시지 불러오기
+  useEffect(() => {
+    const fetchMessages = async () => {
+      console.log("🔍 Fetching messages for roomId:", resolvedParams.roomId);
+
+      if (!resolvedParams.roomId) {
+        console.error("❌ roomId가 undefined입니다!");
+        setError("채팅방 ID가 없습니다.");
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        setError(null);
+        const response = await getChatMessages(resolvedParams.roomId);
+        console.log("✅ 메시지 로딩 성공:", response);
+
+        // 백엔드 응답을 프론트엔드 형식으로 변환
+        const formattedMessages = response.messages.map((msg: any) => ({
+          id: msg.id,
+          chattingRoomId: msg.chattingRoomId,
+          senderId: msg.senderId,
+          senderName: msg.isMine ? currentUser.name : "상대방",
+          senderAvatar: msg.isMine ? currentUser.name.charAt(0) : "상",
+          messageType: msg.messageType,
+          content: msg.content,
+          createdAt: msg.createdAt,
+          quotation: msg.quotation || undefined,
+        }));
+
+        setMessages(formattedMessages);
+      } catch (error: any) {
+        console.error("❌ 메시지 로딩 실패:", error);
+        console.error("Error details:", {
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data,
+          message: error.message,
+        });
+        const errorMessage =
+          error.response?.data?.message || error.message || "메시지를 불러올 수 없습니다.";
+        setError(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMessages();
+  }, [resolvedParams.roomId, setMessages, currentUser.name]);
+
+  const handleSendMessage = () => {
+    if (!newMessage.trim() || !socket) return;
+
+    const tempId = `temp-${Date.now()}`;
+    const messagePayload = {
+      roomId: resolvedParams.roomId,
+      tempId,
+      messageType: "MESSAGE" as const,
+      content: newMessage.trim(),
+    };
+
+    // 서버로 메시지 전송
+    socket.emit("chat:send", messagePayload);
+
+    // 낙관적 업데이트: 내가 보낸 메시지를 바로 UI에 추가
+    addMessage({
+      id: tempId,
+      chattingRoomId: resolvedParams.roomId,
+      senderId: currentUser.id,
+      senderName: currentUser.name,
+      senderAvatar: currentUser.name.charAt(0),
+      messageType: "MESSAGE",
+      content: newMessage,
+      createdAt: new Date().toISOString(),
+    });
+
+    setNewMessage("");
   };
 
   const handleSendQuotation = (
@@ -104,31 +230,35 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
     addMessage(quotationMessage);
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <p className="text-gray-500">메시지를 불러오는 중...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-4">
+        <p className="text-red-500">❌ {error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+        >
+          다시 시도
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-full flex-col">
       {/* Chat Header - 데스크톱에서만 표시 */}
       <header className="hidden h-16 items-center border-b border-gray-200 bg-white p-4 md:flex">
-        <h2 className="text-lg font-bold">{currentConvo?.name}</h2>
-
-        {/* TODO: 백엔드 연동 후 아래 개발용 토글 버튼 삭제 */}
-        {/* Dev Only: Role Toggle for testing - REMOVE in production */}
-        <div className="ml-auto flex items-center gap-2 rounded-lg border border-blue-300 bg-blue-100 p-1">
-          <button
-            onClick={() => setCurrentUser({ id: "consumer-1", role: "consumer", name: "나" })}
-            className={`rounded px-3 py-1 text-sm font-medium ${
-              currentUser.role === "consumer" ? "bg-white text-blue-600 shadow" : "text-gray-600"
-            }`}
-          >
-            고객
-          </button>
-          <button
-            onClick={() => setCurrentUser({ id: "driver-123", role: "driver", name: "김기사" })}
-            className={`rounded px-3 py-1 text-sm font-medium ${
-              currentUser.role === "driver" ? "bg-white text-blue-600 shadow" : "text-gray-600"
-            }`}
-          >
-            기사
-          </button>
+        <h2 className="text-lg font-bold">채팅</h2>
+        <div className="ml-auto">
+          <span className="text-sm text-gray-600">{currentUser.name}</span>
         </div>
       </header>
 

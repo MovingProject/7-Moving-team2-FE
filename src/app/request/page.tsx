@@ -169,7 +169,7 @@ export default function RequestPage() {
                   <RequestCard
                     key={cardData.id || index}
                     user={{
-                      userId: cardData.id,
+                      userId: cardData.consumerId,
                       name: cardData.consumerName,
                       role: "CONSUMER",
                       email: "",
