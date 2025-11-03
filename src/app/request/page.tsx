@@ -147,11 +147,13 @@ export default function RequestPage() {
           <div className="flex flex-1 flex-col gap-3 md:gap-4 lg:gap-8">
             <SearchBar value={searchKeyword} onChange={(value) => setSearchKeyword(value)} />
             <div className="flex items-center justify-between py-1">
-              <p className="text-sm lg:text-base">전체 {responseData.length}건</p>
+              <p className="min-h-7 text-sm lg:min-h-0 lg:text-base">
+                전체 {responseData.length}건
+              </p>
               <div className="flex items-center gap-2">
                 <SortTechFilter selected={sortTech} onChange={setSortTech} filterKey="sortTech" />
                 <button
-                  className="border-primary rounded border p-0.5 text-white lg:hidden"
+                  className="border-primary mb-1.5 rounded border p-0.5 text-white lg:hidden"
                   onClick={() => setFilterOpen((prev) => !prev)}
                 >
                   <Image src="/icon/ic-filter.svg" width={24} height={24} alt="필터 아이콘" />
