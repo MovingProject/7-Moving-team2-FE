@@ -42,13 +42,13 @@ export const mapDriverToCardData = (
 
 export const mapDriverDetailToDriverListShape = (data: DriverDetailItem): DriverItem => ({
   user: {
-    id: data.id,
+    id: data.userId,
     name: data.name,
     role: "DRIVER",
     createdAt: "",
   },
   profile: {
-    userId: data.id,
+    userId: data.userId,
     image: data.image,
     nickname: data.nickname,
     oneLiner: data.oneLiner ?? "",
