@@ -6,15 +6,23 @@ interface RequestInfo {
   serviceType: string;
   moveAt: string;
   departureAddress: string;
+  departureFloor: number;
+  departurePyeong: number;
+  departureElevator: boolean;
   arrivalAddress: string;
+  arrivalFloor: number;
+  arrivalPyeong: number;
+  arrivalElevator: boolean;
   additionalRequirements?: string;
+  previousQuotationId?: string;
+  validUntil?: string;
 }
 
 interface QuotationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSend: (price: number, message: string, requestInfo: RequestInfo) => void;
-  initialRequestInfo?: RequestInfo;
+  initialRequestInfo?: Partial<RequestInfo>;
 }
 
 const SERVICE_TYPE_MAP: { [key: string]: string } = {
@@ -38,7 +46,17 @@ export default function QuotationModal({
   const [departureAddress, setDepartureAddress] = useState(
     initialRequestInfo?.departureAddress || ""
   );
+  const [departureFloor, setDepartureFloor] = useState(initialRequestInfo?.departureFloor || 1);
+  const [departurePyeong, setDeparturePyeong] = useState(initialRequestInfo?.departurePyeong || 20);
+  const [departureElevator, setDepartureElevator] = useState(
+    initialRequestInfo?.departureElevator ?? true
+  );
   const [arrivalAddress, setArrivalAddress] = useState(initialRequestInfo?.arrivalAddress || "");
+  const [arrivalFloor, setArrivalFloor] = useState(initialRequestInfo?.arrivalFloor || 1);
+  const [arrivalPyeong, setArrivalPyeong] = useState(initialRequestInfo?.arrivalPyeong || 20);
+  const [arrivalElevator, setArrivalElevator] = useState(
+    initialRequestInfo?.arrivalElevator ?? true
+  );
   const [additionalRequirements, setAdditionalRequirements] = useState(
     initialRequestInfo?.additionalRequirements || ""
   );
@@ -46,10 +64,23 @@ export default function QuotationModal({
   // initialRequestInfo가 변경될 때마다 상태 업데이트
   useEffect(() => {
     if (initialRequestInfo) {
-      setServiceType(initialRequestInfo.serviceType);
-      setMoveAt(initialRequestInfo.moveAt);
-      setDepartureAddress(initialRequestInfo.departureAddress);
-      setArrivalAddress(initialRequestInfo.arrivalAddress);
+      if (initialRequestInfo.serviceType) setServiceType(initialRequestInfo.serviceType);
+      if (initialRequestInfo.moveAt) setMoveAt(initialRequestInfo.moveAt);
+      if (initialRequestInfo.departureAddress)
+        setDepartureAddress(initialRequestInfo.departureAddress);
+      if (initialRequestInfo.departureFloor !== undefined)
+        setDepartureFloor(initialRequestInfo.departureFloor);
+      if (initialRequestInfo.departurePyeong !== undefined)
+        setDeparturePyeong(initialRequestInfo.departurePyeong);
+      if (initialRequestInfo.departureElevator !== undefined)
+        setDepartureElevator(initialRequestInfo.departureElevator);
+      if (initialRequestInfo.arrivalAddress) setArrivalAddress(initialRequestInfo.arrivalAddress);
+      if (initialRequestInfo.arrivalFloor !== undefined)
+        setArrivalFloor(initialRequestInfo.arrivalFloor);
+      if (initialRequestInfo.arrivalPyeong !== undefined)
+        setArrivalPyeong(initialRequestInfo.arrivalPyeong);
+      if (initialRequestInfo.arrivalElevator !== undefined)
+        setArrivalElevator(initialRequestInfo.arrivalElevator);
       setAdditionalRequirements(initialRequestInfo.additionalRequirements || "");
     }
   }, [initialRequestInfo]);
@@ -68,8 +99,14 @@ export default function QuotationModal({
       serviceType,
       moveAt,
       departureAddress,
+      departureFloor,
+      departurePyeong,
+      departureElevator,
       arrivalAddress,
-      additionalRequirements,
+      arrivalFloor,
+      arrivalPyeong,
+      arrivalElevator,
+      additionalRequirements: additionalRequirements || undefined,
     };
 
     onSend(priceNum, message, requestInfo);
@@ -130,6 +167,40 @@ export default function QuotationModal({
                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
                 required
               />
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                <div>
+                  <label className="mb-1 block text-xs text-gray-500">층수</label>
+                  <input
+                    type="number"
+                    value={departureFloor}
+                    onChange={(e) => setDepartureFloor(parseInt(e.target.value) || 1)}
+                    className="w-full rounded border px-2 py-1 text-sm"
+                    min="0"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs text-gray-500">평수</label>
+                  <input
+                    type="number"
+                    value={departurePyeong}
+                    onChange={(e) => setDeparturePyeong(parseFloat(e.target.value) || 20)}
+                    className="w-full rounded border px-2 py-1 text-sm"
+                    min="1"
+                    step="0.1"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs text-gray-500">엘리베이터</label>
+                  <select
+                    value={departureElevator ? "true" : "false"}
+                    onChange={(e) => setDepartureElevator(e.target.value === "true")}
+                    className="w-full rounded border px-2 py-1 text-sm"
+                  >
+                    <option value="true">있음</option>
+                    <option value="false">없음</option>
+                  </select>
+                </div>
+              </div>
             </div>
 
             {/* 도착지 */}
@@ -143,6 +214,40 @@ export default function QuotationModal({
                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
                 required
               />
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                <div>
+                  <label className="mb-1 block text-xs text-gray-500">층수</label>
+                  <input
+                    type="number"
+                    value={arrivalFloor}
+                    onChange={(e) => setArrivalFloor(parseInt(e.target.value) || 1)}
+                    className="w-full rounded border px-2 py-1 text-sm"
+                    min="0"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs text-gray-500">평수</label>
+                  <input
+                    type="number"
+                    value={arrivalPyeong}
+                    onChange={(e) => setArrivalPyeong(parseFloat(e.target.value) || 20)}
+                    className="w-full rounded border px-2 py-1 text-sm"
+                    min="1"
+                    step="0.1"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs text-gray-500">엘리베이터</label>
+                  <select
+                    value={arrivalElevator ? "true" : "false"}
+                    onChange={(e) => setArrivalElevator(e.target.value === "true")}
+                    className="w-full rounded border px-2 py-1 text-sm"
+                  >
+                    <option value="true">있음</option>
+                    <option value="false">없음</option>
+                  </select>
+                </div>
+              </div>
             </div>
 
             {/* 추가 요청사항 */}
