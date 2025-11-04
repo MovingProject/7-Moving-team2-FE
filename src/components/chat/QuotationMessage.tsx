@@ -187,7 +187,7 @@ export default function QuotationMessage({
         <div className="space-y-1 text-sm">
           <div className="flex justify-between">
             <span className="text-gray-600">이사 날짜</span>
-            <span className="font-medium">{quotation.moveAt}</span>
+            <span className="font-medium">{(quotation.moveAt || "").split("T")[0]}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">출발지</span>
