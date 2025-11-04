@@ -18,12 +18,23 @@ export default function ImageInputArea({
   value,
   onChange,
 }: ImageInputAreaProps) {
-  const [selected, setSelected] = useState("/images/avatars/avatartion1.jpg");
+  const DEFAULT_AVATAR = "/images/avatars/avatartion1.jpg";
+  const [selected, setSelected] = useState<string>(value || DEFAULT_AVATAR);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    if (value) setSelected(value);
+    if (value) {
+      setSelected(value);
+    } else {
+      setSelected(DEFAULT_AVATAR);
+    }
   }, [value]);
+
+  useEffect(() => {
+    if (!value) {
+      onChange?.(DEFAULT_AVATAR);
+    }
+  }, []);
 
   const handleSelect = (avatar: string) => {
     setSelected(avatar);
