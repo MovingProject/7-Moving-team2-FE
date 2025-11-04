@@ -6,6 +6,7 @@ import { LikedDriver, useLikedDriversQuery } from "@/utils/hook/likes/useLikedQu
 import LikedDriverCard from "./components/LikedDriverCard";
 import NodataArea from "@/components/ui/nodata/NodataArea";
 import { LikedDriverCardSkeleton } from "./components/LikedDriverCardSkeleton";
+import Popup from "@/components/ui/Popup";
 
 export default function LikedDriversPage() {
   const router = useRouter();
@@ -14,6 +15,7 @@ export default function LikedDriversPage() {
   const [showSkeleton, setShowSkeleton] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
   const [showCards, setShowCards] = useState(false);
+  const [popup, setPopup] = useState<{ type: "info" | "warning"; message: string } | null>(null);
 
   useEffect(() => {
     if (!isLoading && data) {
@@ -94,6 +96,7 @@ export default function LikedDriversPage() {
                     key={driver.id}
                     driver={driver}
                     onClickAction={() => handleCardClick(driver.id)}
+                    setPopupAction={setPopup}
                   />
                 ))}
               </div>
@@ -121,7 +124,12 @@ export default function LikedDriversPage() {
 
   return (
     <main className="min-h-screen w-full bg-white px-8 pt-6 md:px-16 lg:px-24 xl:px-60">
-      {/* 헤더 */}
+      {popup && (
+        <div className="absolute top-[70px] left-1/2 z-50 flex w-full -translate-x-1/2 justify-center">
+          <Popup type={popup.type} message={popup.message} onClose={() => setPopup(null)} />
+        </div>
+      )}
+
       <header className="mb-10">
         <h1 className="text-3xl font-bold text-gray-900">찜한 기사님</h1>
       </header>
@@ -135,6 +143,7 @@ export default function LikedDriversPage() {
                 key={driver.id}
                 driver={driver}
                 onClickAction={() => handleCardClick(driver.id)}
+                setPopupAction={setPopup}
               />
             ))}
           </div>

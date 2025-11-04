@@ -36,10 +36,8 @@ export default function ShareSection({ setPopup }: ShareSectionProps) {
     try {
       await navigator.clipboard.writeText(window.location.href);
       setPopup({ type: "info", message: "링크가 복사되었어요!" });
-      setTimeout(() => setPopup(null), 2000);
     } catch {
       setPopup({ type: "warning", message: "링크 복사에 실패했습니다" });
-      setTimeout(() => setPopup(null), 2000);
     }
   };
 
@@ -48,7 +46,6 @@ export default function ShareSection({ setPopup }: ShareSectionProps) {
     const kakao = window.Kakao;
     if (!kakao) {
       setPopup({ type: "warning", message: "카카오톡 공유 기능을 사용할 수 없습니다." });
-      setTimeout(() => setPopup(null), 2000);
       return;
     }
 
@@ -56,7 +53,6 @@ export default function ShareSection({ setPopup }: ShareSectionProps) {
       const key = process.env.NEXT_PUBLIC_KAKAO_JS_KEY;
       if (!key) {
         setPopup({ type: "warning", message: "카카오 키가 설정되어 있지 않습니다." });
-        setTimeout(() => setPopup(null), 2000);
         return;
       }
       kakao.init(key);
