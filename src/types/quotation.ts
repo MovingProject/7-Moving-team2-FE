@@ -9,13 +9,16 @@ export interface ApiResponseWrapper<T> {
 
 // API 응답에 포함된 견적 상세 정보 (이전 답변의 Quotation 인터페이스)
 export interface ApiQuotation {
-  id: string; // "quo-uuid-1"
+  id: string;
   driverNickname: string;
   price: number;
   serviceType: ServerMoveType; // API 응답의 serviceType (단일 문자열)
+  status: QuotationStatement;
+  chattingRoomId: string | null;
+  isLiked: boolean; // 좋아요 여부
   isInvited: boolean;
   driverProfile: {
-    driverId: string;
+    id: string;
     nickname: string;
     oneLiner: string;
     likeCount: number;
@@ -25,6 +28,7 @@ export interface ApiQuotation {
     rating: number;
     careerYears: number;
     confirmedCount: number;
+    image: string;
   };
 }
 
