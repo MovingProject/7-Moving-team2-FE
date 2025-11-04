@@ -52,7 +52,13 @@ export default function ReceivedPage() {
   // 5. 데이터 없음 처리 (allRequests가 undefined이거나 빈 배열일 때)
   // useQuery 성공 시 data는 undefined이거나 배열이므로 안전하게 체크 가능
   if (!allRequests || allRequests.length === 0) {
-    return <NodataArea content="아직 등록된 견적 요청이 없거나, 받은 견적이 없습니다." />;
+    return (
+      <NodataArea
+        content="아직 등록된 견적 요청이 없거나, 받은 견적이 없습니다."
+        linkPath="/request/write"
+        linkText="견적요청 작성하기"
+      />
+    );
   }
 
   console.log("allRequests", allRequests);
