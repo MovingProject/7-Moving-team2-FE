@@ -6,8 +6,7 @@ import { useAuthStore } from "@/store/authStore";
 import QuotationModal from "@/components/chat/QuotationModal";
 import QuotationMessage from "@/components/chat/QuotationMessage";
 import { getChatMessages } from "@/lib/apis/chatApi";
-import { WebSocketNewMessageData, BackendChatMessage } from "@/types/chat";
-import { Message } from "@/app/chat/mock/data";
+import { WebSocketNewMessageData, BackendChatMessage, Message } from "@/types/chat";
 
 // 이 페이지는 클라이언트 측에서 동적으로 렌더링됩니다.
 export default function ChatRoomPage({ params }: { params: Promise<{ roomId: string }> }) {
@@ -39,6 +38,8 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
   useEffect(() => {
     if (!socket) return;
 
+    console.log("🔌 WebSocket 이벤트 리스너 등록");
+
     // 채팅방 입장
     socket.emit("chat:join", { roomId: resolvedParams.roomId });
 
@@ -48,18 +49,54 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
 
       if (data.roomId !== resolvedParams.roomId) return;
 
-      // 중복 메시지 체크 (이미 같은 ID의 메시지가 있으면 무시)
-      if (messages.some((msg) => msg.id === data.msg.id)) {
-        console.log("⚠️ 중복 메시지 무시:", data.msg.id);
+      // 중복 메시지 체크를 위해 최신 messages를 가져옴 (zustand에서 직접)
+      const currentMessages = useChatStore.getState().messages;
+      const { addMessage, replaceTempMessage } = useChatStore.getState();
+
+      // 먼저 실제 ID로 중복 체크 (가장 중요!)
+      if (currentMessages.some((msg) => msg.id === data.msg.id)) {
+        console.log("⚠️ 중복 메시지 무시 (이미 존재하는 ID):", data.msg.id);
         return;
       }
 
+      // 내가 보낸 메시지인 경우
+      if (data.msg.authorId === currentUser.id) {
+        console.log("💬 내가 보낸 메시지 수신 확인");
+
+        // tempId가 있으면 교체
+        if (data.msg.tempId) {
+          const tempMsg = currentMessages.find((msg) => msg.id === data.msg.tempId);
+          if (tempMsg) {
+            console.log("🔄 tempId 교체:", data.msg.tempId, "→", data.msg.id);
+            const newMsg: Message = {
+              id: data.msg.id,
+              chattingRoomId: data.roomId,
+              senderId: data.msg.authorId,
+              senderName: currentUser.name,
+              senderAvatar: currentUser.name.charAt(0),
+              messageType: data.msg.messageType,
+              content: data.msg.messageType === "MESSAGE" ? data.msg.body || null : null,
+              createdAt: data.msg.sentAt,
+            };
+            replaceTempMessage(data.msg.tempId, newMsg);
+            return;
+          } else {
+            console.log("⚠️ tempId를 찾을 수 없음, 무시:", data.msg.tempId);
+            return;
+          }
+        }
+
+        console.log("⚠️ 내가 보낸 메시지 (tempId 없음), 무시:", data.msg.id);
+        return;
+      }
+
+      // 상대방 메시지 추가
       const newMsg: Message = {
         id: data.msg.id,
         chattingRoomId: data.roomId,
         senderId: data.msg.authorId,
-        senderName: data.msg.authorId === currentUser.id ? currentUser.name : "상대방",
-        senderAvatar: data.msg.authorId === currentUser.id ? currentUser.name.charAt(0) : "상",
+        senderName: "상대방",
+        senderAvatar: "상",
         messageType: data.msg.messageType,
         content: data.msg.messageType === "MESSAGE" ? data.msg.body || null : null,
         createdAt: data.msg.sentAt,
@@ -90,22 +127,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
         };
       }
 
-      // 내가 보낸 메시지인 경우: tempId를 실제 서버 ID로 교체
-      if (data.msg.authorId === currentUser.id) {
-        console.log("💬 내가 보낸 메시지 수신 확인 - tempId를 실제 ID로 교체");
-        // 가장 최근의 temp 메시지를 찾아서 교체
-        const tempMsg = messages.find(
-          (msg) => msg.id.startsWith("temp-") && msg.senderId === currentUser.id
-        );
-        if (tempMsg) {
-          console.log("🔄 tempId 교체:", tempMsg.id, "→", data.msg.id);
-          replaceTempMessage(tempMsg.id, newMsg);
-          return;
-        }
-        console.log("⚠️ temp 메시지를 찾을 수 없음, 새 메시지로 추가");
-      }
-
-      console.log("➕ 새 메시지 추가:", newMsg.id);
+      console.log("➕ 상대방 메시지 추가:", newMsg.id);
       addMessage(newMsg);
     };
 
@@ -115,15 +137,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
       console.log("🧹 chat:new 이벤트 리스너 제거");
       socket.off("chat:new", handleNewMessage);
     };
-  }, [
-    socket,
-    resolvedParams.roomId,
-    currentUser.id,
-    currentUser.name,
-    addMessage,
-    replaceTempMessage,
-    messages,
-  ]);
+  }, [socket, resolvedParams.roomId, currentUser.id, currentUser.name]);
 
   // 채팅방에 처음 입장했을 때, 기존 메시지 불러오기
   useEffect(() => {
@@ -141,7 +155,6 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
         setIsLoading(true);
         setError(null);
         const response = await getChatMessages(resolvedParams.roomId);
-        console.log("✅ 메시지 로딩 성공:", response);
 
         // 백엔드 응답을 프론트엔드 형식으로 변환
         const formattedMessages: Message[] = response.messages.map((msg: BackendChatMessage) => ({
@@ -191,6 +204,14 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
           data: err.response?.data,
           message: err.message,
         });
+
+        // 401 에러면 인증 실패이므로 로그인 페이지로 리다이렉트
+        if (err.response?.status === 401) {
+          console.log("🔒 인증 필요 - 로그인 페이지로 이동");
+          window.location.href = "/login";
+          return;
+        }
+
         const errorMessage =
           err.response?.data?.message || err.message || "메시지를 불러올 수 없습니다.";
         setError(errorMessage);
@@ -200,7 +221,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
     };
 
     fetchMessages();
-  }, [resolvedParams.roomId, setMessages, currentUser.name]);
+  }, [resolvedParams.roomId, currentUser.name]);
 
   const handleSendMessage = () => {
     if (!newMessage.trim() || !socket) return;
@@ -238,44 +259,82 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
       serviceType: string;
       moveAt: string;
       departureAddress: string;
+      departureFloor: number;
+      departurePyeong: number;
+      departureElevator: boolean;
       arrivalAddress: string;
+      arrivalFloor: number;
+      arrivalPyeong: number;
+      arrivalElevator: boolean;
       additionalRequirements?: string;
+      previousQuotationId?: string;
+      validUntil?: string;
     }
   ) => {
-    // TODO: Replace with real API call to POST /quotations
-    const quotationMessage = {
-      id: `msg-${Date.now()}`,
-      chattingRoomId: resolvedParams.roomId,
-      senderId: currentUser.id,
-      senderName: currentUser.name,
+    if (!socket) return;
+
+    const tempId = `temp-${Date.now()}`;
+
+    // 백엔드 WebSocket chat:send 이벤트로 견적 전송
+    const quotationPayload = {
+      roomId: resolvedParams.roomId,
+      tempId,
       messageType: "QUOTATION" as const,
-      createdAt: new Date().toISOString(),
       quotation: {
-        id: `quot-${Date.now()}`,
-        consumerId: currentUser.role === "consumer" ? currentUser.id : "consumer-1",
-        driverId: currentUser.role === "driver" ? currentUser.id : "driver-123",
-        chattingRoomId: resolvedParams.roomId,
-        requestId: "req-1",
         serviceType: requestInfo.serviceType,
-        moveAt: requestInfo.moveAt,
+        moveAt: new Date(requestInfo.moveAt).toISOString(),
         departureAddress: requestInfo.departureAddress,
-        departureFloor: 3,
-        departurePyeong: 20,
-        departureElevator: true,
+        departureFloor: requestInfo.departureFloor,
+        departurePyeong: requestInfo.departurePyeong,
+        departureElevator: requestInfo.departureElevator,
         arrivalAddress: requestInfo.arrivalAddress,
-        arrivalFloor: 5,
-        arrivalPyeong: 25,
-        arrivalElevator: false,
-        additionalRequirements: requestInfo.additionalRequirements, // 고객의 원래 요청사항
-        quotationMessage: message, // 기사의 견적 추가 설명
+        arrivalFloor: requestInfo.arrivalFloor,
+        arrivalPyeong: requestInfo.arrivalPyeong,
+        arrivalElevator: requestInfo.arrivalElevator,
+        additionalRequirements: requestInfo.additionalRequirements || undefined,
         price: price,
-        status: "SUBMITTED" as const,
-        createdAt: new Date().toISOString(),
-        chattingMessageId: `msg-${Date.now()}`,
+        previousQuotationId: requestInfo.previousQuotationId,
+        validUntil: requestInfo.validUntil
+          ? new Date(requestInfo.validUntil).toISOString()
+          : undefined,
       },
     };
 
-    addMessage(quotationMessage);
+    console.log("💼 견적 전송:", quotationPayload);
+    socket.emit("chat:send", quotationPayload);
+
+    // 낙관적 업데이트: 견적 메시지 즉시 UI에 추가
+    addMessage({
+      id: tempId,
+      chattingRoomId: resolvedParams.roomId,
+      senderId: currentUser.id,
+      senderName: currentUser.name,
+      senderAvatar: currentUser.name.charAt(0),
+      messageType: "QUOTATION",
+      createdAt: new Date().toISOString(),
+      quotation: {
+        id: `temp-quot-${Date.now()}`,
+        consumerId: "",
+        driverId: "",
+        chattingRoomId: resolvedParams.roomId,
+        requestId: "",
+        serviceType: requestInfo.serviceType,
+        moveAt: requestInfo.moveAt,
+        departureAddress: requestInfo.departureAddress,
+        departureFloor: requestInfo.departureFloor,
+        departurePyeong: requestInfo.departurePyeong,
+        departureElevator: requestInfo.departureElevator,
+        arrivalAddress: requestInfo.arrivalAddress,
+        arrivalFloor: requestInfo.arrivalFloor,
+        arrivalPyeong: requestInfo.arrivalPyeong,
+        arrivalElevator: requestInfo.arrivalElevator,
+        additionalRequirements: requestInfo.additionalRequirements,
+        price: price,
+        status: "SUBMITTED",
+        createdAt: new Date().toISOString(),
+        chattingMessageId: tempId,
+      },
+    });
   };
 
   if (isLoading) {
@@ -394,9 +453,15 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
         onSend={handleSendQuotation}
         initialRequestInfo={{
           serviceType: "HOME_MOVE",
-          moveAt: "2025-10-30",
+          moveAt: "2025-12-05",
           departureAddress: "서울특별시 강남구 테헤란로 123",
+          departureFloor: 3,
+          departurePyeong: 20,
+          departureElevator: true,
           arrivalAddress: "서울특별시 송파구 중앙로 23",
+          arrivalFloor: 5,
+          arrivalPyeong: 25,
+          arrivalElevator: false,
           additionalRequirements: "사다리차 사용 불가",
         }}
       />
