@@ -151,7 +151,10 @@ export interface QuotationData {
   arrivalAddress: string;
   quotationStatement: "PENDING" | "CONCLUDED" | "COMPLETED" | "REJECTED" | "EXPIRED" | "CANCELLED";
   price: number;
+  chattingRoomId?: string | null;
   moveAt: string;
+  isLiked?: boolean;
+  isInvited?: boolean;
   createdAt?: string | null;
   serviceType?: ServerMoveType;
 }
