@@ -8,7 +8,7 @@ import { ChatRoomListItem } from "@/types/chat";
 import { getMyChatRooms } from "@/lib/apis/chatApi";
 
 export default function ChatLayout({ children }: { children: React.ReactNode }) {
-  const { connectSocket, disconnectSocket } = useChatStore();
+  const { connectSocket, disconnectSocket, readRooms, socket, currentRoomId } = useChatStore();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [conversations, setConversations] = useState<ChatRoomListItem[]>([]);
@@ -25,7 +25,18 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
         setIsLoadingRooms(true);
         setRoomsError(null);
         const rooms = await getMyChatRooms();
-        setConversations(rooms);
+
+        // readRooms에 있는 방은 unreadCount를 0으로 설정
+        const adjustedRooms = rooms.map((room) => ({
+          ...room,
+          unreadCount: readRooms.has(room.roomId) ? 0 : room.unreadCount,
+        }));
+
+        setConversations(adjustedRooms);
+        console.log(
+          "✅ 채팅방 목록 로드:",
+          adjustedRooms.map((r) => ({ id: r.roomId, unread: r.unreadCount }))
+        );
       } catch (error) {
         const err = error as {
           response?: { status?: number; data?: { message?: string } };
@@ -45,7 +56,101 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
     };
 
     fetchChatRooms();
-  }, []);
+  }, []); // 최초 한 번만 API 호출
+
+  // readRooms 변경 시 conversations 업데이트 (깜빡임 없이)
+  useEffect(() => {
+    setConversations((prev) =>
+      prev.map((room) => ({
+        ...room,
+        unreadCount: readRooms.has(room.roomId) ? 0 : room.unreadCount,
+      }))
+    );
+  }, [readRooms]);
+
+  // WebSocket으로 실시간 대화 목록 업데이트
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNewMessage = (data: any) => {
+      console.log("📨 layout - chat:new 수신:", data);
+
+      // 최신 상태를 직접 가져오기
+      const latestCurrentRoomId = useChatStore.getState().currentRoomId;
+      const latestReadRooms = useChatStore.getState().readRooms;
+
+      console.log("🔍 현재 상태:", {
+        messageRoomId: data.roomId,
+        currentRoomId: latestCurrentRoomId,
+        readRooms: Array.from(latestReadRooms),
+        isInReadRooms: latestReadRooms.has(data.roomId),
+      });
+
+      // 대화 목록에서 해당 방 찾아서 업데이트
+      setConversations((prev) => {
+        const roomIndex = prev.findIndex((room) => room.roomId === data.roomId);
+
+        if (roomIndex === -1) {
+          console.warn("⚠️ 대화 목록에 없는 방:", data.roomId);
+          return prev;
+        }
+
+        const newConversations = [...prev];
+        const targetRoom = { ...newConversations[roomIndex] };
+        const oldUnreadCount = targetRoom.unreadCount;
+
+        // 마지막 메시지 업데이트
+        targetRoom.lastMessage = {
+          id: data.msg.id,
+          type: data.msg.messageType,
+          content: data.msg.body || "새 메시지",
+          createdAt: data.msg.sentAt,
+        };
+
+        // unreadCount 증가 (현재 보고 있는 방이 아니면 증가)
+        // 최신 상태 다시 가져오기 (클로저 문제 방지)
+        const latestCurrentRoomId = useChatStore.getState().currentRoomId;
+        const latestReadRooms = useChatStore.getState().readRooms;
+
+        // currentRoomId가 null이면 어떤 방도 보고 있지 않은 상태 (/chat 페이지)
+        const isCurrentRoom = latestCurrentRoomId !== null && data.roomId === latestCurrentRoomId;
+
+        console.log("🔍 조건 체크:", {
+          isCurrentRoom,
+          messageRoomId: data.roomId,
+          currentRoomId: latestCurrentRoomId,
+          isInChatListOnly: latestCurrentRoomId === null,
+        });
+
+        if (isCurrentRoom) {
+          // 현재 보고 있는 방이면 unreadCount를 0으로
+          targetRoom.unreadCount = 0;
+          console.log("�️ 현재 방이므로 unreadCount = 0:", data.roomId);
+        } else {
+          // 다른 방에서 메시지가 오면 readRooms에서 제거하고 카운트 증가
+          if (latestReadRooms.has(data.roomId)) {
+            console.log("� readRooms에서 제거:", data.roomId);
+            useChatStore.getState().unmarkRoomAsRead(data.roomId);
+          }
+          targetRoom.unreadCount = (targetRoom.unreadCount || 0) + 1;
+          console.log("🔔 unreadCount 증가:", oldUnreadCount, "→", targetRoom.unreadCount);
+        }
+
+        // 해당 방을 맨 위로 이동
+        newConversations.splice(roomIndex, 1);
+        newConversations.unshift(targetRoom);
+
+        console.log("✅ 대화 목록 업데이트:", data.roomId, "unread:", targetRoom.unreadCount);
+        return newConversations;
+      });
+    };
+
+    socket.on("chat:new", handleNewMessage);
+
+    return () => {
+      socket.off("chat:new", handleNewMessage);
+    };
+  }, [socket]); // readRooms와 currentRoomId는 getState()로 직접 가져오므로 dependency 제거
 
   useEffect(() => {
     // TODO: .env 파일에 NEXT_PUBLIC_SOCKET_URL 설정 필요 (예: http://localhost:3001)
@@ -56,7 +161,8 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
     return () => {
       disconnectSocket();
     };
-  }, [connectSocket, disconnectSocket]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // 한 번만 실행
 
   return (
     <>
