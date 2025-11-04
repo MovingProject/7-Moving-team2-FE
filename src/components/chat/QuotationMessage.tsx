@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { type Quotation } from "@/app/chat/mock/data";
+import { type Quotation } from "@/types/chat";
 import useChatStore from "@/store/chatStore";
 import ContractModal from "./ContractModal";
 import { Contract } from "@/types/contract";

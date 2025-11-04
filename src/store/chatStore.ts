@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Socket, io } from "socket.io-client";
-import { type Message } from "@/app/chat/mock/data";
+import { type Message } from "@/types/chat";
 
 interface CurrentUser {
   id: string;
@@ -66,7 +66,14 @@ const useChatStore = create<ChatState>((set, get) => ({
 
   // 메시지 목록에 새 메시지 추가
   addMessage: (message) => {
-    set((state) => ({ messages: [...state.messages, message] }));
+    set((state) => {
+      // 중복 체크: 같은 ID가 이미 있으면 추가하지 않음
+      if (state.messages.some((msg) => msg.id === message.id)) {
+        console.warn("⚠️ addMessage: 중복 메시지 무시", message.id);
+        return state;
+      }
+      return { messages: [...state.messages, message] };
+    });
   },
 
   // 메시지 목록 전체 교체 (채팅방 입장 시 초기 데이터 로드용)
