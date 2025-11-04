@@ -100,10 +100,7 @@ export default function ContractPreview({
             </h3>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
               <p style={{ color: "#374151" }}>
-                <span style={{ fontWeight: "500" }}>기사명:</span> {contract.driverName}
-              </p>
-              <p style={{ color: "#374151" }}>
-                <span style={{ fontWeight: "500" }}>닉네임:</span> {contract.driverNickname}
+                <span style={{ fontWeight: "500" }}>업체명:</span> {contract.driverNickname}
               </p>
               <p style={{ color: "#374151" }}>
                 <span style={{ fontWeight: "500" }}>연락처:</span> {contract.driverPhone}
@@ -455,7 +452,7 @@ export default function ContractPreview({
               이사업체 (을)
             </p>
             <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>
-              {contract.driverName} ({contract.driverNickname})
+              {contract.driverNickname}
             </p>
             <div
               style={{

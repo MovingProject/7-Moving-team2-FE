@@ -6,13 +6,9 @@ import { GetChatMessagesResponse, ChatRoomListItem } from "@/types/chat";
  * @returns ChatRoomListItem[] - 채팅방 목록
  */
 export const getMyChatRooms = async (): Promise<ChatRoomListItem[]> => {
-  console.log("🏠 getMyChatRooms called");
-
   const response = await apiClient.get<{ success: boolean; data: ChatRoomListItem[] }>(
     "/chatting-rooms/my"
   );
-
-  console.log("✅ getMyChatRooms response:", response.data);
 
   // 백엔드 응답 구조: { success: true, data: [...] }
   if (response.data.success && response.data.data) {
@@ -32,8 +28,6 @@ export const createOrGetChatRoom = async (
   requestId: string,
   consumerId: string
 ): Promise<{ roomId: string }> => {
-  console.log("🚀 createOrGetChatRoom called with:", { requestId, consumerId });
-
   const response = await apiClient.post<{ success: boolean; data: { roomId: string } }>(
     "/chatting-rooms",
     {
@@ -41,8 +35,6 @@ export const createOrGetChatRoom = async (
       consumerId,
     }
   );
-
-  console.log("✅ createOrGetChatRoom response:", response.data);
 
   // 백엔드 응답 구조: { success: true, data: { roomId: "..." } }
   if (response.data.success && response.data.data) {
@@ -59,8 +51,6 @@ export const createOrGetChatRoom = async (
  * @param limit - 조회 개수 (default: 30)
  */
 export const getChatMessages = async (roomId: string, cursor?: string, limit?: number) => {
-  console.log("📨 getChatMessages called with:", { roomId, cursor, limit });
-
   if (!roomId || roomId === "undefined") {
     throw new Error(`Invalid roomId: ${roomId}`);
   }
@@ -73,9 +63,7 @@ export const getChatMessages = async (roomId: string, cursor?: string, limit?: n
     ? `/chatting-rooms/${roomId}/messages?${params.toString()}`
     : `/chatting-rooms/${roomId}/messages`;
 
-  console.log("📡 Requesting URL:", url);
   const response = await apiClient.get<{ success: boolean; data: GetChatMessagesResponse }>(url);
-  console.log("✅ Response received:", response.data);
 
   // 백엔드 응답 구조: { success: true, data: { messages: [...], nextCursor: "..." } }
   if (response.data.success && response.data.data) {
