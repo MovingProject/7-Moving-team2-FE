@@ -157,7 +157,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
             roomId: data.roomId,
             lastReadMessageId: newMsg.id,
           },
-          (response: any) => {
+          (response: { ok: boolean; data?: unknown }) => {
             console.log("📖 새 메시지 읽음 처리 응답:", response);
             if (response?.ok) {
               // 즉시 읽음으로 표시 (UI 즉시 반영)
@@ -272,7 +272,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
               roomId: resolvedParams.roomId,
               lastReadMessageId: lastMessage.id,
             },
-            (response: any) => {
+            (response: { ok: boolean; data?: unknown }) => {
               console.log("📖 읽음 처리 응답:", response);
               if (response?.ok) {
                 console.log("✅ 읽음 처리 성공!");

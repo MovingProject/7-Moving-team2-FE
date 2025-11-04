@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import useChatStore from "@/store/chatStore";
-import { ChatRoomListItem } from "@/types/chat";
+import { ChatRoomListItem, WebSocketNewMessageData } from "@/types/chat";
 import { getMyChatRooms } from "@/lib/apis/chatApi";
 
 export default function ChatLayout({ children }: { children: React.ReactNode }) {
@@ -72,7 +72,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     if (!socket) return;
 
-    const handleNewMessage = (data: any) => {
+    const handleNewMessage = (data: WebSocketNewMessageData) => {
       console.log("📨 layout - chat:new 수신:", data);
 
       // 최신 상태를 직접 가져오기
