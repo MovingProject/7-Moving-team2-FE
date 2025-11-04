@@ -481,6 +481,18 @@ export default function ReviewPage() {
     alert(`리뷰가 작성되었습니다!\n평점: ${rating}점\n내용: ${content}`);
   };
 
+  const handleNext = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
   return (
     <div className="mx-auto min-h-screen bg-gray-50 px-4 py-6 md:px-6 md:py-8 lg:px-8 lg:py-10">
       {/* 탭 */}
@@ -538,7 +550,12 @@ export default function ReviewPage() {
       {/* 페이지네이션 */}
       {totalPages > 1 && (
         <div className="mx-auto max-w-[1200px]">
-          <Pagination page={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+          <Pagination
+            hasNext={currentPage < totalPages}
+            hasPrev={currentPage > 1}
+            onNext={handleNext}
+            onPrev={handlePrev}
+          />
         </div>
       )}
 
