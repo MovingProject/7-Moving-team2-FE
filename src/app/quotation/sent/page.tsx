@@ -56,7 +56,13 @@ export default function QuotationSentPage() {
 
   // 4. 데이터 없음 처리
   if (quotationList.length === 0) {
-    return <NodataArea content="보낸 견적서가 없습니다." />;
+    return (
+      <NodataArea
+        content="보낸 견적서가 없습니다."
+        linkPath="/request"
+        linkText="받은요청 확인하기"
+      />
+    );
   }
 
   return (
