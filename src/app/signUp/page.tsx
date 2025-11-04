@@ -188,7 +188,7 @@ export default function Signup() {
     <div className="mt-18 flex flex-col items-center gap-8 px-4 pt-6 md:px-5 lg:px-8 xl:px-60">
       <Link href="/">
         <LogoText
-          className={`h-auto w-48 transition-colors duration-300 ${role === "CONSUMER" ? "text-blue-500" : "text-amber-400"}`}
+          className={`h-auto w-48 transition-colors duration-300 ${role === "CONSUMER" ? "text-primary" : "text-amber-400"}`}
         />
       </Link>
 

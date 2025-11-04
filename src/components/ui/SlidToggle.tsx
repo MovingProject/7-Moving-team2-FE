@@ -15,7 +15,7 @@ export default function SlidToggle({
   onChange,
   leftLabel = "고객님",
   rightLabel = "기사님",
-  userColorClassName = "bg-blue-500",
+  userColorClassName = "bg-primary",
   proColorClassName = "bg-amber-400",
 }: Props) {
   const isUser = value === "CONSUMER";
@@ -52,7 +52,7 @@ export default function SlidToggle({
           <span
             className={[
               "flex items-center justify-center",
-              isUser ? "text-black" : "text-black/50",
+              isUser ? "text-primary font-bold" : "text-black/50",
             ].join(" ")}
           >
             {leftLabel}
@@ -60,7 +60,7 @@ export default function SlidToggle({
           <span
             className={[
               "flex items-center justify-center",
-              !isUser ? "text-black" : "text-black/50",
+              !isUser ? "font-bold text-amber-400" : "text-black/50",
             ].join(" ")}
           >
             {rightLabel}

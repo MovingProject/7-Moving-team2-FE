@@ -38,7 +38,7 @@ export default function Login() {
           <Link href={"/"}>
             <LogoText
               className={`mb-[24px] h-auto w-48 transition-colors duration-300 ${
-                role === "CONSUMER" ? "text-blue-500" : "text-amber-400"
+                role === "CONSUMER" ? "text-primary" : "text-amber-400"
               }`}
             />
           </Link>
