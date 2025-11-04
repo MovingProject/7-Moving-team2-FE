@@ -1,5 +1,5 @@
 import apiClient from "@/lib/apiClient";
-import { GetChatMessagesResponse } from "@/types/chat";
+import { GetChatMessagesResponse, ChatRoomListItem } from "@/types/chat";
 
 /**
  * 채팅방 생성 또는 조회 (드라이버 전용)
@@ -62,4 +62,24 @@ export const getChatMessages = async (roomId: string, cursor?: string, limit?: n
   }
 
   throw new Error("메시지 조회에 실패했습니다.");
+};
+
+/**
+ * 내 채팅방 목록 조회
+ * @returns 채팅방 목록
+ */
+export const getMyChatRooms = async () => {
+  console.log("📋 getMyChatRooms called");
+
+  const response = await apiClient.get<{ success: boolean; data: ChatRoomListItem[] }>(
+    "/chatting-rooms/my"
+  );
+  console.log("✅ getMyChatRooms response:", response.data);
+
+  // 백엔드 응답 구조: { success: true, data: [...] }
+  if (response.data.success && response.data.data) {
+    return response.data.data;
+  }
+
+  throw new Error("채팅방 목록 조회에 실패했습니다.");
 };

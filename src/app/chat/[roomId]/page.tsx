@@ -48,8 +48,11 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
 
       if (data.roomId !== resolvedParams.roomId) return;
 
+      // 중복 메시지 체크를 위해 최신 messages를 가져옴
+      const currentMessages = useChatStore.getState().messages;
+
       // 중복 메시지 체크 (이미 같은 ID의 메시지가 있으면 무시)
-      if (messages.some((msg) => msg.id === data.msg.id)) {
+      if (currentMessages.some((msg) => msg.id === data.msg.id)) {
         console.log("⚠️ 중복 메시지 무시:", data.msg.id);
         return;
       }
@@ -94,7 +97,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
       if (data.msg.authorId === currentUser.id) {
         console.log("💬 내가 보낸 메시지 수신 확인 - tempId를 실제 ID로 교체");
         // 가장 최근의 temp 메시지를 찾아서 교체
-        const tempMsg = messages.find(
+        const tempMsg = currentMessages.find(
           (msg) => msg.id.startsWith("temp-") && msg.senderId === currentUser.id
         );
         if (tempMsg) {
@@ -122,7 +125,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
     currentUser.name,
     addMessage,
     replaceTempMessage,
-    messages,
+    // messages를 의존성에서 제거하여 불필요한 재실행 방지
   ]);
 
   // 채팅방에 처음 입장했을 때, 기존 메시지 불러오기
@@ -191,6 +194,14 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
           data: err.response?.data,
           message: err.message,
         });
+
+        // 401 에러면 인증 실패이므로 로그인 페이지로 리다이렉트
+        if (err.response?.status === 401) {
+          console.log("🔒 인증 필요 - 로그인 페이지로 이동");
+          window.location.href = "/login";
+          return;
+        }
+
         const errorMessage =
           err.response?.data?.message || err.message || "메시지를 불러올 수 없습니다.";
         setError(errorMessage);
@@ -200,7 +211,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
     };
 
     fetchMessages();
-  }, [resolvedParams.roomId, setMessages, currentUser.name]);
+  }, [resolvedParams.roomId, setMessages, currentUser.name, socket]);
 
   const handleSendMessage = () => {
     if (!newMessage.trim() || !socket) return;

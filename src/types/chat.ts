@@ -72,7 +72,34 @@ export interface WebSocketNewMessageData {
   };
 }
 
-// 채팅방 정보 (채팅방 목록용)
+// 채팅방 목록 - 상대방 정보
+export interface OtherUserInfo {
+  userId: string;
+  role: "CONSUMER" | "DRIVER";
+  name: string;
+  displayName: string;
+  avatarUrl?: string | null;
+}
+
+// 채팅방 목록 - 마지막 메시지
+export interface LastMessageInfo {
+  id: string;
+  type: MessageType;
+  content: string | null;
+  createdAt: string;
+}
+
+// 채팅방 목록 아이템
+export interface ChatRoomListItem {
+  roomId: string;
+  other: OtherUserInfo;
+  lastMessage: LastMessageInfo | null;
+  unreadCount: number;
+  updatedAt: string;
+  closed: boolean;
+}
+
+// 채팅방 정보 (채팅방 목록용) - 레거시
 export interface ChatRoomInfo {
   id: string;
   name: string;
