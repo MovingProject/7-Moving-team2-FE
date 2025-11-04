@@ -10,10 +10,16 @@ import { MoveTypeMap, ServerMoveType } from "@/types/moveTypes";
 import { formatDate, simplifyAreaName } from "@/utils/formatRequestData";
 import CardText from "./CardText";
 import { createOrGetChatRoom } from "@/lib/apis/chatApi";
+import { rejectRequest } from "@/utils/hook/request/useRejectRequestQuery";
 
-export default function RequestCard({ user, request, quotation }: CommonCardProps) {
+interface RequestCardProps extends CommonCardProps {
+  onReject?: (requestId: string) => void;
+}
+
+export default function RequestCard({ user, request, quotation, onReject }: RequestCardProps) {
   const router = useRouter();
   const [isCreatingRoom, setIsCreatingRoom] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
   const tags = request?.serviceType;
   const isInvited = request?.isInvited;
   const requestedAt = request?.createdAt ? formatDate(request.createdAt) : "";
@@ -26,25 +32,34 @@ export default function RequestCard({ user, request, quotation }: CommonCardProp
     };
   }, [request?.departureAddress, request?.arrivalAddress, moveDate]);
 
-  const NON_ACTIVE_STATUSES = ["CANCELLED", "REJECTED", "EXPIRED", "COMPLETED", "COMPLETE"];
-  const isDimmed =
-    NON_ACTIVE_STATUSES.includes(request?.requestStatement ?? "") ||
-    NON_ACTIVE_STATUSES.includes(quotation?.quotationStatement ?? "");
+  const handleRejectRequest = async () => {
+    if (!request?.requestId) {
+      alert("요청 ID가 없습니다.");
+      return;
+    }
 
-  let stateMessage = "";
-  if (quotation?.quotationStatement === "REJECTED") {
-    stateMessage = "반려된 견적입니다";
-  } else if (
-    request?.requestStatement === "COMPLETE" ||
-    quotation?.quotationStatement === "COMPLETED"
-  ) {
-    stateMessage = "이사 완료된 견적이에요.";
-  } else if (
-    request?.requestStatement === "EXPIRED" ||
-    quotation?.quotationStatement === "EXPIRED"
-  ) {
-    stateMessage = "요청 혹은 견적이 만료되었습니다";
-  }
+    const confirmReject = confirm("정말 이 요청을 반려하시겠습니까?");
+    if (!confirmReject) return;
+
+    const note = prompt("반려 사유를 입력하세요 (선택):") || undefined;
+
+    setIsRejecting(true);
+    try {
+      if (onReject) {
+        onReject(request.requestId);
+      }
+      await rejectRequest(request.requestId, note);
+      alert("요청이 반려되었습니다.");
+      router.refresh();
+    } catch (error) {
+      console.error("요청 반려 실패:", error);
+      const err = error as { response?: { data?: { message?: string } }; message?: string };
+      alert(err.response?.data?.message || "요청 반려에 실패했습니다.");
+      router.refresh();
+    } finally {
+      setIsRejecting(false);
+    }
+  };
 
   const handleCreateChatRoom = async () => {
     if (!request?.requestId || !user?.userId) {
@@ -97,23 +112,14 @@ export default function RequestCard({ user, request, quotation }: CommonCardProp
             onClick={handleCreateChatRoom}
             disabled={isCreatingRoom}
           />
-          <Button size="sm" textSize="mobile" variant="secondary" text="반려" />
-        </div>
-      )}
-      {isDimmed && (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 rounded-xl bg-black/50 backdrop-blur-sm">
-          {stateMessage && (
-            <span className="text-sm font-bold text-white lg:text-base">{stateMessage}</span>
-          )}
-          {request?.requestStatement === "CONCLUDED" && (
-            <Button
-              size="sm"
-              textSize="mobile"
-              variant="secondary"
-              text="견적 상세보기"
-              className="max-w-[140px] px-3 py-2 text-sm"
-            />
-          )}
+          <Button
+            size="sm"
+            textSize="mobile"
+            variant="secondary"
+            text={isRejecting ? "반려 중..." : "반려"}
+            onClick={handleRejectRequest}
+            disabled={isRejecting}
+          />
         </div>
       )}
     </BaseCard>
