@@ -75,9 +75,12 @@ export default function RequestPage() {
   }, [responseData, sortTech, hiddenRequestIds]);
 
   const filterCounts = useMemo(() => {
-    if (!Array.isArray(baseData)) {
+    const source = filteredData ?? baseData;
+    if (!Array.isArray(source)) {
       return { moveType: {}, invited: 0, region: 0 };
     }
+
+    const visibleData = source.filter((item) => !hiddenRequestIds.has(item.id));
 
     const counts = {
       moveType: {} as Record<MoveType, number>,
@@ -85,17 +88,16 @@ export default function RequestPage() {
       region: 0,
     };
 
-    for (const item of baseData ?? []) {
+    for (const item of visibleData) {
       const type = item.serviceType as MoveType;
       counts.moveType[type] = (counts.moveType[type] || 0) + 1;
 
       if (item.isInvited) counts.invited += 1;
-
       if (item.departureAddress) counts.region += 1;
     }
 
     return counts;
-  }, [baseData]);
+  }, [baseData, filteredData, hiddenRequestIds]);
 
   const handleFilterApply = () => {
     const filter: ReceivedRequestFilter = {
