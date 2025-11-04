@@ -44,17 +44,19 @@ export const adaptRequestToQuotationAreaData = (
       serviceType: quo.serviceType,
       departureAddress: requestInfo.departureAddress,
       arrivalAddress: requestInfo.arrivalAddress,
-      quotationStatement: "PENDING",
+      quotationStatement: quo.status,
+      chattingRoomId: quo.chattingRoomId,
+      isInvited: quo.isInvited,
       price: quo.price,
       moveAt: requestInfo.moveAt,
     };
 
     // 3. DriverProfileData 구조 매핑 (ApiQuotation.driverProfile -> DriverProfileData)
     const driverProfile: DriverProfileData = {
-      driverId: `drv-${quo.id}`, // Driver ID가 API에 없다면 임시로 생성
+      driverId: quo.driverProfile.id,
       nickname: quo.driverProfile.nickname,
       oneLiner: quo.driverProfile.oneLiner,
-      image: null,
+      image: quo.driverProfile.image,
       reviewCount: quo.driverProfile.reviewCount,
       rating: quo.driverProfile.rating,
       careerYears: quo.driverProfile.careerYears,
@@ -64,7 +66,7 @@ export const adaptRequestToQuotationAreaData = (
       driverServiceAreas: undefined,
       likes: {
         likedCount: quo.driverProfile.likeCount,
-        isLikedByCurrentUser: false,
+        isLikedByCurrentUser: quo.isLiked,
       },
     };
 
