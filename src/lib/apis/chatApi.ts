@@ -1,5 +1,26 @@
 import apiClient from "@/lib/apiClient";
-import { GetChatMessagesResponse } from "@/types/chat";
+import { GetChatMessagesResponse, ChatRoomListItem } from "@/types/chat";
+
+/**
+ * 내 채팅방 목록 조회 (소비자/드라이버 공통)
+ * @returns ChatRoomListItem[] - 채팅방 목록
+ */
+export const getMyChatRooms = async (): Promise<ChatRoomListItem[]> => {
+  console.log("🏠 getMyChatRooms called");
+
+  const response = await apiClient.get<{ success: boolean; data: ChatRoomListItem[] }>(
+    "/chatting-rooms/my"
+  );
+
+  console.log("✅ getMyChatRooms response:", response.data);
+
+  // 백엔드 응답 구조: { success: true, data: [...] }
+  if (response.data.success && response.data.data) {
+    return response.data.data;
+  }
+
+  throw new Error("채팅방 목록 조회에 실패했습니다.");
+};
 
 /**
  * 채팅방 생성 또는 조회 (드라이버 전용)

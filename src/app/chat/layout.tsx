@@ -4,18 +4,48 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import useChatStore from "@/store/chatStore";
-import { ChatRoomInfo } from "@/types/chat";
+import { ChatRoomListItem } from "@/types/chat";
+import { getMyChatRooms } from "@/lib/apis/chatApi";
 
 export default function ChatLayout({ children }: { children: React.ReactNode }) {
   const { connectSocket, disconnectSocket } = useChatStore();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // TODO: 백엔드 채팅방 목록 API 구현 후 연동 필요
-  const conversations: ChatRoomInfo[] = [];
+  const [conversations, setConversations] = useState<ChatRoomListItem[]>([]);
+  const [isLoadingRooms, setIsLoadingRooms] = useState(true);
+  const [roomsError, setRoomsError] = useState<string | null>(null);
 
   // 현재 채팅방에 있는지 확인 (모바일에서 sidebar 숨김용)
   const isInChatRoom = pathname !== "/chat";
+
+  // 채팅방 목록 로드
+  useEffect(() => {
+    const fetchChatRooms = async () => {
+      try {
+        setIsLoadingRooms(true);
+        setRoomsError(null);
+        const rooms = await getMyChatRooms();
+        setConversations(rooms);
+      } catch (error) {
+        const err = error as {
+          response?: { status?: number; data?: { message?: string } };
+          message?: string;
+        };
+        console.error("채팅방 목록 로드 실패:", error);
+
+        // 401 에러면 인증 실패
+        if (err.response?.status === 401) {
+          setRoomsError("로그인이 필요합니다.");
+        } else {
+          setRoomsError(err.response?.data?.message || "채팅방 목록을 불러올 수 없습니다.");
+        }
+      } finally {
+        setIsLoadingRooms(false);
+      }
+    };
+
+    fetchChatRooms();
+  }, []);
 
   useEffect(() => {
     // TODO: .env 파일에 NEXT_PUBLIC_SOCKET_URL 설정 필요 (예: http://localhost:3001)
@@ -35,20 +65,45 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
         {/* Desktop Sidebar */}
         <aside className="w-80 border-r border-gray-200 bg-white p-4">
           <h2 className="mb-4 text-lg font-bold">대화 목록</h2>
-          {conversations.length === 0 ? (
+          {isLoadingRooms ? (
+            <div className="py-8 text-center text-sm text-gray-500">로딩 중...</div>
+          ) : roomsError ? (
+            <div className="py-8 text-center text-sm text-red-500">{roomsError}</div>
+          ) : conversations.length === 0 ? (
             <div className="py-8 text-center text-sm text-gray-500">아직 채팅이 없습니다</div>
           ) : (
             <ul className="space-y-2">
               {conversations.map((convo) => (
-                <Link key={convo.id} href={`/chat/${convo.id}`}>
+                <Link key={convo.roomId} href={`/chat/${convo.roomId}`}>
                   <li className="cursor-pointer rounded-lg p-3 transition-colors hover:bg-gray-100">
                     <div className="flex items-center gap-3">
                       <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-indigo-200 text-xs font-bold text-blue-500">
-                        {convo.name?.charAt(0)}
+                        {convo.other.avatarUrl ? (
+                          <img
+                            src={convo.other.avatarUrl}
+                            alt={convo.other.displayName}
+                            className="h-full w-full rounded-full object-cover"
+                          />
+                        ) : (
+                          convo.other.displayName.charAt(0)
+                        )}
                       </div>
-                      <div>
-                        <p className="text-sm font-semibold">{convo.name}</p>
-                        <p className="mt-1 truncate text-xs text-gray-600">{convo.lastMessage}</p>
+                      <div className="flex-1 overflow-hidden">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-semibold">{convo.other.displayName}</p>
+                          {convo.unreadCount > 0 && (
+                            <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                              {convo.unreadCount}
+                            </span>
+                          )}
+                        </div>
+                        <p className="mt-1 truncate text-xs text-gray-600">
+                          {convo.lastMessage?.type === "MESSAGE"
+                            ? convo.lastMessage.content
+                            : convo.lastMessage?.type === "QUOTATION"
+                              ? "💼 견적서"
+                              : "메시지가 없습니다"}
+                        </p>
                       </div>
                     </div>
                   </li>
@@ -122,25 +177,48 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
               </div>
 
               <div className="overflow-y-auto p-4">
-                {conversations.length === 0 ? (
+                {isLoadingRooms ? (
+                  <div className="py-8 text-center text-sm text-gray-500">로딩 중...</div>
+                ) : roomsError ? (
+                  <div className="py-8 text-center text-sm text-red-500">{roomsError}</div>
+                ) : conversations.length === 0 ? (
                   <div className="py-8 text-center text-sm text-gray-500">아직 채팅이 없습니다</div>
                 ) : (
                   <ul className="space-y-2">
                     {conversations.map((convo) => (
                       <Link
-                        key={convo.id}
-                        href={`/chat/${convo.id}`}
+                        key={convo.roomId}
+                        href={`/chat/${convo.roomId}`}
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         <li className="cursor-pointer rounded-lg p-3 transition-colors hover:bg-gray-100">
                           <div className="flex items-center gap-3">
                             <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-indigo-200 text-xs font-bold text-indigo-600">
-                              {convo.name?.charAt(0)}
+                              {convo.other.avatarUrl ? (
+                                <img
+                                  src={convo.other.avatarUrl}
+                                  alt={convo.other.displayName}
+                                  className="h-full w-full rounded-full object-cover"
+                                />
+                              ) : (
+                                convo.other.displayName.charAt(0)
+                              )}
                             </div>
-                            <div>
-                              <p className="text-sm font-semibold">{convo.name}</p>
+                            <div className="flex-1 overflow-hidden">
+                              <div className="flex items-center justify-between">
+                                <p className="text-sm font-semibold">{convo.other.displayName}</p>
+                                {convo.unreadCount > 0 && (
+                                  <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                                    {convo.unreadCount}
+                                  </span>
+                                )}
+                              </div>
                               <p className="mt-1 truncate text-xs text-gray-600">
-                                {convo.lastMessage}
+                                {convo.lastMessage?.type === "MESSAGE"
+                                  ? convo.lastMessage.content
+                                  : convo.lastMessage?.type === "QUOTATION"
+                                    ? "💼 견적서"
+                                    : "메시지가 없습니다"}
                               </p>
                             </div>
                           </div>
