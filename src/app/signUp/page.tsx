@@ -7,17 +7,13 @@ import LogoText from "@/components/ui/LogoText";
 import SlidToggle from "@/components/ui/SlidToggle";
 import { useState, useRef } from "react";
 import { useAuthForm } from "@/hooks/useAuthForm";
-import Google from "@/assets/icon/google.svg";
-import Kakao from "@/assets/icon/kakao.svg";
-import Naver from "@/assets/icon/naver.svg";
-import Image from "next/image";
 import React from "react";
 import { useSignup, type SignUpDTO } from "@/utils/hook/signup/api";
 import { useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
 import WelcomeOverlay from "@/components/WelcomeOverlay";
 import { useLogin } from "@/utils/hook/auth/useLogin";
 import axios from "axios";
+import SocialLogin from "../login/components/SocialLogin";
 
 export default function Signup() {
   const fields = [
@@ -262,7 +258,7 @@ export default function Signup() {
       </form>
 
       <div className="mx-auto flex max-w-160 flex-row justify-center">
-        <span>이미 무빙 회원이신가요?</span>
+        <span className="font-normal text-gray-500">이미 무빙 회원이신가요?</span>
         <Link
           href="/login"
           className="text-primary mb-3 ml-2 font-semibold underline underline-offset-2"
@@ -270,19 +266,8 @@ export default function Signup() {
           로그인
         </Link>
       </div>
-      <div className="mx-auto flex max-w-160 flex-col items-center">
-        <span className="mb-6 text-[20px]">SNS 계정으로 간편 가입하기</span>
-        <div className="mb-22 flex gap-8">
-          <Link href="https://google.com">
-            <Image src={Google.src} alt="구글 회원가입" width={54} height={54} />
-          </Link>
-          <Link href="https://kakao.com">
-            <Image src={Kakao.src} alt="카카오 회원가입" width={54} height={54} />
-          </Link>
-          <Link href="https://naver.com">
-            <Image src={Naver.src} alt="네이버 회원가입" width={54} height={54} />
-          </Link>
-        </div>
+      <div className="mb-10 flex flex-col items-center">
+        <SocialLogin role={role} />
       </div>
       <WelcomeOverlay
         open={showOverlay}
