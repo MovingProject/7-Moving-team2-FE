@@ -69,9 +69,6 @@ const useChatStore = create<ChatState>((set, get) => ({
       currentRoomId: roomId,
       messages: state.messagesByRoom[roomId] || [],
     });
-    console.log(
-      `📂 채팅방 전환: ${roomId}, 메시지 수: ${(state.messagesByRoom[roomId] || []).length}`
-    );
   },
 
   // 소켓 연결
@@ -84,12 +81,10 @@ const useChatStore = create<ChatState>((set, get) => ({
 
     newSocket.on("connect", () => {
       set({ isConnected: true });
-      console.log("Socket connected!", newSocket.id);
     });
 
     newSocket.on("disconnect", () => {
       set({ isConnected: false });
-      console.log("Socket disconnected!");
     });
 
     // TODO: 'receiveMessage' 이벤트 명은 백엔드와 협의 필요
@@ -129,7 +124,6 @@ const useChatStore = create<ChatState>((set, get) => ({
       if (roomId !== state.currentRoomId) {
         newReadRooms.delete(roomId);
         saveReadRooms(newReadRooms);
-        console.log("🔔 다른 방에서 메시지 도착:", roomId, "→ unread로 변경");
       }
 
       return {
@@ -151,7 +145,6 @@ const useChatStore = create<ChatState>((set, get) => ({
       }
 
       // DB 데이터를 그대로 사용 (새로고침 시 DB가 최신 상태)
-      console.log("🔄 setMessages - DB 데이터로 설정:", messages.length, "개");
 
       // messagesByRoom에도 저장
       return {
@@ -218,7 +211,6 @@ const useChatStore = create<ChatState>((set, get) => ({
       const newReadRooms = new Set(state.readRooms);
       newReadRooms.add(roomId);
       saveReadRooms(newReadRooms); // localStorage에 저장
-      console.log("✅ markRoomAsRead:", roomId, "총 읽음 방:", newReadRooms.size);
       return { readRooms: newReadRooms };
     });
   },
@@ -229,7 +221,6 @@ const useChatStore = create<ChatState>((set, get) => ({
       const newReadRooms = new Set(state.readRooms);
       newReadRooms.delete(roomId);
       saveReadRooms(newReadRooms); // localStorage에 저장
-      console.log("🔔 unmarkRoomAsRead:", roomId, "총 읽음 방:", newReadRooms.size);
       return { readRooms: newReadRooms };
     });
   },

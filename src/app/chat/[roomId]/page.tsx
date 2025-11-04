@@ -7,6 +7,8 @@ import QuotationModal from "@/components/chat/QuotationModal";
 import QuotationMessage from "@/components/chat/QuotationMessage";
 import { getChatMessages } from "@/lib/apis/chatApi";
 import { WebSocketNewMessageData, BackendChatMessage, Message } from "@/types/chat";
+import { getRequestById } from "@/services/requestService";
+import { RequestDetail } from "@/types/request";
 
 // 이 페이지는 클라이언트 측에서 동적으로 렌더링됩니다.
 export default function ChatRoomPage({ params }: { params: Promise<{ roomId: string }> }) {
@@ -30,16 +32,48 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [requestData, setRequestData] = useState<RequestDetail | null>(null);
+  const [requestIdForRoom, setRequestIdForRoom] = useState<string | null>(null);
+  const [otherUserName, setOtherUserName] = useState<string>("상대방");
+  const [otherUserNickname, setOtherUserNickname] = useState<string | null>(null);
 
   // 현재 사용자 정보
   const currentUser = user
     ? { id: user.id, name: user.name, role: user.role.toLowerCase() as "consumer" | "driver" }
     : { id: "", name: "게스트", role: "consumer" as const };
 
-  // 채팅방이 변경되면 currentRoomId 설정
+  // 현재 사용자 정보를 chatStore에 설정
   useEffect(() => {
-    console.log("🔄 채팅방 변경:", resolvedParams.roomId);
+    if (user) {
+      useChatStore.setState({
+        currentUser: {
+          id: user.id,
+          name: user.name,
+          role: user.role.toLowerCase() as "consumer" | "driver",
+        },
+      });
+    }
+  }, [user]);
+
+  // 채팅방이 변경되면 currentRoomId 설정 및 상대방 정보 가져오기
+  useEffect(() => {
     useChatStore.setState({ currentRoomId: resolvedParams.roomId });
+
+    // 채팅방 목록에서 현재 방의 상대방 정보 가져오기
+    const fetchOtherUserInfo = async () => {
+      try {
+        const { getMyChatRooms } = await import("@/lib/apis/chatApi");
+        const rooms = await getMyChatRooms();
+        const currentRoom = rooms.find((room) => room.roomId === resolvedParams.roomId);
+
+        if (currentRoom && currentRoom.other) {
+          setOtherUserName(currentRoom.other.name);
+          setOtherUserNickname(currentRoom.other.displayName);
+        }
+      } catch (error) {}
+    };
+
+    fetchOtherUserInfo();
   }, [resolvedParams.roomId]);
 
   // 스크롤을 맨 아래로 이동시키는 함수
@@ -56,15 +90,11 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
   useEffect(() => {
     if (!socket) return;
 
-    console.log("🔌 WebSocket 이벤트 리스너 등록");
-
     // 채팅방 입장
     socket.emit("chat:join", { roomId: resolvedParams.roomId });
 
     // 새 메시지 수신 이벤트 리스너
     const handleNewMessage = (data: WebSocketNewMessageData) => {
-      console.log("📨 chat:new 이벤트 수신:", data);
-
       if (data.roomId !== resolvedParams.roomId) return;
 
       // 중복 메시지 체크를 위해 최신 messages를 가져옴 (zustand에서 직접)
@@ -73,19 +103,39 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
 
       // 먼저 실제 ID로 중복 체크 (가장 중요!)
       if (currentMessages.some((msg) => msg.id === data.msg.id)) {
-        console.log("⚠️ 중복 메시지 무시 (이미 존재하는 ID):", data.msg.id);
         return;
       }
 
       // 내가 보낸 메시지인 경우
       if (data.msg.authorId === currentUser.id) {
-        console.log("💬 내가 보낸 메시지 수신 확인");
-
         // tempId가 있으면 교체
         if (data.msg.tempId) {
           const tempMsg = currentMessages.find((msg) => msg.id === data.msg.tempId);
           if (tempMsg) {
-            console.log("🔄 tempId 교체:", data.msg.tempId, "→", data.msg.id);
+            // QUOTATION 타입인 경우 전체 메시지 새로고침
+            if (data.msg.messageType === "QUOTATION") {
+              setTimeout(async () => {
+                try {
+                  const response = await getChatMessages(resolvedParams.roomId, undefined, 30);
+                  const formattedMessages: Message[] = response.messages.map(
+                    (msg: BackendChatMessage) => ({
+                      id: msg.id,
+                      chattingRoomId: msg.chattingRoomId,
+                      senderId: msg.senderId,
+                      senderName: msg.isMine ? currentUser.name : "상대방",
+                      senderAvatar: msg.isMine ? currentUser.name.charAt(0) : "상",
+                      messageType: msg.messageType,
+                      content: msg.content,
+                      createdAt: msg.createdAt,
+                      quotation: msg.quotation ? { ...msg.quotation } : undefined,
+                    })
+                  );
+                  setMessages(formattedMessages);
+                } catch (error) {}
+              }, 500);
+              return;
+            }
+
             const newMsg: Message = {
               id: data.msg.id,
               chattingRoomId: data.roomId,
@@ -99,12 +149,10 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
             replaceTempMessage(data.msg.tempId, newMsg);
             return;
           } else {
-            console.log("⚠️ tempId를 찾을 수 없음, 무시:", data.msg.tempId);
             return;
           }
         }
 
-        console.log("⚠️ 내가 보낸 메시지 (tempId 없음), 무시:", data.msg.id);
         return;
       }
 
@@ -120,37 +168,53 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
         createdAt: data.msg.sentAt,
       };
 
-      // QUOTATION 타입은 quotationId만 받으므로 임시로 처리 (Message 타입과 호환되도록)
+      // QUOTATION 타입인 경우 전체 메시지를 다시 불러와서 최신 데이터 반영
       if (data.msg.messageType === "QUOTATION" && data.msg.quotationId) {
-        newMsg.quotation = {
-          id: data.msg.quotationId,
-          consumerId: "",
-          driverId: "",
-          chattingRoomId: data.roomId,
-          requestId: "",
-          serviceType: "",
-          moveAt: "",
-          departureAddress: "",
-          departureFloor: 0,
-          departurePyeong: 0,
-          departureElevator: false,
-          arrivalAddress: "",
-          arrivalFloor: 0,
-          arrivalPyeong: 0,
-          arrivalElevator: false,
-          price: 0,
-          status: "SUBMITTED",
-          createdAt: data.msg.sentAt,
-          chattingMessageId: data.msg.id,
-        };
+        // 잠시 후 메시지 목록 새로고침 (DB에서 전체 quotation 데이터 포함)
+        setTimeout(async () => {
+          try {
+            const response = await getChatMessages(resolvedParams.roomId, undefined, 30);
+            const formattedMessages: Message[] = response.messages.map(
+              (msg: BackendChatMessage) => ({
+                id: msg.id,
+                chattingRoomId: msg.chattingRoomId,
+                senderId: msg.senderId,
+                senderName: msg.isMine ? currentUser.name : "상대방",
+                senderAvatar: msg.isMine ? currentUser.name.charAt(0) : "상",
+                messageType: msg.messageType,
+                content: msg.content,
+                createdAt: msg.createdAt,
+                quotation: msg.quotation ? { ...msg.quotation } : undefined,
+              })
+            );
+            setMessages(formattedMessages);
+          } catch (error) {}
+        }, 500);
+        return; // 임시 메시지 추가하지 않고 새로고침으로 처리
       }
 
-      console.log("➕ 상대방 메시지 추가:", newMsg.id);
+      // 견적 수락 특수 메시지 체크
+      if (newMsg.content?.startsWith("__QUOTATION_ACCEPTED__:")) {
+        const [, quotationId, targetMessageId] = newMsg.content.split(":");
+
+        // 해당 견적 메시지 상태 업데이트
+        const { updateMessage: updateMsg } = useChatStore.getState();
+        const currentMessages = useChatStore.getState().messages;
+        const targetMessage = currentMessages.find((msg) => msg.id === targetMessageId);
+
+        if (targetMessage && targetMessage.quotation) {
+          updateMsg(targetMessageId, {
+            quotation: { ...targetMessage.quotation, status: "CONCLUDED" },
+          });
+        }
+        // 특수 메시지는 채팅에 표시하지 않음
+        return;
+      }
+
       addMessage(newMsg);
 
       // 상대방 메시지를 받으면 즉시 읽음 처리
       if (socket) {
-        console.log("📖 새 메시지 읽음 처리 요청:", newMsg.id);
         socket.emit(
           "chat:read",
           {
@@ -158,7 +222,6 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
             lastReadMessageId: newMsg.id,
           },
           (response: { ok: boolean; data?: unknown }) => {
-            console.log("📖 새 메시지 읽음 처리 응답:", response);
             if (response?.ok) {
               // 즉시 읽음으로 표시 (UI 즉시 반영)
               markRoomAsRead(data.roomId);
@@ -171,18 +234,36 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
     socket.on("chat:new", handleNewMessage);
 
     return () => {
-      console.log("🧹 chat:new 이벤트 리스너 제거");
       socket.off("chat:new", handleNewMessage);
     };
   }, [socket, resolvedParams.roomId, currentUser.id, currentUser.name]);
 
+  // requestId로 request 상세 정보 가져오기
+  useEffect(() => {
+    const fetchRequestData = async () => {
+      if (!requestIdForRoom) {
+        return;
+      }
+
+      try {
+        const data = await getRequestById(requestIdForRoom);
+        setRequestData(data);
+      } catch (error: unknown) {
+        // 404 에러는 정상적인 상황 (Request가 삭제되었거나 없음)
+        const err = error as { response?: { status?: number } };
+        if (err?.response?.status === 404) {
+        } else {
+        }
+      }
+    };
+
+    fetchRequestData();
+  }, [requestIdForRoom, resolvedParams.roomId]);
+
   // 채팅방에 처음 입장했을 때, 기존 메시지 불러오기
   useEffect(() => {
     const fetchMessages = async () => {
-      console.log("🔍 Fetching messages for roomId:", resolvedParams.roomId);
-
       if (!resolvedParams.roomId) {
-        console.error("❌ roomId가 undefined입니다!");
         setError("채팅방 ID가 없습니다.");
         setIsLoading(false);
         return;
@@ -194,13 +275,10 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
         // 최초 로드: 30개만 가져오기
         const response = await getChatMessages(resolvedParams.roomId, undefined, 30);
 
-        console.log("📦 API 응답:", {
-          total: response.messages.length,
-          first: response.messages[0]?.content,
-          last: response.messages[response.messages.length - 1]?.content,
-          lastId: response.messages[response.messages.length - 1]?.id,
-          nextCursor: response.pageInfo?.nextCursor,
-        });
+        // requestId 저장 (메시지 조회 응답에서 직접 받음)
+        if (response.requestId) {
+          setRequestIdForRoom(response.requestId);
+        }
 
         // 다음 페이지 커서 저장
         setNextCursor(response.pageInfo?.nextCursor || null);
@@ -215,38 +293,11 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
           messageType: msg.messageType,
           content: msg.content,
           createdAt: msg.createdAt,
-          quotation: msg.quotation
-            ? {
-                id: msg.quotation.id,
-                consumerId: "",
-                driverId: "",
-                chattingRoomId: msg.chattingRoomId,
-                requestId: "",
-                serviceType: "",
-                moveAt: msg.quotation.moveAt,
-                departureAddress: msg.quotation.departureAddress,
-                departureFloor: 0,
-                departurePyeong: 0,
-                departureElevator: false,
-                arrivalAddress: msg.quotation.arrivalAddress,
-                arrivalFloor: 0,
-                arrivalPyeong: 0,
-                arrivalElevator: false,
-                price: msg.quotation.price,
-                status: "SUBMITTED",
-                createdAt: msg.createdAt,
-                chattingMessageId: msg.id,
-              }
-            : undefined,
+          quotation: msg.quotation ? { ...msg.quotation } : undefined, // quotation을 복사해서 사용
         }));
 
         // DB에서 받은 최신 데이터로 설정 (캐시도 함께 업데이트됨)
         setMessages(formattedMessages);
-        console.log("✅ DB에서 메시지 로드 완료:", {
-          count: formattedMessages.length,
-          lastContent: formattedMessages[formattedMessages.length - 1]?.content,
-          lastId: formattedMessages[formattedMessages.length - 1]?.id,
-        });
 
         // 초기 로드 후 맨 아래로 스크롤 + 스크롤 완료 후 isInitialLoad 해제
         setTimeout(() => {
@@ -254,18 +305,12 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
           // 스크롤 애니메이션이 완료될 때까지 충분히 대기
           setTimeout(() => {
             setIsInitialLoad(false);
-            console.log("✅ 초기 로드 완료 - 무한 스크롤 활성화");
           }, 500);
         }, 100);
 
         // 메시지가 있으면 마지막 메시지를 읽음 처리
         if (socket && formattedMessages.length > 0) {
           const lastMessage = formattedMessages[formattedMessages.length - 1];
-          console.log("📖 채팅방 입장 - 읽음 처리 요청:", {
-            roomId: resolvedParams.roomId,
-            lastMessageId: lastMessage.id,
-          });
-
           socket.emit(
             "chat:read",
             {
@@ -273,9 +318,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
               lastReadMessageId: lastMessage.id,
             },
             (response: { ok: boolean; data?: unknown }) => {
-              console.log("📖 읽음 처리 응답:", response);
               if (response?.ok) {
-                console.log("✅ 읽음 처리 성공!");
                 // 즉시 읽음으로 표시 (UI 즉시 반영)
                 markRoomAsRead(resolvedParams.roomId);
               } else {
@@ -299,7 +342,6 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
 
         // 401 에러면 인증 실패이므로 로그인 페이지로 리다이렉트
         if (err.response?.status === 401) {
-          console.log("🔒 인증 필요 - 로그인 페이지로 이동");
           window.location.href = "/login";
           return;
         }
@@ -328,20 +370,10 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
 
     // 스크롤이 맨 위에 도달했을 때 (50px 여유)
     if (scrollTop < 50) {
-      console.log("📜 스크롤 맨 위 도달 - 과거 메시지 로드", {
-        scrollTop,
-        nextCursor,
-        isLoadingMore,
-      });
       setIsLoadingMore(true);
 
       try {
         const response = await getChatMessages(resolvedParams.roomId, nextCursor, 30);
-
-        console.log("📦 추가 메시지 로드:", {
-          count: response.messages.length,
-          nextCursor: response.pageInfo?.nextCursor,
-        });
 
         // 기존 메시지 앞에 과거 메시지 추가
         const formattedMessages: Message[] = response.messages.map((msg: BackendChatMessage) => ({
@@ -353,29 +385,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
           messageType: msg.messageType,
           content: msg.content,
           createdAt: msg.createdAt,
-          quotation: msg.quotation
-            ? {
-                id: msg.quotation.id,
-                consumerId: "",
-                driverId: "",
-                chattingRoomId: msg.chattingRoomId,
-                requestId: "",
-                serviceType: "",
-                moveAt: msg.quotation.moveAt,
-                departureAddress: msg.quotation.departureAddress,
-                departureFloor: 0,
-                departurePyeong: 0,
-                departureElevator: false,
-                arrivalAddress: msg.quotation.arrivalAddress,
-                arrivalFloor: 0,
-                arrivalPyeong: 0,
-                arrivalElevator: false,
-                price: msg.quotation.price,
-                status: "SUBMITTED",
-                createdAt: msg.createdAt,
-                chattingMessageId: msg.id,
-              }
-            : undefined,
+          quotation: msg.quotation ? { ...msg.quotation } : undefined, // quotation을 복사해서 사용
         }));
 
         // 스크롤 위치 저장
@@ -385,20 +395,9 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
         const existingIds = new Set(messages.map((m) => m.id));
         const uniqueNewMessages = formattedMessages.filter((msg) => !existingIds.has(msg.id));
 
-        console.log("🔄 메시지 병합:", {
-          새로운: formattedMessages.length,
-          기존: messages.length,
-          중복제거후: uniqueNewMessages.length,
-        });
-
         setMessages([...uniqueNewMessages, ...messages]);
         const newCursor = response.pageInfo?.nextCursor || null;
         setNextCursor(newCursor);
-
-        console.log("✅ 과거 메시지 로드 완료:", {
-          추가됨: uniqueNewMessages.length,
-          다음커서: newCursor,
-        });
 
         // 스크롤 위치 복원 (새로 추가된 메시지만큼 아래로)
         setTimeout(() => {
@@ -522,7 +521,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
         arrivalElevator: requestInfo.arrivalElevator,
         additionalRequirements: requestInfo.additionalRequirements,
         price: price,
-        status: "SUBMITTED",
+        status: "PENDING",
         createdAt: new Date().toISOString(),
         chattingMessageId: tempId,
       },
@@ -578,7 +577,12 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
               return (
                 <div key={msg.id} className={`flex ${isMe ? "justify-end" : ""}`}>
                   <div className="max-w-[400px]">
-                    <QuotationMessage quotation={msg.quotation} messageId={msg.id} />
+                    <QuotationMessage
+                      quotation={msg.quotation}
+                      messageId={msg.id}
+                      otherUserName={otherUserName}
+                      otherUserNickname={otherUserNickname}
+                    />
                   </div>
                 </div>
               );
@@ -623,8 +627,18 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
           {currentUser.role === "driver" && (
             <button
               type="button"
-              onClick={() => setIsQuotationModalOpen(true)}
-              className="flex h-8 items-center justify-center rounded-full bg-green-500 px-4 text-sm font-medium text-white hover:bg-green-600 md:h-10 md:text-base"
+              onClick={() => {
+                if (!requestData) {
+                  alert("견적 요청서 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
+                  return;
+                }
+                setIsQuotationModalOpen(true);
+              }}
+              disabled={!requestData}
+              className={`flex h-8 items-center justify-center rounded-full px-4 text-sm font-medium text-white md:h-10 md:text-base ${
+                requestData ? "bg-green-500 hover:bg-green-600" : "cursor-not-allowed bg-gray-400"
+              }`}
+              title={!requestData ? "견적 요청서 정보를 불러오는 중..." : "견적서 보내기"}
             >
               💼 견적
             </button>
@@ -650,19 +664,35 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
         isOpen={isQuotationModalOpen}
         onClose={() => setIsQuotationModalOpen(false)}
         onSend={handleSendQuotation}
-        initialRequestInfo={{
-          serviceType: "HOME_MOVE",
-          moveAt: "2025-12-05",
-          departureAddress: "서울특별시 강남구 테헤란로 123",
-          departureFloor: 3,
-          departurePyeong: 20,
-          departureElevator: true,
-          arrivalAddress: "서울특별시 송파구 중앙로 23",
-          arrivalFloor: 5,
-          arrivalPyeong: 25,
-          arrivalElevator: false,
-          additionalRequirements: "사다리차 사용 불가",
-        }}
+        initialRequestInfo={
+          requestData
+            ? {
+                serviceType: requestData.serviceType || "HOME_MOVE",
+                moveAt: requestData.moveAt.split("T")[0], // ISO -> YYYY-MM-DD 변환
+                departureAddress: requestData.departureAddress,
+                departureFloor: requestData.departureFloor ?? 0,
+                departurePyeong: requestData.departurePyeong ?? 0,
+                departureElevator: requestData.departureElevator,
+                arrivalAddress: requestData.arrivalAddress,
+                arrivalFloor: requestData.arrivalFloor ?? 0,
+                arrivalPyeong: requestData.arrivalPyeong ?? 0,
+                arrivalElevator: requestData.arrivalElevator,
+                additionalRequirements: requestData.additionalRequirements || undefined,
+              }
+            : {
+                // 데이터 로딩 중일 때 기본값
+                serviceType: "HOME_MOVE",
+                moveAt: new Date().toISOString().split("T")[0],
+                departureAddress: "",
+                departureFloor: 0,
+                departurePyeong: 0,
+                departureElevator: false,
+                arrivalAddress: "",
+                arrivalFloor: 0,
+                arrivalPyeong: 0,
+                arrivalElevator: false,
+              }
+        }
       />
     </div>
   );

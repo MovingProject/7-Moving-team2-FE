@@ -33,10 +33,6 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
         }));
 
         setConversations(adjustedRooms);
-        console.log(
-          "✅ 채팅방 목록 로드:",
-          adjustedRooms.map((r) => ({ id: r.roomId, unread: r.unreadCount }))
-        );
       } catch (error) {
         const err = error as {
           response?: { status?: number; data?: { message?: string } };
@@ -73,18 +69,9 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
     if (!socket) return;
 
     const handleNewMessage = (data: WebSocketNewMessageData) => {
-      console.log("📨 layout - chat:new 수신:", data);
-
       // 최신 상태를 직접 가져오기
       const latestCurrentRoomId = useChatStore.getState().currentRoomId;
       const latestReadRooms = useChatStore.getState().readRooms;
-
-      console.log("🔍 현재 상태:", {
-        messageRoomId: data.roomId,
-        currentRoomId: latestCurrentRoomId,
-        readRooms: Array.from(latestReadRooms),
-        isInReadRooms: latestReadRooms.has(data.roomId),
-      });
 
       // 대화 목록에서 해당 방 찾아서 업데이트
       setConversations((prev) => {
@@ -115,32 +102,21 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
         // currentRoomId가 null이면 어떤 방도 보고 있지 않은 상태 (/chat 페이지)
         const isCurrentRoom = latestCurrentRoomId !== null && data.roomId === latestCurrentRoomId;
 
-        console.log("🔍 조건 체크:", {
-          isCurrentRoom,
-          messageRoomId: data.roomId,
-          currentRoomId: latestCurrentRoomId,
-          isInChatListOnly: latestCurrentRoomId === null,
-        });
-
         if (isCurrentRoom) {
           // 현재 보고 있는 방이면 unreadCount를 0으로
           targetRoom.unreadCount = 0;
-          console.log("�️ 현재 방이므로 unreadCount = 0:", data.roomId);
         } else {
           // 다른 방에서 메시지가 오면 readRooms에서 제거하고 카운트 증가
           if (latestReadRooms.has(data.roomId)) {
-            console.log("� readRooms에서 제거:", data.roomId);
             useChatStore.getState().unmarkRoomAsRead(data.roomId);
           }
           targetRoom.unreadCount = (targetRoom.unreadCount || 0) + 1;
-          console.log("🔔 unreadCount 증가:", oldUnreadCount, "→", targetRoom.unreadCount);
         }
 
         // 해당 방을 맨 위로 이동
         newConversations.splice(roomIndex, 1);
         newConversations.unshift(targetRoom);
 
-        console.log("✅ 대화 목록 업데이트:", data.roomId, "unread:", targetRoom.unreadCount);
         return newConversations;
       });
     };
