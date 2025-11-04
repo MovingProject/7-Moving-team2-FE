@@ -20,11 +20,15 @@ export default function RequestPage() {
   const [filterTypeSelected, setFilterTypeSelected] = useState<string[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState("");
-
+  const [hiddenRequestIds, setHiddenRequestIds] = useState<Set<string>>(new Set());
   const { data: baseData, isLoading, isError } = useReceivedRequests();
   const { mutate: filterRequests, data: filteredData, isPending } = useFilteredRequests();
 
   const responseData = filteredData ?? baseData ?? [];
+
+  const handleReject = (requestId: string) => {
+    setHiddenRequestIds((prev) => new Set([...prev, requestId]));
+  };
 
   const sortedData = useMemo(() => {
     if (!Array.isArray(responseData) || responseData.length === 0) return [];
@@ -33,9 +37,11 @@ export default function RequestPage() {
 
     type ReceivedRequestItem = (typeof responseData)[0];
 
+    const visibleData = responseData.filter((item) => !hiddenRequestIds.has(item.id));
+
     // 1. 먼저 isInvited로 그룹 분리
-    const invitedItems = responseData.filter((item) => item.isInvited);
-    const normalItems = responseData.filter((item) => !item.isInvited);
+    const invitedItems = visibleData.filter((item) => item.isInvited);
+    const normalItems = visibleData.filter((item) => !item.isInvited);
 
     // 2. 각 그룹 내에서 정렬
     const sortFn = (a: ReceivedRequestItem, b: ReceivedRequestItem) => {
@@ -57,6 +63,7 @@ export default function RequestPage() {
       total: result.length,
       invited: sortedInvited.length,
       normal: sortedNormal.length,
+      hidden: hiddenRequestIds.size,
       first3: result.slice(0, 3).map((item) => ({
         name: item.consumerName,
         isInvited: item.isInvited,
@@ -65,7 +72,7 @@ export default function RequestPage() {
     });
 
     return result;
-  }, [responseData, sortTech]);
+  }, [responseData, sortTech, hiddenRequestIds]);
 
   const filterCounts = useMemo(() => {
     if (!Array.isArray(baseData)) {
@@ -104,6 +111,7 @@ export default function RequestPage() {
 
     console.log("필터 요청 payload:", filter);
     filterRequests(filter);
+    setHiddenRequestIds(new Set());
   };
 
   // 1. toggle에서는 상태만 갱신
@@ -149,9 +157,7 @@ export default function RequestPage() {
           <div className="flex flex-1 flex-col gap-3 md:gap-4 lg:gap-8">
             <SearchBar value={searchKeyword} onChange={(value) => setSearchKeyword(value)} />
             <div className="flex items-center justify-between py-1">
-              <p className="min-h-7 text-sm lg:min-h-0 lg:text-base">
-                전체 {responseData.length}건
-              </p>
+              <p className="min-h-7 text-sm lg:min-h-0 lg:text-base">전체 {sortedData.length}건</p>
               <div className="flex items-center gap-2">
                 <SortTechFilter selected={sortTech} onChange={setSortTech} filterKey="sortTech" />
                 <button
@@ -185,6 +191,7 @@ export default function RequestPage() {
                       createdAt: cardData.createdAt,
                       isInvited: cardData.isInvited,
                     }}
+                    onReject={handleReject}
                   />
                 ))
               ) : (
