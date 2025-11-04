@@ -4,11 +4,18 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ChatRoomListItem } from "@/types/chat";
 import { getMyChatRooms } from "@/lib/apis/chatApi";
+import useChatStore from "@/store/chatStore";
 
 export default function ChatHomePage() {
   const [conversations, setConversations] = useState<ChatRoomListItem[]>([]);
   const [isLoadingRooms, setIsLoadingRooms] = useState(true);
   const [roomsError, setRoomsError] = useState<string | null>(null);
+
+  // /chat 페이지에서는 currentRoomId를 null로 설정
+  useEffect(() => {
+    console.log("📂 /chat 페이지 - currentRoomId를 null로 설정");
+    useChatStore.setState({ currentRoomId: null });
+  }, []);
 
   // 채팅방 목록 로드
   useEffect(() => {
