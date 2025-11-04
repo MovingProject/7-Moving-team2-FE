@@ -7,14 +7,22 @@ import ContractModal from "./ContractModal";
 import { Contract } from "@/types/contract";
 import { generateContractNumber, downloadPDF } from "@/utils/pdfUtils";
 import ContractPreview from "./ContractPreview";
+import { acceptQuotation } from "@/lib/apis/quotationApi";
 
 interface QuotationMessageProps {
   quotation: Quotation;
   messageId: string;
+  otherUserName: string;
+  otherUserNickname: string | null;
 }
 
-export default function QuotationMessage({ quotation, messageId }: QuotationMessageProps) {
-  const { currentUser, updateMessage, addMessage } = useChatStore();
+export default function QuotationMessage({
+  quotation,
+  messageId,
+  otherUserName,
+  otherUserNickname,
+}: QuotationMessageProps) {
+  const { currentUser, updateMessage, addMessage, socket } = useChatStore();
   const isDriver = currentUser.role === "driver";
   const isCustomer = currentUser.role === "consumer";
   const [isContractModalOpen, setIsContractModalOpen] = useState(false);
@@ -23,13 +31,14 @@ export default function QuotationMessage({ quotation, messageId }: QuotationMess
 
   const getStatusBadge = (status: string) => {
     const statusMap = {
-      SUBMITTED: { label: "전송됨", color: "bg-blue-100 text-blue-700" },
-      REVISED: { label: "수정됨", color: "bg-yellow-100 text-yellow-700" },
-      WITHDRAWN: { label: "철회됨", color: "bg-red-100 text-red-700" },
-      SELECTED: { label: "수락됨", color: "bg-green-100 text-green-700" },
+      PENDING: { label: "전송됨", color: "bg-blue-100 text-blue-700" },
+      CONCLUDED: { label: "계약 체결", color: "bg-green-100 text-green-700" },
+      COMPLETED: { label: "완료됨", color: "bg-green-100 text-green-700" },
+      REJECTED: { label: "거절됨", color: "bg-red-100 text-red-700" },
       EXPIRED: { label: "만료됨", color: "bg-gray-100 text-gray-700" },
+      CANCELLED: { label: "취소됨", color: "bg-gray-100 text-gray-700" },
     };
-    return statusMap[status as keyof typeof statusMap] || statusMap.SUBMITTED;
+    return statusMap[status as keyof typeof statusMap] || statusMap.PENDING;
   };
 
   const handleAccept = () => {
@@ -41,25 +50,31 @@ export default function QuotationMessage({ quotation, messageId }: QuotationMess
     setIsContractModalOpen(true);
   };
 
-  const handleContractConfirm = () => {
-    // TODO: Replace with real API call
-    // await apiClient.post(`/quotations/${quotation.id}/accept`);
+  const handleContractConfirm = async () => {
+    try {
+      // 백엔드 API 호출 - 견적 수락
+      await acceptQuotation(quotation.id);
 
-    // Mock update: change status to SELECTED
-    updateMessage(messageId, {
-      quotation: { ...quotation, status: "SELECTED" },
-    });
+      // 로컬 상태 업데이트: 견적 상태를 CONCLUDED로 변경
+      updateMessage(messageId, {
+        quotation: { ...quotation, status: "CONCLUDED" },
+      });
 
-    // Add system message
-    addMessage({
-      id: `msg-${Date.now()}`,
-      chattingRoomId: quotation.chattingRoomId,
-      senderId: "system",
-      senderName: "시스템",
-      messageType: "MESSAGE",
-      content: "견적이 수락되고 계약서가 작성되었습니다.",
-      createdAt: new Date().toISOString(),
-    });
+      // WebSocket으로 상대방에게 견적 수락 알림 (특수 메시지로 전송)
+      if (socket) {
+        socket.emit("chat:send", {
+          roomId: quotation.chattingRoomId,
+          messageType: "MESSAGE",
+          content: `__QUOTATION_ACCEPTED__:${quotation.id}:${messageId}`,
+        });
+      }
+
+      // 계약서 모달 닫기
+      setIsContractModalOpen(false);
+    } catch (error) {
+      console.error("견적 수락 중 오류 발생:", error);
+      alert("견적 수락 중 오류가 발생했습니다. 다시 시도해주세요.");
+    }
   };
 
   const handleDownloadPDF = async () => {
@@ -102,24 +117,28 @@ export default function QuotationMessage({ quotation, messageId }: QuotationMess
 
   // 계약서 데이터 생성
   const generateContract = (): Contract => {
+    // 이사 날짜에서 시간 제거 (YYYY-MM-DD만)
+    const moveDate = quotation.moveAt.split("T")[0];
+
     return {
       id: `contract-${Date.now()}`,
       quotationId: quotation.id,
       contractNumber: generateContractNumber(),
 
-      // 고객 정보 (실제로는 API에서 가져와야 함)
-      customerName: "홍길동",
-      customerPhone: "010-1234-5678",
-      customerAddress: "서울특별시 강남구 테헤란로 123",
+      // 고객 정보 (Consumer)
+      customerName: currentUser.role === "consumer" ? currentUser.name : otherUserName,
+      customerPhone: "010-1234-5678", // TODO: 백엔드에서 실제 전화번호 가져오기
+      customerAddress: quotation.departureAddress, // 출발지 주소 사용
 
-      // 기사 정보 (실제로는 API에서 가져와야 함)
-      driverName: "김기사",
-      driverPhone: "010-9876-5432",
-      driverNickname: "친절한기사",
+      // 기사 정보 (Driver)
+      driverName: currentUser.role === "driver" ? currentUser.name : otherUserName,
+      driverPhone: "010-9876-5432", // TODO: 백엔드에서 실제 전화번호 가져오기
+      driverNickname:
+        currentUser.role === "driver" ? currentUser.name : otherUserNickname || otherUserName,
 
       // 이사 정보
       serviceType: quotation.serviceType,
-      moveAt: quotation.moveAt,
+      moveAt: moveDate, // 시간 제거, 날짜만 사용
       departureAddress: quotation.departureAddress,
       departureFloor: quotation.departureFloor,
       departureElevator: quotation.departureElevator,
@@ -197,7 +216,7 @@ export default function QuotationMessage({ quotation, messageId }: QuotationMess
         </div>
       </div>
 
-      {isCustomer && quotation.status === "SUBMITTED" && (
+      {isCustomer && quotation.status === "PENDING" && (
         <button
           onClick={handleAccept}
           className="bg-primary mt-4 w-full rounded-lg py-2 font-medium text-white hover:bg-blue-500"
@@ -206,7 +225,7 @@ export default function QuotationMessage({ quotation, messageId }: QuotationMess
         </button>
       )}
 
-      {quotation.status === "SELECTED" && (
+      {(quotation.status === "CONCLUDED" || quotation.status === "COMPLETED") && (
         <div className="mt-4 space-y-2">
           <div className="rounded-lg bg-green-50 p-2 text-center text-sm text-green-700">
             ✓ 견적이 수락되었습니다

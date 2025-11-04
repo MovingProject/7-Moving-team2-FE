@@ -21,7 +21,7 @@ export interface Quotation {
   additionalRequirements?: string;
   quotationMessage?: string;
   price: number;
-  status: "SUBMITTED" | "REVISED" | "WITHDRAWN" | "SELECTED" | "EXPIRED";
+  status: "PENDING" | "CONCLUDED" | "COMPLETED" | "REJECTED" | "EXPIRED" | "CANCELLED";
   previousQuotationId?: string;
   selectedAt?: string;
   validUntil?: string;
@@ -84,19 +84,14 @@ export interface BackendChatMessage {
   sequence: number;
   createdAt: string;
   updatedAt: string;
-  quotation?: {
-    id: string;
-    price: number;
-    moveAt: string;
-    departureAddress: string;
-    arrivalAddress: string;
-  } | null;
+  quotation?: Quotation | null; // 전체 Quotation 타입 사용
   isMine: boolean;
 }
 
 // 채팅방 메시지 조회 응답
 export interface GetChatMessagesResponse {
   roomId: string;
+  requestId: string; // 견적 요청 ID (견적 보내기에 필요)
   messages: BackendChatMessage[];
   pageInfo: {
     hasNext: boolean;
@@ -139,6 +134,7 @@ export interface LastMessageInfo {
 // 채팅방 목록 아이템
 export interface ChatRoomListItem {
   roomId: string;
+  requestId: string; // 이사 요청 ID (견적 보내기에 필요)
   other: OtherUserInfo;
   lastMessage: LastMessageInfo | null;
   unreadCount: number;

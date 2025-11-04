@@ -25,7 +25,6 @@ export default function OrderCard({ user, request, quotation }: CommonCardProps)
     profileData as DriverProfileData;
   const price = quotation?.price;
   const tags = quotation?.serviceType;
-  console.log("profileData", profileData);
 
   const isRendingOrConcluded =
     quotation?.quotationStatement === "CONCLUDED" || quotation?.quotationStatement === "PENDING";

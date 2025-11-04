@@ -13,7 +13,6 @@ export default function ChatHomePage() {
 
   // /chat 페이지에서는 currentRoomId를 null로 설정
   useEffect(() => {
-    console.log("📂 /chat 페이지 - currentRoomId를 null로 설정");
     useChatStore.setState({ currentRoomId: null });
   }, []);
 
