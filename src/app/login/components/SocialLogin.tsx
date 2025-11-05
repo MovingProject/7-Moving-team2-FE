@@ -8,8 +8,8 @@ interface SocialLoginProps {
 export default function SocialLogin({ role = "CONSUMER" }: SocialLoginProps) {
   const pretendardXs = "text-[#6B6B6B] font-pretendard text-[16px] font-normal leading-[18px]";
   const handleGoogleLogin = () => {
-    // 프록시를 통해 백엔드로 요청
-    window.location.href = `/api/auth/google?role=${role}`;
+    const apiBase = process.env.NEXT_PUBLIC_API_URL;
+    window.location.href = `${apiBase}/auth/google?role=${role}`;
   };
   return (
     <div className="flex flex-row items-center gap-5">
