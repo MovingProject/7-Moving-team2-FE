@@ -2,7 +2,7 @@ import { useAuthStore } from "@/store/authStore";
 import axios from "axios";
 
 const apiClient = axios.create({
-  baseURL: "/api",
+  baseURL: `${process.env.NEXT_PUBLIC_API_URL}`,
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
   // 304 Not Modified 는 캐시 사용 신호이므로 reject 되지 않도록 허용
@@ -55,7 +55,11 @@ apiClient.interceptors.response.use(
 
       try {
         // refresh는 토큰 갱신만 (user 데이터 건드리지 않음)
-        await axios.post("/api" + "/auth/refresh", {}, { withCredentials: true });
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
+          {},
+          { withCredentials: true }
+        );
 
         // user는 localStorage에서 자동 복원
         // refresh 성공했으니 원래 요청 재시도
