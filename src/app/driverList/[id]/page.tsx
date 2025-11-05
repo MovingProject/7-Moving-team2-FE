@@ -138,7 +138,12 @@ export default function DriverDetailPage() {
 
       <section className="flex flex-col gap-10 lg:flex-row">
         <div className="flex flex-[0.65] flex-col gap-10">
-          <DefaultCard {...cardData} variant="detail" driverDetail={data} />
+          <DefaultCard
+            {...cardData}
+            variant="detail"
+            driverDetail={data}
+            isInvitedByMe={data.isInvitedByMe}
+          />
           {/* 공유 영역 (lg 미만에서는 이쪽으로 내려옴) */}
           <div className="block lg:hidden">
             <ShareSection setPopup={setPopup} />

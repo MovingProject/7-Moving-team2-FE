@@ -64,4 +64,5 @@ export interface DriverDetailItem {
   serviceTypes: MoveType[];
   likeCount: number;
   isLikedByCurrentUser?: boolean;
+  isInvitedByMe?: boolean;
 }
