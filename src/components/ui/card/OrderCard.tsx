@@ -1,16 +1,16 @@
 "use client";
 
-import React from "react";
+import { DriverProfileData, DriverUser } from "@/types/card";
+import { MoveTypeMap } from "@/types/moveTypes";
+import { QUOTATION_STATEMENT } from "@/types/statement";
+import { isDriverUser } from "@/utils/type-guards";
+import clsx from "clsx";
 import { useRouter } from "next/navigation";
-import BaseCard, { CommonCardProps } from "./BaseCard";
-import CardText from "./CardText";
-import Tag from "../Tag";
 import Button from "../Button";
 import UserProfileArea from "../profile/UserProfileArea";
-import { DriverUser, DriverProfileData } from "@/types/card";
-import { isDriverUser } from "@/utils/type-guards";
-import { MoveTypeMap } from "@/types/moveTypes";
-import clsx from "clsx";
+import Tag from "../Tag";
+import BaseCard, { CommonCardProps } from "./BaseCard";
+import CardText from "./CardText";
 
 export default function OrderCard({ user, request, quotation }: CommonCardProps) {
   const router = useRouter();
@@ -31,6 +31,10 @@ export default function OrderCard({ user, request, quotation }: CommonCardProps)
 
   const isConcludedOrCompleted =
     quotation?.quotationStatement === "CONCLUDED" || quotation?.quotationStatement === "COMPLETED";
+  const quotationStatusKey = quotation?.quotationStatement;
+  const quotationStatusLabel = quotationStatusKey
+    ? QUOTATION_STATEMENT[quotationStatusKey].label
+    : null;
 
   return (
     <BaseCard
@@ -62,7 +66,7 @@ export default function OrderCard({ user, request, quotation }: CommonCardProps)
           <CardText className="flex items-center gap-2 text-lg lg:text-xl">
             {isConcludedOrCompleted && (
               <span className="border-primary bg-primary-lightest text-primary flex rounded-3xl border px-2.5 py-1 text-sm font-semibold">
-                진행 확정
+                {quotationStatusLabel}
               </span>
             )}
             견적 금액 <span className="font-semibold">{price.toLocaleString()}원</span>

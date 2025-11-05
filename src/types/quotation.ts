@@ -68,6 +68,7 @@ export interface ApiDriverQuotationItem {
   serviceType: ServerMoveType; // HOME_MOVE (단일 문자열)
   isInvited: boolean;
   quotationStatus: QuotationStatement;
+  requestStatus: RequestStatus;
 }
 
 // 훅에서 최종적으로 반환받는 배열 타입
@@ -86,6 +87,7 @@ export interface DriverQuotationListItem {
     departureAddress: string;
     arrivalAddress: string;
     moveAt: string;
+    requestStatus: RequestStatus;
   };
 
   isCustomerSeen: boolean; // 고객 응답/조회 여부 (API에 없으므로 Mock)
