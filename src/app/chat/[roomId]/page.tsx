@@ -81,6 +81,13 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // 마지막 QUOTATION 메시지(있으면)를 찾음 — requestData가 없을 때 재전송용으로 사용
+  const lastQuotationMessage = [...messages]
+    .slice()
+    .reverse()
+    .find((m) => m.messageType === "QUOTATION" && m.quotation);
+  const hasLastQuotation = !!lastQuotationMessage;
+
   // 메시지 목록이 변경될 때마다 스크롤을 맨 아래로 이동
   useEffect(() => {
     scrollToBottom();
@@ -628,17 +635,23 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
             <button
               type="button"
               onClick={() => {
-                if (!requestData) {
+                if (!requestData && !hasLastQuotation) {
                   alert("견적 요청서 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.");
                   return;
                 }
                 setIsQuotationModalOpen(true);
               }}
-              disabled={!requestData}
+              disabled={!(requestData || hasLastQuotation)}
               className={`flex h-8 items-center justify-center rounded-full px-4 text-sm font-medium text-white md:h-10 md:text-base ${
-                requestData ? "bg-green-500 hover:bg-green-600" : "cursor-not-allowed bg-gray-400"
+                requestData || hasLastQuotation
+                  ? "bg-green-500 hover:bg-green-600"
+                  : "cursor-not-allowed bg-gray-400"
               }`}
-              title={!requestData ? "견적 요청서 정보를 불러오는 중..." : "견적서 보내기"}
+              title={
+                !requestData && !hasLastQuotation
+                  ? "견적 요청서 정보를 불러오는 중..."
+                  : "견적서 보내기"
+              }
             >
               💼 견적
             </button>
@@ -664,6 +677,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
         isOpen={isQuotationModalOpen}
         onClose={() => setIsQuotationModalOpen(false)}
         onSend={handleSendQuotation}
+        // requestData 우선, 없으면 마지막 QUOTATION 메시지에서 requestInfo를 채움
         initialRequestInfo={
           requestData
             ? {
@@ -679,20 +693,40 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
                 arrivalElevator: requestData.arrivalElevator,
                 additionalRequirements: requestData.additionalRequirements || undefined,
               }
-            : {
-                // 데이터 로딩 중일 때 기본값
-                serviceType: "HOME_MOVE",
-                moveAt: new Date().toISOString().split("T")[0],
-                departureAddress: "",
-                departureFloor: 0,
-                departurePyeong: 0,
-                departureElevator: false,
-                arrivalAddress: "",
-                arrivalFloor: 0,
-                arrivalPyeong: 0,
-                arrivalElevator: false,
-              }
+            : lastQuotationMessage?.quotation
+              ? {
+                  serviceType: lastQuotationMessage.quotation.serviceType || "HOME_MOVE",
+                  moveAt: lastQuotationMessage.quotation.moveAt
+                    ? lastQuotationMessage.quotation.moveAt.split("T")[0]
+                    : new Date().toISOString().split("T")[0],
+                  departureAddress: lastQuotationMessage.quotation.departureAddress || "",
+                  departureFloor: lastQuotationMessage.quotation.departureFloor ?? 0,
+                  departurePyeong: lastQuotationMessage.quotation.departurePyeong ?? 0,
+                  departureElevator: lastQuotationMessage.quotation.departureElevator ?? false,
+                  arrivalAddress: lastQuotationMessage.quotation.arrivalAddress || "",
+                  arrivalFloor: lastQuotationMessage.quotation.arrivalFloor ?? 0,
+                  arrivalPyeong: lastQuotationMessage.quotation.arrivalPyeong ?? 0,
+                  arrivalElevator: lastQuotationMessage.quotation.arrivalElevator ?? false,
+                  additionalRequirements:
+                    lastQuotationMessage.quotation.additionalRequirements || undefined,
+                }
+              : {
+                  // 데이터 로딩 중일 때 기본값
+                  serviceType: "HOME_MOVE",
+                  moveAt: new Date().toISOString().split("T")[0],
+                  departureAddress: "",
+                  departureFloor: 0,
+                  departurePyeong: 0,
+                  departureElevator: false,
+                  arrivalAddress: "",
+                  arrivalFloor: 0,
+                  arrivalPyeong: 0,
+                  arrivalElevator: false,
+                }
         }
+        // 마지막 견적에서 금액/메시지 프리필 전달
+        initialPrice={lastQuotationMessage?.quotation?.price}
+        initialMessage={lastQuotationMessage?.content || ""}
       />
     </div>
   );

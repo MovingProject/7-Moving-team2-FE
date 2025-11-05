@@ -23,6 +23,8 @@ interface QuotationModalProps {
   onClose: () => void;
   onSend: (price: number, message: string, requestInfo: RequestInfo) => void;
   initialRequestInfo?: Partial<RequestInfo>;
+  initialPrice?: number;
+  initialMessage?: string;
 }
 
 const SERVICE_TYPE_MAP: { [key: string]: string } = {
@@ -36,6 +38,8 @@ export default function QuotationModal({
   onClose,
   onSend,
   initialRequestInfo,
+  initialPrice,
+  initialMessage,
 }: QuotationModalProps) {
   const [price, setPrice] = useState("");
   const [message, setMessage] = useState("");
@@ -84,6 +88,16 @@ export default function QuotationModal({
       setAdditionalRequirements(initialRequestInfo.additionalRequirements || "");
     }
   }, [initialRequestInfo]);
+
+  // initialPrice / initialMessage가 들어오면 폼을 채움 (재전송용)
+  useEffect(() => {
+    if (initialPrice !== undefined && initialPrice !== null) {
+      setPrice(String(initialPrice));
+    }
+    if (initialMessage !== undefined && initialMessage !== null) {
+      setMessage(initialMessage);
+    }
+  }, [initialPrice, initialMessage]);
 
   if (!isOpen) return null;
 
