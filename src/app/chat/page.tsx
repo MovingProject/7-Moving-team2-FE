@@ -11,6 +11,16 @@ export default function ChatHomePage() {
   const [isLoadingRooms, setIsLoadingRooms] = useState(true);
   const [roomsError, setRoomsError] = useState<string | null>(null);
 
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    document.body.style.scrollbarGutter = "stable";
+
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.scrollbarGutter = "";
+    };
+  }, []);
+
   // /chat 페이지에서는 currentRoomId를 null로 설정
   useEffect(() => {
     useChatStore.setState({ currentRoomId: null });
