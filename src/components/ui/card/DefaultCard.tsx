@@ -15,6 +15,7 @@ export default function DefaultCard({
   quotation,
   variant = "list",
   driverDetail,
+  isInvitedByMe,
 }: CommonCardProps) {
   const isDriver = isDriverUser(user);
   if (!isDriver) {
@@ -24,7 +25,7 @@ export default function DefaultCard({
   const profileData = driverUser.profile;
   const { oneLiner, driverServiceTypes } = profileData as DriverProfileData;
   const price = quotation?.price;
-  const isInvited = request?.isInvited;
+  const isInvited = isInvitedByMe || request?.isInvited;
 
   return (
     <BaseCard className="gap-[14px] border border-gray-300 bg-white px-[14px] py-4 lg:gap-4 lg:px-6 lg:py-5">

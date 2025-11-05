@@ -179,7 +179,11 @@ export default function DriverListPage() {
                     onClick={() => handleCardClick(driver.user?.id)}
                     className="cursor-pointer"
                   >
-                    <DefaultCard {...cardData} variant="list" />
+                    <DefaultCard
+                      {...cardData}
+                      variant="list"
+                      isInvitedByMe={driver.isInvitedByMe}
+                    />
                   </div>
                 );
               })

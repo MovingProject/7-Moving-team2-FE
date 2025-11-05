@@ -17,6 +17,7 @@ export interface CommonCardProps {
   quotation?: QuotationData;
   variant?: "list" | "detail";
   driverDetail?: DriverDetailItem;
+  isInvitedByMe?: boolean;
 }
 
 export type TagData = {
