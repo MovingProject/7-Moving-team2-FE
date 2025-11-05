@@ -6,22 +6,11 @@ import LogoText from "@/components/ui/LogoText";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
+import { useRoleStore } from "@/store/roleStore";
 import Link from "next/link";
 
-// type UserResponse = {
-//   success: boolean;
-//   data: {
-//     id: string;
-//     email: string;
-//     name: string;
-//     role: "DRIVER" | "CONSUMER";
-//     createdAt: string;
-//     isProfileRegistered: boolean;
-//   };
-// };
-
 export default function Login() {
-  const [role, setRole] = useState<"CONSUMER" | "DRIVER">("CONSUMER");
+  const { role, setRole } = useRoleStore();
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
 
