@@ -36,6 +36,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
   const [requestIdForRoom, setRequestIdForRoom] = useState<string | null>(null);
   const [otherUserName, setOtherUserName] = useState<string>("상대방");
   const [otherUserNickname, setOtherUserNickname] = useState<string | null>(null);
+  const [otherUserImage, setOtherUserImage] = useState<string | null>(null);
 
   // 현재 사용자 정보
   const currentUser = user
@@ -69,6 +70,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
         if (currentRoom && currentRoom.other) {
           setOtherUserName(currentRoom.other.name);
           setOtherUserNickname(currentRoom.other.displayName);
+          setOtherUserImage(currentRoom.other.avatarUrl || null);
         }
       } catch (error) {}
     };
@@ -597,11 +599,18 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
 
             return (
               <div key={msg.id} className={`flex items-end gap-2 ${isMe ? "justify-end" : ""}`}>
-                {!isMe && (
-                  <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-indigo-200 text-xs font-bold text-blue-500 md:h-8 md:w-8 md:text-sm">
-                    {msg.senderAvatar || msg.senderName?.charAt(0)}
-                  </div>
-                )}
+                {!isMe &&
+                  (otherUserImage ? (
+                    <img
+                      src={otherUserImage}
+                      alt={otherUserName}
+                      className="h-8 w-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-indigo-200 text-sm font-bold text-blue-500">
+                      {msg.senderName?.charAt(0) || "상"}
+                    </div>
+                  ))}
                 <div
                   className={`max-w-[280px] rounded-2xl p-2.5 text-sm md:max-w-md md:p-3 md:text-base ${
                     isMe ? "bg-primary text-white" : "bg-white"
