@@ -53,6 +53,7 @@ export default function OrderCard({ user, request, quotation }: CommonCardProps)
         request={request}
         quotation={quotation}
         show={["name", "reviews", "likes"]}
+        variant="detail"
         className="rounded-lg border border-gray-300 p-[10px]"
       />
 

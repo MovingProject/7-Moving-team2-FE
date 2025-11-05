@@ -105,7 +105,9 @@ export default function LikeButton({
       <button
         onClick={toggleLike}
         disabled={readOnly}
-        className={`flex cursor-pointer items-center gap-1 focus:outline-none ${className}`}
+        className={`flex items-center gap-1 focus:outline-none ${
+          readOnly ? "cursor-default opacity-70" : "cursor-pointer"
+        } ${className}`}
       >
         <Image
           src={finalLiked ? "/icon/like-on.svg" : "/icon/like-off.svg"}
