@@ -131,7 +131,7 @@ export default function DriverDetailPage() {
         onClose={() => setIsModalOpen(false)}
         title="지정 견적 요청하기"
         buttonText="일반 견적 요청하기"
-        onButtonClick={() => setIsModalOpen(false)}
+        onButtonClick={() => window.location.replace("/request/write")}
       >
         <p className="text-gray-700">일반 견적 요청을 먼저 진행해 주세요.</p>
       </DefaultModal>
