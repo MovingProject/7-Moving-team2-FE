@@ -58,8 +58,7 @@ export default function Nav({ option }: NavProps) {
   const [city, setCity] = useState("Seoul");
   const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false);
   const [isWeeklyOpen, setIsWeeklyOpen] = useState(false);
-  const optionFont =
-    "text-[#1F1F1F] font-[Pretendard] text-sm lg:text-base font-medium leading-[26px] cursor-pointer";
+  const optionFont = "text-gray-700 text-sm lg:text-base font-medium leading-[26px] cursor-pointer";
   const cityDropdownRef = useRef<HTMLDivElement>(null);
   const weeklyPanelRef = useRef<HTMLDivElement>(null);
 
@@ -295,7 +294,7 @@ export default function Nav({ option }: NavProps) {
         <div className="flex items-center gap-1 pt-5 pr-5 lg:gap-4">
           <div ref={weeklyPanelRef}>
             <p
-              className="hover:text-primary flex cursor-pointer items-center text-sm font-semibold text-gray-700 lg:text-base"
+              className="hover:text-primary flex cursor-pointer items-center text-sm font-medium text-gray-700 lg:text-base"
               onClick={() => setIsWeeklyOpen((prev) => !prev)}
             >
               주간날씨
