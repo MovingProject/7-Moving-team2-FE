@@ -120,7 +120,7 @@ export const adaptDriverItemToRequestCardProps = (
     serviceType: item.serviceType, // serviceType은 이미 배열로 변환됨
     departureAddress: item.requestSummary.departureAddress,
     arrivalAddress: item.requestSummary.arrivalAddress,
-    requestStatement: "PENDING",
+    requestStatement: item.requestSummary.requestStatus,
     moveAt: item.requestSummary.moveAt,
     createdAt: item.requestSummary.moveAt, // 요청 생성일 정보가 없으므로 moveAt으로 대체
   };
@@ -166,6 +166,7 @@ export const adaptApiToDriverQuotationListItem = (
       departureAddress: apiItem.departureAddress,
       arrivalAddress: apiItem.arrivalAddress,
       moveAt: apiItem.moveAt,
+      requestStatus: apiItem.requestStatus,
     },
 
     // 4. Mock 필드 할당

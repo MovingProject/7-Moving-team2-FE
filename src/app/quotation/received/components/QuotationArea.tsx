@@ -5,6 +5,7 @@ import { MoveTypeMap, ServerMoveType } from "@/types/moveTypes";
 import { formatDateToKr } from "@/utils/constant/formatDateToKr";
 import OrderCard from "@/components/ui/card/OrderCard";
 import { REQUEST_STATUS } from "@/types/statement";
+import { QUOTATION_STATEMENT } from "@/types/statement";
 interface ReceivedQuotationProps {
   requestInfo: ApiCustomerRequestWithQuotations;
   quotations?: {
