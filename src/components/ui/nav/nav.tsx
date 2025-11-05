@@ -17,7 +17,12 @@ import { getWeather } from "@/utils/hook/landing/landing";
 import WeeklyForecastPanel from "../WeeklyForecastPanel";
 import { useProfileQuery } from "@/hooks/useProfileQuery";
 import { useNotifications } from "@/utils/hook/notification/useNotifications";
-import { NotificationItem } from "@/lib/apis/notification";
+import {
+  NotificationItem,
+  NotificationType,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+} from "@/lib/apis/notification";
 
 interface NavProps {
   option?: string;
@@ -62,7 +67,41 @@ export default function Nav({ option }: NavProps) {
     enabled: isLoggedIn,
   });
   const notifications: NotificationItem[] = data?.pages.flatMap((page) => page.items) ?? [];
-  const notificationMessages = notifications.map((n) => n.message ?? "새 알림이 있습니다.");
+  const notificationMessages = notifications.map((n) => n.content ?? "새 알림이 있습니다.");
+
+  const handleNotificationClick = async (item: NotificationItem) => {
+    try {
+      await markNotificationAsRead(item.id);
+
+      const redirectMap: Record<NotificationType, string> = {
+        NEW_QUOTATION: "/request",
+        QUOTATION_ACCEPTED: "/quotation/sent",
+        NEW_MESSAGE: "/chat",
+        REVIEW_RECEIVED: "/mypage",
+        INVITE_RECEIVED: "/request",
+        INVITE_CANCELLED: "/driverList",
+        REQUEST_CONCLUDED: "/request",
+        REQUEST_COMPLETED: "/review",
+        REQUEST_EXPIRED: "/request/write",
+        MOVE_DAY_REMINDER: "",
+      };
+      const targetUrl = redirectMap[item.type as NotificationType];
+
+      if (targetUrl) router.push(targetUrl);
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    } catch (error) {
+      console.error("알림 클릭 처리 실패:", error);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await markAllNotificationsAsRead([]);
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    } catch (error) {
+      console.error("전체 읽음 처리 실패:", error);
+    }
+  };
 
   const cityMap: { [key: string]: string } = {
     Seoul: "서울",
@@ -326,7 +365,7 @@ export default function Nav({ option }: NavProps) {
                   height={100}
                   onClick={() => setIsNotificationOpen((prev) => !prev)}
                 />
-                {notifications.some((n) => !n.isRead) && (
+                {notifications.some((n) => !n.readAt) && (
                   <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-red-500"></span>
                 )}
 
@@ -341,15 +380,28 @@ export default function Nav({ option }: NavProps) {
                         ? ["불러오는 중..."]
                         : isError
                           ? ["알림을 불러오지 못했습니다."]
-                          : notificationMessages.length > 0
-                            ? notificationMessages
+                          : notifications.length > 0
+                            ? notifications.map((n) => n.content ?? "새 알림이 있습니다.")
                             : ["새 알림이 없습니다."]
                     }
                     onSelect={(opt) => {
-                      console.log("알림 클릭:", opt);
+                      const clicked = notifications.find((n) => n.content === opt);
+                      if (clicked) handleNotificationClick(clicked);
                       setIsNotificationOpen(false);
                     }}
-                    header={<p className="font-semibold text-gray-800">알림</p>}
+                    header={
+                      <div className="flex items-center justify-between">
+                        <p className="font-semibold text-gray-800">알림</p>
+                        {notifications.length > 0 && (
+                          <button
+                            onClick={handleMarkAllAsRead}
+                            className="text-primary text-sm hover:underline"
+                          >
+                            전체 읽음
+                          </button>
+                        )}
+                      </div>
+                    }
                   />
                 )}
               </div>
