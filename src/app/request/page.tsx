@@ -12,7 +12,7 @@ import FilterContainer from "@/components/ui/Modal/FilterContainer";
 import NodataArea from "@/components/ui/nodata/NodataArea";
 import { useReceivedRequests, useFilteredRequests } from "@/hooks/useReceivedRequests";
 import { MoveType } from "@/types/moveTypes";
-import { ReceivedRequestFilter } from "@/types/receivedRequest";
+import { ReceivedRequestFilter, ReceivedRequestsResponse } from "@/types/receivedRequest";
 
 export default function RequestPage() {
   const [sortTech, setSortTech] = useState("이사 빠른 순");
@@ -21,30 +21,34 @@ export default function RequestPage() {
   const [filterOpen, setFilterOpen] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [hiddenRequestIds, setHiddenRequestIds] = useState<Set<string>>(new Set());
+  const [responseData, setResponseData] = useState<ReceivedRequestsResponse>([]);
+
   const { data: baseData, isLoading, isError } = useReceivedRequests();
   const { mutate: filterRequests, data: filteredData, isPending } = useFilteredRequests();
 
-  const responseData = filteredData ?? baseData ?? [];
+  useEffect(() => {
+    if (isPending) return;
+
+    if (filteredData) {
+      setResponseData(filteredData);
+    } else if (baseData && responseData.length === 0) {
+      setResponseData(baseData);
+    }
+  }, [filteredData, baseData, isPending, responseData.length]);
 
   const handleReject = (requestId: string) => {
     setHiddenRequestIds((prev) => new Set([...prev, requestId]));
   };
 
   const sortedData = useMemo(() => {
-    if (!Array.isArray(responseData) || responseData.length === 0) return [];
-
-    console.log("정렬 시작 - sortTech:", sortTech);
-
-    type ReceivedRequestItem = (typeof responseData)[0];
+    if (responseData.length === 0) return [];
 
     const visibleData = responseData.filter((item) => !hiddenRequestIds.has(item.id));
 
-    // 1. 먼저 isInvited로 그룹 분리
     const invitedItems = visibleData.filter((item) => item.isInvited);
     const normalItems = visibleData.filter((item) => !item.isInvited);
 
-    // 2. 각 그룹 내에서 정렬
-    const sortFn = (a: ReceivedRequestItem, b: ReceivedRequestItem) => {
+    const sortFn = (a: (typeof responseData)[number], b: (typeof responseData)[number]) => {
       if (sortTech === "이사 빠른 순") {
         return new Date(a.moveAt).getTime() - new Date(b.moveAt).getTime();
       } else if (sortTech === "요청일 빠른 순") {
@@ -53,34 +57,11 @@ export default function RequestPage() {
       return 0;
     };
 
-    const sortedInvited = [...invitedItems].sort(sortFn);
-    const sortedNormal = [...normalItems].sort(sortFn);
-
-    // 3. 지정 견적 요청을 앞에 배치
-    const result = [...sortedInvited, ...sortedNormal];
-
-    console.log("정렬 완료:", {
-      total: result.length,
-      invited: sortedInvited.length,
-      normal: sortedNormal.length,
-      hidden: hiddenRequestIds.size,
-      first3: result.slice(0, 3).map((item) => ({
-        name: item.consumerName,
-        isInvited: item.isInvited,
-        moveAt: item.moveAt,
-      })),
-    });
-
-    return result;
+    return [...invitedItems.sort(sortFn), ...normalItems.sort(sortFn)];
   }, [responseData, sortTech, hiddenRequestIds]);
 
   const filterCounts = useMemo(() => {
-    const source = filteredData ?? baseData;
-    if (!Array.isArray(source)) {
-      return { moveType: {}, invited: 0, region: 0 };
-    }
-
-    const visibleData = source.filter((item) => !hiddenRequestIds.has(item.id));
+    const visibleData = responseData.filter((item) => !hiddenRequestIds.has(item.id));
 
     const counts = {
       moveType: {} as Record<MoveType, number>,
@@ -91,13 +72,12 @@ export default function RequestPage() {
     for (const item of visibleData) {
       const type = item.serviceType as MoveType;
       counts.moveType[type] = (counts.moveType[type] || 0) + 1;
-
       if (item.isInvited) counts.invited += 1;
       if (item.departureAddress) counts.region += 1;
     }
 
     return counts;
-  }, [baseData, filteredData, hiddenRequestIds]);
+  }, [responseData, hiddenRequestIds]);
 
   const handleFilterApply = () => {
     const filter: ReceivedRequestFilter = {
@@ -105,18 +85,14 @@ export default function RequestPage() {
       isInvited: filterTypeSelected.includes("invited") ? true : undefined,
       consumerName: searchKeyword || undefined,
     };
-    if (sortTech === "이사 빠른 순") {
-      filter.sortByMoveAt = "asc";
-    } else if (sortTech === "요청일 빠른 순") {
-      filter.sortByCreatedAt = "asc";
-    }
+    if (sortTech === "이사 빠른 순") filter.sortByMoveAt = "asc";
+    else if (sortTech === "요청일 빠른 순") filter.sortByCreatedAt = "asc";
 
     console.log("필터 요청 payload:", filter);
     filterRequests(filter);
     setHiddenRequestIds(new Set());
   };
 
-  // 1. toggle에서는 상태만 갱신
   const toggleMoveType = (value: string) => {
     setMoveTypeSelected((prev) =>
       prev.includes(value as MoveType)
@@ -131,7 +107,6 @@ export default function RequestPage() {
     );
   };
 
-  // 2. 최신 상태 기반 자동 필터링 (useEffect로 변경 감지)
   useEffect(() => {
     handleFilterApply();
   }, [moveTypeSelected, filterTypeSelected, sortTech, searchKeyword]);
@@ -156,8 +131,10 @@ export default function RequestPage() {
               filterCounts={filterCounts}
             />
           </div>
+
           <div className="flex flex-1 flex-col gap-3 md:gap-4 lg:gap-8">
-            <SearchBar value={searchKeyword} onChange={(value) => setSearchKeyword(value)} />
+            <SearchBar value={searchKeyword} onChange={setSearchKeyword} />
+
             <div className="flex items-center justify-between py-1">
               <p className="min-h-7 text-sm lg:min-h-0 lg:text-base">전체 {sortedData.length}건</p>
               <div className="flex items-center gap-2">
@@ -171,11 +148,12 @@ export default function RequestPage() {
                 </button>
               </div>
             </div>
+
             <div className="flex flex-col gap-6 md:gap-8 lg:gap-12">
               {sortedData.length > 0 ? (
-                sortedData.map((cardData, index) => (
+                sortedData.map((cardData) => (
                   <RequestCard
-                    key={cardData.id || index}
+                    key={cardData.id}
                     user={{
                       userId: cardData.consumerId,
                       name: cardData.consumerName,
