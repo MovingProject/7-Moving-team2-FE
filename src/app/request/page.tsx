@@ -182,7 +182,20 @@ export default function RequestPage() {
         </div>
       </div>
 
-      {filterOpen && <FilterContainer isOpen={filterOpen} onClose={() => setFilterOpen(false)} />}
+      {filterOpen && (
+        <FilterContainer
+          isOpen={filterOpen}
+          onClose={() => {
+            setFilterOpen(false);
+          }}
+          onApply={({ moveTypes, filterTypes }) => {
+            setMoveTypeSelected(moveTypes as MoveType[]);
+            setFilterTypeSelected(filterTypes);
+            handleFilterApply();
+            setFilterOpen(false);
+          }}
+        />
+      )}
     </>
   );
 }
