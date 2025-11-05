@@ -130,7 +130,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     // TODO: .env 파일에 NEXT_PUBLIC_SOCKET_URL 설정 필요 (예: http://localhost:3001)
-    const socketUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+    const socketUrl = process.env.NEXT_PUBLIC_WS_URL || "http://localhost:4000";
     connectSocket(socketUrl);
 
     // 컴포넌트가 언마운트될 때 소켓 연결 해제
