@@ -16,6 +16,8 @@ import Link from "next/link";
 import { getWeather } from "@/utils/hook/landing/landing";
 import WeeklyForecastPanel from "../WeeklyForecastPanel";
 import { useProfileQuery } from "@/hooks/useProfileQuery";
+import { useNotifications } from "@/utils/hook/notification/useNotifications";
+import { NotificationItem } from "@/lib/apis/notification";
 
 interface NavProps {
   option?: string;
@@ -56,12 +58,12 @@ export default function Nav({ option }: NavProps) {
   const cityDropdownRef = useRef<HTMLDivElement>(null);
   const weeklyPanelRef = useRef<HTMLDivElement>(null);
 
-  // 알림 목업 데이터
-  const notifications = [
-    "새로운 견적 요청이 도착했습니다.",
-    "고객님이 견적을 수락했습니다.",
-    "채팅방에 새 메시지가 있습니다.",
-  ];
+  const { data, isLoading, isError } = useNotifications({
+    enabled: isLoggedIn,
+  });
+  const notifications: NotificationItem[] = data?.pages.flatMap((page) => page.items) ?? [];
+  const notificationMessages = notifications.map((n) => n.message ?? "새 알림이 있습니다.");
+
   const cityMap: { [key: string]: string } = {
     Seoul: "서울",
     Busan: "부산",
@@ -324,13 +326,25 @@ export default function Nav({ option }: NavProps) {
                   height={100}
                   onClick={() => setIsNotificationOpen((prev) => !prev)}
                 />
+                {notifications.some((n) => !n.isRead) && (
+                  <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-red-500"></span>
+                )}
+
                 {isNotificationOpen && (
                   <Dropdown
                     type="notification"
                     layout="default"
                     scroll="scrollable"
                     position="right"
-                    options={notifications}
+                    options={
+                      isLoading
+                        ? ["불러오는 중..."]
+                        : isError
+                          ? ["알림을 불러오지 못했습니다."]
+                          : notificationMessages.length > 0
+                            ? notificationMessages
+                            : ["새 알림이 없습니다."]
+                    }
                     onSelect={(opt) => {
                       console.log("알림 클릭:", opt);
                       setIsNotificationOpen(false);
