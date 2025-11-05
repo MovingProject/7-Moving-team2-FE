@@ -23,6 +23,7 @@ import {
   markNotificationAsRead,
   markAllNotificationsAsRead,
 } from "@/lib/apis/notification";
+import { signoutApi } from "@/lib/apis/authApi";
 
 interface NavProps {
   option?: string;
@@ -131,10 +132,7 @@ export default function Nav({ option }: NavProps) {
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/auth/signout", {
-        method: "POST",
-        credentials: "include",
-      });
+      await signoutApi();
     } catch (e) {
       console.error("로그아웃 실패:", e);
     } finally {
