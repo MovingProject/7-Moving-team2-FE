@@ -32,13 +32,13 @@ export default function MovingInfoViewer({ info, infoType = "review" }: MovingIn
       return (
         <div className="flex flex-col gap-x-4 gap-y-2 text-xs md:flex-row md:divide-x md:divide-gray-300 lg:gap-x-6 lg:text-base">
           <dl className="flex items-center gap-2 pr-2.5 lg:pr-6">
-            <dt className="rounded border border-gray-300 bg-gray-100 px-2 py-0.5 text-gray-500">
-              제공 서비스
+            <dt className="rounded border border-gray-300 bg-gray-100 px-2 py-0.5 whitespace-pre-line text-gray-500 md:whitespace-nowrap">
+              제공{"\n"}서비스
             </dt>
             <dd className="flex gap-1.5 text-gray-800">{info.serviceTypes?.join(", ")}</dd>
           </dl>
-          <dl className="flex items-center gap-2">
-            <dt className="rounded border border-gray-300 bg-gray-100 px-2 py-0.5 text-gray-500">
+          <dl className="flex items-center gap-4.5 md:gap-2">
+            <dt className="rounded border border-gray-300 bg-gray-100 px-2 py-0.5 whitespace-nowrap text-gray-500">
               지역
             </dt>
             <dd className="flex gap-1.5 text-gray-800">{info.serviceAreas?.join(", ")}</dd>
