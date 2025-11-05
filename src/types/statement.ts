@@ -4,7 +4,7 @@ export const REQUEST_STATUS = {
     description: "요청이 접수되었지만 아직 처리되지 않은 상태입니다.",
   },
   CONCLUDED: {
-    label: "진행 중",
+    label: "진행 확정",
     description: "요청이 승인되어 일정이나 거래가 확정된 상태입니다.",
   },
   COMPLETE: {
