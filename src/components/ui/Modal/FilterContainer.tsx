@@ -8,9 +8,10 @@ import { MOVE_TYPE_OPTIONS, CHECK_FILTER_OPTIONS } from "../Filters/filterOption
 interface FilterContainerProps {
   isOpen: boolean;
   onClose: () => void;
+  onApply?: (next: { moveTypes: string[]; filterTypes: string[] }) => void;
 }
 
-export default function FilterContainer({ isOpen, onClose }: FilterContainerProps) {
+export default function FilterContainer({ isOpen, onClose, onApply }: FilterContainerProps) {
   const [isDesktop, setIsDesktop] = useState(false);
 
   // 화면 크기 감지 (1024px 기준)
@@ -71,6 +72,12 @@ export default function FilterContainer({ isOpen, onClose }: FilterContainerProp
       onToggleMove={toggleMoveType}
       filterSelected={filterSelected}
       onToggleFilter={toggleFilterType}
+      onApply={() => {
+        onApply?.({
+          moveTypes: moveTypeSelected,
+          filterTypes: filterSelected,
+        });
+      }}
     />
   );
 }
