@@ -14,6 +14,7 @@ import WelcomeOverlay from "@/components/WelcomeOverlay";
 import { useLogin } from "@/utils/hook/auth/useLogin";
 import axios from "axios";
 import SocialLogin from "../login/components/SocialLogin";
+import { useRoleStore } from "@/store/roleStore";
 
 export default function Signup() {
   const fields = [
@@ -40,7 +41,7 @@ export default function Signup() {
   ];
 
   // local UI state
-  const [role, setRole] = useState<"CONSUMER" | "DRIVER">("CONSUMER");
+  const { role, setRole } = useRoleStore();
   const phoneRef = useRef<HTMLInputElement>(null);
 
   // hook 상태 / 유효성 함수
