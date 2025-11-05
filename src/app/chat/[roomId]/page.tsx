@@ -43,6 +43,16 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
     ? { id: user.id, name: user.name, role: user.role.toLowerCase() as "consumer" | "driver" }
     : { id: "", name: "게스트", role: "consumer" as const };
 
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    document.body.style.scrollbarGutter = "stable";
+
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.scrollbarGutter = "";
+    };
+  }, []);
+
   // 현재 사용자 정보를 chatStore에 설정
   useEffect(() => {
     if (user) {
