@@ -55,11 +55,9 @@ apiClient.interceptors.response.use(
 
       try {
         // refresh는 토큰 갱신만 (user 데이터 건드리지 않음)
-        await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
-          {},
-          { withCredentials: true }
-        );
+        // 백엔드의 실제 경로로 직접 호출하여 쿠키 path와 일치시킴
+        const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+        await axios.post(`${backendUrl}/auth/refresh`, {}, { withCredentials: true });
 
         // user는 localStorage에서 자동 복원
         // refresh 성공했으니 원래 요청 재시도
