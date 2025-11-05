@@ -11,6 +11,7 @@ interface FilterModalProps {
   onToggleMove: (value: string) => void;
   filterSelected: string[];
   onToggleFilter: (value: string) => void;
+  onApply?: () => void;
 }
 
 export default function FilterModal({
@@ -20,13 +21,17 @@ export default function FilterModal({
   onToggleMove,
   filterSelected,
   onToggleFilter,
+  onApply,
 }: FilterModalProps) {
   if (!isOpen) return null;
 
   return (
     <Modal
       type="filter"
-      onClose={onClose}
+      onClose={() => {
+        onApply?.();
+        onClose();
+      }}
       className={(size) =>
         size === "sm"
           ? "fixed bottom-[-250px] max-h-[90vh] w-full rounded-t-4xl"
