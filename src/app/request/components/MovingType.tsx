@@ -80,7 +80,7 @@ const MovingType: React.FC<StepProps> = ({ onNext, isCompleted, onEdit }) => {
           <div className="flex flex-col items-end">
             <ChatBubble message={summaryValue} theme="primary" isMe={true} />
             <Button
-              className="border-0 bg-transparent px-0 text-xs underline hover:bg-transparent"
+              className="!text-primary border-0 bg-transparent px-0 !text-base underline hover:bg-transparent"
               text="수정하기"
               onClick={onEdit}
               textColor="text-gray-600"
