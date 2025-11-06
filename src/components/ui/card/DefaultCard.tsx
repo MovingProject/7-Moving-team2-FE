@@ -30,7 +30,7 @@ export default function DefaultCard({
   return (
     <BaseCard className="gap-[14px] border border-gray-300 bg-white px-[14px] py-4 lg:gap-4 lg:px-6 lg:py-5">
       <div className="flex justify-between">
-        <div className="flex flex-wrap gap-2 md:flex-nowrap">
+        <div className="flex flex-wrap gap-2">
           {isInvited && <Tag type="requestQuote" content="지정 견적 요청" />}
           {driverServiceTypes?.map((tag, index) => (
             <Tag
