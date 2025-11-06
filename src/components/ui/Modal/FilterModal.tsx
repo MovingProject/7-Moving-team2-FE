@@ -33,9 +33,7 @@ export default function FilterModal({
         onClose();
       }}
       className={(size) =>
-        size === "sm"
-          ? "fixed bottom-[-250px] max-h-[90vh] w-full rounded-t-4xl"
-          : "h-auto w-[375px] rounded-4xl"
+        size === "sm" ? "mx-5 h-auto max-w-[375px] rounded-4xl" : "h-auto w-[375px] rounded-4xl"
       }
     >
       <div className="flex justify-center">
