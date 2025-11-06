@@ -39,54 +39,35 @@ export const useProfileQuery = (options?: UseProfileQueryOptions) => {
     queryFn: async () => {
       try {
         const data = await getUserProfile();
-        if (data.role === "DRIVER") {
-          const completedCount = await getConfirmedQuotationCount();
-          const driverProfile = data.profile as DriverProfileData;
-          const updatedProfile: DriverProfileData = {
-            ...driverProfile,
-            confirmedCount: completedCount,
-          };
-          data.profile = updatedProfile;
-        }
+
         setUiUser(data);
         const mapped = mapUserDataToAuthUser(data, authUser);
         setAuthUser(mapped);
 
         return data;
       } catch (error) {
-        // 인터셉터에서 처리한 "프로필 없음" 에러
         const profileError = error as ProfileNotFoundError;
         if (profileError._isProfileNotFound) {
           console.log("[useProfileQuery] 프로필이 아직 등록되지 않았습니다.");
           return null;
         }
 
-        // Axios 에러 처리
         const axiosError = error as AxiosError<ErrorResponse>;
         const status = axiosError.response?.status;
         const responseData = axiosError.response?.data;
         const message = responseData?.message || responseData?.error || "";
 
-        console.log("[useProfileQuery] 에러 상세:", {
-          status,
-          message,
-          responseData,
-        });
-
-        // 404는 정상 상황으로 처리
         if (status === 404) {
           console.log("[useProfileQuery] 프로필이 아직 등록되지 않았습니다.");
           return null;
         }
 
-        // 401 (인증 에러)는 로그아웃 처리
         if (status === 401) {
           console.error("[useProfileQuery] 인증 만료 - 로그아웃 처리");
           clearUiUser();
           throw error;
         }
 
-        // 다른 에러는 일단 로그만 남기고 null 반환 (로그아웃 안 함)
         console.error("[useProfileQuery] 프로필 조회 실패:", error);
         return null;
       }
@@ -95,7 +76,6 @@ export const useProfileQuery = (options?: UseProfileQueryOptions) => {
     refetchOnMount: true,
     retry: false,
     throwOnError: false,
-
     enabled: !!authUser && authUser.isProfileRegistered !== false,
   });
 
