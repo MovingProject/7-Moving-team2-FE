@@ -3,10 +3,16 @@ import { updateUserProfile, updateBasicInfo, getUserProfile } from "@/utils/hook
 import { useUserStore } from "@/store/userStore";
 import { useAuthStore } from "@/store/authStore";
 import { mapUserDataToAuthUser } from "@/utils/mappers/useMappers";
-import { UserData, UpdateUserProfileRequest, UpdateBasicInfoRequest } from "@/types/card";
+import {
+  UserData,
+  UpdateUserProfileRequest,
+  UpdateBasicInfoRequest,
+  DriverProfileData,
+} from "@/types/card";
 import { createDriverProfile, CreateDriverProfileRequest } from "@/lib/apis/driverProfileApi";
 import { createConsumerProfile, CreateConsumerProfileRequest } from "@/lib/apis/consumerProfileApi";
 import { AxiosError } from "axios";
+import { getConfirmedQuotationCount } from "@/lib/apis/quotationApi";
 
 interface UseProfileQueryOptions {
   enabled?: boolean;
@@ -33,6 +39,15 @@ export const useProfileQuery = (options?: UseProfileQueryOptions) => {
     queryFn: async () => {
       try {
         const data = await getUserProfile();
+        if (data.role === "DRIVER") {
+          const completedCount = await getConfirmedQuotationCount();
+          const driverProfile = data.profile as DriverProfileData;
+          const updatedProfile: DriverProfileData = {
+            ...driverProfile,
+            confirmedCount: completedCount,
+          };
+          data.profile = updatedProfile;
+        }
         setUiUser(data);
         const mapped = mapUserDataToAuthUser(data, authUser);
         setAuthUser(mapped);
