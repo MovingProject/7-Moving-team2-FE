@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import useChatStore from "@/store/chatStore";
-import { useAuthStore } from "@/store/authStore";
-import QuotationModal from "@/components/chat/QuotationModal";
 import QuotationMessage from "@/components/chat/QuotationMessage";
+import QuotationModal from "@/components/chat/QuotationModal";
 import { getChatMessages } from "@/lib/apis/chatApi";
-import { WebSocketNewMessageData, BackendChatMessage, Message } from "@/types/chat";
 import { getRequestById } from "@/services/requestService";
+import { useAuthStore } from "@/store/authStore";
+import useChatStore from "@/store/chatStore";
+import { BackendChatMessage, Message, WebSocketNewMessageData } from "@/types/chat";
 import { RequestDetail } from "@/types/request";
+import Image from "next/image";
+import React, { useEffect, useRef, useState } from "react";
 
 // 이 페이지는 클라이언트 측에서 동적으로 렌더링됩니다.
 export default function ChatRoomPage({ params }: { params: Promise<{ roomId: string }> }) {
@@ -546,6 +547,8 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
       },
     });
   };
+  const isDriver = currentUser.role === "driver";
+  const isFirstMessage = messages.length === 0;
 
   if (isLoading) {
     return (
@@ -589,6 +592,21 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
           <div className="py-2 text-center text-sm text-gray-500">과거 메시지 로딩 중...</div>
         )}
         <div className="space-y-4 md:space-y-6">
+          {!isLoading && messages.length === 0 && currentUser.role === "driver" && (
+            <div className="flex h-full items-center justify-center py-3">
+              <div className="rounded-xl bg-white p-4 text-center shadow md:p-6">
+                <p className="text-sm font-semibold text-gray-800 md:text-base">
+                  채팅방이 개설되었습니다.
+                </p>
+                <p className="mt-2 text-xs text-gray-500 md:text-sm">
+                  첫 채팅은 견적서로만 시작할 수 있습니다.
+                  <br />
+                  아래 <span className="font-semibold">💼 견적</span> 버튼을 눌러 견적서를 먼저
+                  전송해 주세요.
+                </p>
+              </div>
+            </div>
+          )}
           {messages.map((msg) => {
             const isMe = msg.senderId === currentUser.id;
 
@@ -611,10 +629,12 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
               <div key={msg.id} className={`flex items-end gap-2 ${isMe ? "justify-end" : ""}`}>
                 {!isMe &&
                   (otherUserImage ? (
-                    <img
+                    <Image
                       src={otherUserImage}
                       alt={otherUserName}
-                      className="h-8 w-8 rounded-full object-cover"
+                      width={32}
+                      height={32}
+                      className="rounded-full object-cover"
                     />
                   ) : (
                     <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-indigo-200 text-sm font-bold text-blue-500">
@@ -677,7 +697,11 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
           )}
           <input
             type="text"
-            placeholder="메시지를 입력하세요…"
+            placeholder={
+              isDriver && isFirstMessage
+                ? "첫 메시지는 견적서만 전송할 수 있습니다."
+                : "메시지를 입력하세요…"
+            }
             className="h-full flex-1 rounded-full bg-gray-100 px-3 text-sm outline-none md:px-4 md:text-base"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
@@ -685,6 +709,7 @@ export default function ChatRoomPage({ params }: { params: Promise<{ roomId: str
           <button
             type="submit"
             className="bg-primary flex h-8 w-16 items-center justify-center rounded-full text-sm font-medium text-white md:h-10 md:w-20 md:text-base"
+            disabled={isFirstMessage}
           >
             전송
           </button>
