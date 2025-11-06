@@ -63,12 +63,12 @@ const variantMap: Record<Variant, string> = {
   primary: clsx(
     "bg-primary text-white",
     "border-none cursor-pointer",
-    "hover:bg-primary-softer active:bg-primary-dark",
+    "hover:bg-primary-softer",
     "disabled:bg-gray-200 disabled:text-gray-500 disabled:border-none disabled:cursor-not-allowed"
   ),
   secondary: clsx(
     "bg-white text-primary border border-primary",
-    "cursor-pointer hover:bg-primary-light active:bg-primary-dark",
+    "cursor-pointer hover:bg-primary-light",
     "disabled:bg-gray-200 disabled:text-gray-500 disabled:border-none disabled:cursor-not-allowed"
   ),
 };
