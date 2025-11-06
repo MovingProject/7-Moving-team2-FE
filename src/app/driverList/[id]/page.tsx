@@ -122,7 +122,7 @@ export default function DriverDetailPage() {
     <main className="min-h-screen w-full bg-white px-8 py-10 md:px-20 lg:px-5 xl:px-60">
       {renderLoginModal}
       {popup && (
-        <div className="absolute top-[70px] left-1/2 z-50 flex w-full -translate-x-1/2 justify-center">
+        <div className="fixed inset-x-0 bottom-200 z-[100] flex justify-center px-4 lg:top-[70px] lg:bottom-auto">
           <Popup type={popup.type} message={popup.message} onClose={() => setPopup(null)} />
         </div>
       )}
