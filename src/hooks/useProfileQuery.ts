@@ -39,7 +39,7 @@ export const useProfileQuery = (options?: UseProfileQueryOptions) => {
     queryFn: async () => {
       try {
         const data = await getUserProfile();
-
+        console.log("[useProfileQuery] fetched user profile:", data);
         setUiUser(data);
         const mapped = mapUserDataToAuthUser(data, authUser);
         setAuthUser(mapped);

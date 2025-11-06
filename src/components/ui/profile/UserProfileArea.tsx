@@ -54,36 +54,30 @@ export default function UserProfileArea({
 
   const averageRating = ratingData?.averageRating ?? driverProfile?.rating ?? 0;
   const totalReviews = ratingData?.totalReviews ?? driverProfile?.reviewCount ?? 0;
+  console.log("[UserProfileArea] driverProfile:", driverProfile);
+  console.log("[UserProfileArea] confirmedCount (from profile):", driverProfile?.confirmedCount);
 
-  const movingInfo: MovingInfo = useMemo(() => {
-    if (!driverProfile) return {} as MovingInfo;
-
-    const price = quotation?.price;
-    const moveAt = request?.moveAt;
-
-    const info: MovingInfo = {
-      reviewCount: totalReviews,
-      rating: Number(averageRating.toFixed(1)),
-      careerYears: driverProfile.careerYears,
-      confirmedCount: driverProfile.confirmedCount,
-      serviceAreas:
-        driverProfile.driverServiceAreas?.map(
-          (areaKey) => AreaMap[areaKey as AreaType] ?? "알 수 없음"
-        ) ?? [],
-      serviceTypes:
-        driverProfile.driverServiceTypes
-          ?.map((type) => MoveTypeMap[type as ServerMoveType]?.content ?? "알 수 없음")
-          .filter(Boolean) ?? [],
-      price,
-      moveAt,
-    };
-
-    return info;
-  }, [driverProfile, quotation?.price, request?.moveAt, averageRating, totalReviews]);
+  const movingInfo: MovingInfo = {
+    reviewCount: totalReviews,
+    rating: Number(averageRating.toFixed(1)),
+    careerYears: driverProfile?.careerYears,
+    confirmedCount: driverProfile?.confirmedCount,
+    serviceAreas:
+      driverProfile?.driverServiceAreas?.map(
+        (areaKey) => AreaMap[areaKey as AreaType] ?? "알 수 없음"
+      ) ?? [],
+    serviceTypes:
+      driverProfile?.driverServiceTypes
+        ?.map((type) => MoveTypeMap[type as ServerMoveType]?.content ?? "알 수 없음")
+        .filter(Boolean) ?? [],
+    price: quotation?.price,
+    moveAt: request?.moveAt,
+  };
 
   if (!user) return null;
 
   console.log("driverProfile.oneLiner", driverProfile?.oneLiner);
+  console.log("[UserProfileArea] movingInfo passed to Viewer:", movingInfo);
 
   return (
     <div className={`relative flex items-center gap-3 ${className ?? ""}`}>
