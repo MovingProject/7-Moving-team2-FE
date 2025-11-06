@@ -46,6 +46,7 @@ export default function MovingInfoViewer({ info, infoType = "review" }: MovingIn
         </div>
       );
     case "review":
+      console.log("[MovingInfoViewer] props.info.confirmedCount:", info.confirmedCount);
       return (
         <div className="flex items-center gap-2.5 text-xs lg:gap-4 lg:text-base">
           <dl className="flex items-center gap-2">
