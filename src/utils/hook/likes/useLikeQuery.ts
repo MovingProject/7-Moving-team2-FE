@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient, InfiniteData } from "@tanstack/react-query";
 import apiClient from "@/lib/apiClient";
-import { DriverListResponse } from "@/types/driver";
+import { DriverListResponse, DriverDetailItem } from "@/types/driver";
 
 interface LikeDriverResponse {
   liked: boolean;
@@ -54,9 +54,18 @@ export const useLikeDriver = () => {
       }
     },
 
-    // 성공 시 굳이 invalidate 하지 않음 (서버와 UI 동기화 이미 맞음)
-    onSuccess: () => {
-      // 다른 목록(찜한 기사님)만 새로고침
+    onSuccess: (res, driverId) => {
+      const detailKey = ["driverDetail", driverId] as const;
+      const oldDetail = queryClient.getQueryData<DriverDetailItem>(detailKey);
+
+      if (oldDetail) {
+        queryClient.setQueryData<DriverDetailItem>(detailKey, {
+          ...oldDetail,
+          isLikedByCurrentUser: true,
+          likeCount: (oldDetail.likeCount ?? 0) + 1,
+        });
+      }
+
       queryClient.invalidateQueries({ queryKey: ["likedDrivers"] });
     },
 
