@@ -77,10 +77,30 @@ export default function Landing() {
 
         {/* 데스크톱 레이아웃 */}
         <div className="hidden lg:flex lg:items-start lg:justify-center lg:gap-6">
-          <Image src={MovingSmallMd.src} alt="소형이사" width={432} height={508} />
-          <div className="flex flex-col gap-6">
-            <Image src={MovingHomeMd.src} alt="가정이사" width={764} height={241} />
-            <Image src={MovingBusinessMd.src} alt="기업, 사무실 이사" width={764} height={241} />
+          <div className="min-w-0 flex-1">
+            <Image
+              src={MovingSmallMd.src}
+              alt="소형이사"
+              width={432}
+              height={508}
+              className="h-auto w-full object-contain"
+            />
+          </div>
+          <div className="flex min-w-0 flex-[1.5] flex-col gap-6">
+            <Image
+              src={MovingHomeMd.src}
+              alt="가정이사"
+              width={764}
+              height={241}
+              className="h-auto w-full object-contain"
+            />
+            <Image
+              src={MovingBusinessMd.src}
+              alt="기업, 사무실 이사"
+              width={764}
+              height={241}
+              className="h-auto w-full object-contain"
+            />
           </div>
         </div>
 
