@@ -65,7 +65,7 @@ export default function DriverListPage() {
       sort: sortMap[sort] ?? "REVIEW_DESC",
       area: areaKey,
       type: typeKey,
-      keyword: query.trim() || undefined,
+      search: query.trim() || undefined,
     };
   }, [region, service, sort, query]);
 
