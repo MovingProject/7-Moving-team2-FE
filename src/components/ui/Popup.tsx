@@ -61,7 +61,7 @@ export default function Popup({
           className="h-4 w-4 shrink-0 md:h-5 md:w-5"
         />
       )}
-      <p>{message}</p>
+      <p className="whitespace-nowrap">{message}</p>
     </div>
   );
 }
