@@ -16,6 +16,11 @@ export const likeDriver = async (driverId: string): Promise<LikeDriverResponse> 
   return res.data.data;
 };
 
+export const unlikeDriver = async (driverId: string): Promise<void> => {
+  await apiClient.delete(`/drivers/${driverId}/likes`);
+};
+
+// 좋아요 추가 전용 훅 (리스트 페이지 & 상세 페이지 공용)
 export const useLikeDriver = () => {
   const queryClient = useQueryClient();
 
@@ -23,9 +28,19 @@ export const useLikeDriver = () => {
     mutationFn: likeDriver,
 
     onMutate: async (driverId: string) => {
-      // 쿼리 정지
       await queryClient.cancelQueries({ queryKey: ["driverListInfinite"], exact: false });
+      await queryClient.cancelQueries({ queryKey: ["driverDetail", driverId] });
 
+      // 상세 페이지 현재 상태 확인
+      const detailKey = ["driverDetail", driverId] as const;
+      const oldDetail = queryClient.getQueryData<DriverDetailItem>(detailKey);
+
+      // 이미 찜한 상태면 낙관적 업데이트 안 함
+      if (oldDetail?.isLikedByCurrentUser) {
+        return { previousDetail: oldDetail, alreadyLiked: true };
+      }
+
+      // 리스트 페이지 낙관적 업데이트
       const caches = queryClient.getQueriesData<InfiniteData<DriverListResponse>>({
         queryKey: ["driverListInfinite"],
       });
@@ -52,12 +67,8 @@ export const useLikeDriver = () => {
         };
         queryClient.setQueryData(key, newData);
       }
-    },
 
-    onSuccess: (res, driverId) => {
-      const detailKey = ["driverDetail", driverId] as const;
-      const oldDetail = queryClient.getQueryData<DriverDetailItem>(detailKey);
-
+      // 상세 페이지 낙관적 업데이트
       if (oldDetail) {
         queryClient.setQueryData<DriverDetailItem>(detailKey, {
           ...oldDetail,
@@ -66,11 +77,64 @@ export const useLikeDriver = () => {
         });
       }
 
-      queryClient.invalidateQueries({ queryKey: ["likedDrivers"] });
+      return { previousDetail: oldDetail, alreadyLiked: false };
     },
 
-    onError: (error) => {
+    onSuccess: (res, driverId, context) => {
+      // 이미 찜한 상태였으면 invalidate만
+      if (context?.alreadyLiked) {
+        return;
+      }
+
+      queryClient.invalidateQueries({ queryKey: ["likedDrivers"] });
+
+      // 서버 응답이 liked: false면 롤백
+      if (!res.liked) {
+        const detailKey = ["driverDetail", driverId] as const;
+        const currentDetail = queryClient.getQueryData<DriverDetailItem>(detailKey);
+
+        if (currentDetail) {
+          queryClient.setQueryData<DriverDetailItem>(detailKey, {
+            ...currentDetail,
+            likeCount: Math.max((currentDetail.likeCount ?? 1) - 1, 0),
+            isLikedByCurrentUser: false,
+          });
+        }
+
+        // 리스트도 롤백
+        const caches = queryClient.getQueriesData<InfiniteData<DriverListResponse>>({
+          queryKey: ["driverListInfinite"],
+        });
+
+        for (const [key, oldData] of caches) {
+          if (!oldData) continue;
+          const newData = {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              items: page.items.map((driver) =>
+                driver.user.id === driverId
+                  ? {
+                      ...driver,
+                      profile: {
+                        ...driver.profile,
+                        isLikedByCurrentUser: false,
+                        likeCount: Math.max((driver.profile.likeCount ?? 1) - 1, 0),
+                      },
+                    }
+                  : driver
+              ),
+            })),
+          };
+          queryClient.setQueryData(key, newData);
+        }
+      }
+    },
+
+    onError: (error, driverId) => {
       console.error("좋아요 요청 실패:", error);
+      queryClient.invalidateQueries({ queryKey: ["driverDetail", driverId] });
+      queryClient.invalidateQueries({ queryKey: ["driverListInfinite"] });
     },
   });
 };

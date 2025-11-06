@@ -36,15 +36,36 @@ export default function DriverDetailPage() {
       setShowLoginModal(true);
       return;
     }
+    if (!driverId || !data) return;
 
-    if (!driverId) return;
+    if (data.isLikedByCurrentUser) {
+      setPopup({
+        type: "warning",
+        message: "이미 찜한 기사님입니다.",
+      });
+      return;
+    }
+
     likeMutate(driverId, {
-      onSuccess: (res) =>
+      onSuccess: (res) => {
+        if (res.liked) {
+          setPopup({
+            type: "info",
+            message: "찜한 기사님 목록에 추가되었습니다.",
+          });
+        } else {
+          setPopup({
+            type: "warning",
+            message: "이미 찜한 기사님입니다.",
+          });
+        }
+      },
+      onError: () => {
         setPopup({
-          type: res.liked ? "info" : "warning",
-          message: res.liked ? "찜한 기사님 목록에 추가되었습니다." : "이미 찜한 기사님입니다.",
-        }),
-      onError: () => setPopup({ type: "warning", message: "찜하기 중 오류가 발생했습니다." }),
+          type: "warning",
+          message: "찜하기 중 오류가 발생했습니다.",
+        });
+      },
     });
   };
 
@@ -102,7 +123,7 @@ export default function DriverDetailPage() {
   }
   const driverListShape = mapDriverDetailToDriverListShape(data);
   const cardData = mapDriverToCardData(driverListShape);
-  console.log(" driver detail raw data:", data);
+  const isLiked = data.isLikedByCurrentUser ?? false;
 
   const renderLoginModal = (
     <DefaultModal
@@ -219,7 +240,7 @@ export default function DriverDetailPage() {
             </h3>
             <Button
               variant="secondary"
-              text="❤ 기사님 찜하기"
+              text={isLiked ? "이미 찜한 기사님" : "❤ 기사님 찜하기"}
               onClick={handleLikeClick}
               disabled={isPending}
             />
