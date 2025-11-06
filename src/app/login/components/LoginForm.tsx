@@ -5,6 +5,7 @@ import { useLogin } from "@/utils/hook/auth/useLogin";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import { getUserProfile } from "@/utils/hook/profile/profile";
+import Alert from "@/components/ui/Modal/Alert";
 
 type LoginFormProps = {
   role: "DRIVER" | "CONSUMER";
@@ -20,6 +21,15 @@ export default function LoginForm({ role }: LoginFormProps) {
   const user = useAuthStore((s) => s.user);
 
   const { mutate: login, isPending } = useLogin();
+
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState<React.ReactNode>("");
+
+  // Alert 닫기 함수
+  const handleAlertClose = () => {
+    setIsAlertOpen(false);
+    setAlertMessage("");
+  };
 
   useEffect(() => {
     const savedEmail = localStorage.getItem("rememberEmail");
@@ -86,6 +96,15 @@ export default function LoginForm({ role }: LoginFormProps) {
         onError: () => {
           console.log("로그인실패");
           //TODO : 로그인실패 팝업 연동
+          // 🚨 Alert 상태 업데이트
+          setAlertMessage(
+            <>
+              이메일 또는 비밀번호가 일치하지 않습니다.
+              <br />
+              고객 및 기사 정보와 함께 로그인 계정 정보를 다시 확인해주세요.
+            </>
+          );
+          setIsAlertOpen(true);
         },
       }
     );
@@ -93,40 +112,43 @@ export default function LoginForm({ role }: LoginFormProps) {
 
   //TODO : FIX : INPUT에서 바꿔야할거생김 <input type:{} /> 이부분 조절할수있도록해야됨.
   return (
-    <div className="w-full max-w-[640px]">
-      <form className="flex w-full max-w-[640px] flex-col gap-3.5" onSubmit={handleSubmit}>
-        <label>이메일</label>
-        <Input
-          type="basic"
-          size="full"
-          errorPosition="right"
-          error={error}
-          onChange={handleEmailChange}
-          value={email}
-        ></Input>
-        <label className="mt-[8px]">비밀번호</label>
-        <Input
-          type="basic"
-          size="full"
-          errorPosition="right"
-          error={passwordError}
-          onChange={handlePasswordChange}
-          value={password}
-          inputType="password"
-        ></Input>
-        <label className="mt-3 flex items-center gap-2 text-sm text-gray-700">
-          <input
-            type="checkbox"
-            checked={remember}
-            onChange={(e) => setRemember(e.target.checked)}
-          />
-          로그인 정보 기억하기
-        </label>
-        <div className="m-4" />
-        <Button type="submit" disabled={isPending}>
-          {isPending ? "로그인 중..." : "로그인"}
-        </Button>
-      </form>
-    </div>
+    <>
+      <div className="w-full max-w-[640px]">
+        <form className="flex w-full max-w-[640px] flex-col gap-3.5" onSubmit={handleSubmit}>
+          <label>이메일</label>
+          <Input
+            type="basic"
+            size="full"
+            errorPosition="right"
+            error={error}
+            onChange={handleEmailChange}
+            value={email}
+          ></Input>
+          <label className="mt-[8px]">비밀번호</label>
+          <Input
+            type="basic"
+            size="full"
+            errorPosition="right"
+            error={passwordError}
+            onChange={handlePasswordChange}
+            value={password}
+            inputType="password"
+          ></Input>
+          <label className="mt-3 flex items-center gap-2 text-sm text-gray-700">
+            <input
+              type="checkbox"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+            />
+            로그인 정보 기억하기
+          </label>
+          <div className="m-4" />
+          <Button type="submit" disabled={isPending}>
+            {isPending ? "로그인 중..." : "로그인"}
+          </Button>
+        </form>
+      </div>
+      <Alert isOpen={isAlertOpen} message={alertMessage} onClose={handleAlertClose} />
+    </>
   );
 }
