@@ -20,6 +20,7 @@ import { useRequestDraftStore } from "@/store/useRequestDraftStore";
 import { DraftProvider, useDraftHydration } from "../components/DraftProvider";
 import LogoSpinner from "@/components/ui/LogoSpinner";
 import { useActiveRequestQuery } from "@/utils/hook/request/useActiveRequestQuery";
+import Alert from "@/components/ui/Modal/Alert";
 
 const initialStepStatus: StepStatus = STEP_KEYS.reduce((acc, key) => {
   acc[key] = false;
@@ -59,6 +60,15 @@ function RequestPageContent() {
   const [submittedData, setSubmittedData] = useState<RequestFormData | null>(null);
   const { data, isLoading, isError } = useActiveRequestQuery();
   const pendingRequest = data?.pendingRequest;
+
+  //  Alert 관련 상태
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
+  const handleAlertClose = () => {
+    setIsAlertOpen(false);
+    setAlertMessage("");
+  };
 
   if (isLoading) {
     return (
@@ -123,7 +133,7 @@ function RequestPageContent() {
       );
       setIsSubmissionSuccess(true);
     } catch (error) {
-      // ... 에러 처리 로직 유지 ...
+      // 에러 처리 로직
       let userMessage = "요청 처리 중 알 수 없는 오류가 발생했습니다.";
 
       if (isAxiosError(error) && error.response) {
@@ -135,10 +145,11 @@ function RequestPageContent() {
           console.error(`API 오류 [${status}]:`, error.response.data);
         }
       } else {
-        userMessage = "네트워크 연결 상태를 확인해 주세요.";
+        userMessage = "네트워크 연결 상태를 확인해주세요.";
       }
 
-      alert(userMessage);
+      setAlertMessage(userMessage);
+      setIsAlertOpen(true);
       throw error;
     }
   };
@@ -246,6 +257,12 @@ function RequestPageContent() {
           </div>
         </div>
       </div>
+      <Alert
+        isOpen={isAlertOpen}
+        message={alertMessage}
+        onClose={handleAlertClose}
+        className="my-4"
+      />
     </div>
   );
 }
