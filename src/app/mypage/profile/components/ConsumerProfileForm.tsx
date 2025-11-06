@@ -114,8 +114,9 @@ export default function ConsumerProfileForm() {
     }
 
     // 지역 변환 (백엔드 → 한글)
-    if (consumerProfile.areas) {
-      const areaKo = REVERSE_REGION_MAP[consumerProfile.areas];
+    if (consumerProfile.areas?.length) {
+      const firstArea = consumerProfile.areas[0];
+      const areaKo = REVERSE_REGION_MAP[firstArea];
       if (areaKo) setSelectedAreas([areaKo]);
     }
 
