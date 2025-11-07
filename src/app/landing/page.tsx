@@ -21,8 +21,14 @@ export default function Landing() {
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
+    let isScrolling = false;
+
     const handleScroll = (e: WheelEvent) => {
       e.preventDefault();
+
+      if (isScrolling) return;
+      isScrolling = true;
+
       if (e.deltaY > 0 && current === 0) {
         const top = (section2Ref.current?.offsetTop ?? 0) - 80;
         window.scrollTo({ top, behavior: "smooth" });
@@ -32,6 +38,10 @@ export default function Landing() {
         window.scrollTo({ top, behavior: "smooth" });
         setCurrent(0);
       }
+
+      setTimeout(() => {
+        isScrolling = false;
+      }, 200);
     };
 
     window.addEventListener("wheel", handleScroll, { passive: false });
@@ -40,7 +50,7 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-[#F4F7FB] outline-none">
-      <div className="flex min-h-screen flex-col items-center justify-between caret-transparent outline-none focus:ring-0">
+      <div className="flex min-h-screen flex-col items-center justify-between gap-20 caret-transparent outline-none focus:ring-0">
         <section
           ref={section1Ref}
           className="flex min-h-screen flex-col items-center justify-center bg-[#F4F7FB]"
@@ -157,20 +167,20 @@ export default function Landing() {
         </section>
         <section
           ref={section2Ref}
-          className="flex h-screen flex-col items-center justify-center bg-[#F4F7FB] pb-100"
+          className="flex min-h-screen flex-col items-center justify-center bg-[#F4F7FB] py-20"
         >
           <motion.p
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
             viewport={{ once: true }}
-            className="pt-16 pb-6 text-center font-[Pretendard] text-[24px] leading-[32px] font-semibold text-black md:pb-8 lg:pt-20 lg:text-[36px] lg:leading-[50px]"
+            className="pt-16 pb-6 text-center font-[Pretendard] text-[24px] leading-relaxed font-semibold text-black md:pb-8 lg:pt-20 lg:text-[36px] lg:leading-[50px]"
           >
             이사 과정을 영상으로 <br />
             간편하게 확인해보세요.
           </motion.p>
 
-          <div className="flex w-full justify-center px-4 md:px-0">
+          <div className="mt-8 flex w-full justify-center px-4 md:px-0">
             <div className="relative aspect-video w-[90vw] max-w-[1400px] overflow-hidden rounded-xl shadow-lg">
               <iframe
                 className="absolute top-0 left-0 h-full w-full"
