@@ -184,7 +184,7 @@ export default function Landing() {
             <div className="relative aspect-video w-[90vw] max-w-[1400px] overflow-hidden rounded-xl shadow-lg">
               <iframe
                 className="absolute top-0 left-0 h-full w-full"
-                src="https://www.youtube.com/embed/DdF-u3fe5pg?mute=0&controls=1&modestbranding=1"
+                src="https://www.youtube.com/embed/rvuPFGw_-fY?si=FIt1zIk5dMIGPOEH"
                 title="Moving Service Intro Video"
                 allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
               />
