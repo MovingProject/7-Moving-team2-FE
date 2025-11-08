@@ -125,6 +125,7 @@ BE Github : https://github.com/MovingProject/7-Moving-team2-BE
 
 ## **폴더 구조**
 
+```
 .
 ├── .DS_Store
 ├── .eslintignore
@@ -234,13 +235,9 @@ BE Github : https://github.com/MovingProject/7-Moving-team2-BE
 
 ```
 
----
-
 ## **배포 주소**
 
 https://7-moving-team2-fe.vercel.app/
-
----
 
 ## **프로젝트 회고**
 
@@ -251,4 +248,3 @@ https://www.notion.so/26210fb7efeb80278848d8dc5aed615d?v=26210fb7efeb815bb8ee000
 ### 발표 자료
 
 https://drive.google.com/drive/folders/1wIOyfBCJHlj5GlY1ZCT5cjAy5s_9Fkt3
-```
